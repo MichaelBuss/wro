@@ -1,0 +1,20 @@
+{
+  "projectName": "wro",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "addOnOptions": {},
+  "git": true,
+  "version": 1,
+  "framework": "solid",
+  "chosenAddOns": [
+    "eslint",
+    "nitro",
+    "start",
+    "form",
+    "solid-ui",
+    "t3env",
+    "tanstack-query"
+  ]
+}
