@@ -16,7 +16,14 @@ export default defineConfig({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        crawlLinks: true,
+        // Exclude /admin since it's a static Decap CMS app, not a TanStack route
+        filter: ({ path }) => !path.startsWith('/admin'),
+      },
+    }),
     solidPlugin({ ssr: true }),
   ],
 })

@@ -71,6 +71,19 @@ export default function Header() {
             <span class="font-medium">Home</span>
           </Link>
 
+          <Link
+            to="/blog"
+            onClick={() => setIsOpen(false)}
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+            activeProps={{
+              class:
+                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+            }}
+          >
+            <Layers size={20} />
+            <span class="font-medium">Blog</span>
+          </Link>
+
           {/* Demo Links Start */}
 
           <Link

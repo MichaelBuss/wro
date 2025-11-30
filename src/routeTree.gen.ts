@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as DemoFormRouteImport } from './routes/demo.form'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -29,6 +36,11 @@ const DemoFormRoute = DemoFormRouteImport.update({
   path: '/demo/form',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
   path: '/demo/start/server-funcs',
@@ -37,44 +49,62 @@ const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/blog': typeof BlogIndexRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/blog': typeof BlogIndexRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/blog/': typeof BlogIndexRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/blog'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/demo/form' | '/demo/tanstack-query' | '/demo/start/server-funcs'
+  to:
+    | '/'
+    | '/blog/$slug'
+    | '/demo/form'
+    | '/demo/tanstack-query'
+    | '/blog'
+    | '/demo/start/server-funcs'
   id:
     | '__root__'
     | '/'
+    | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/blog/'
     | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   DemoFormRoute: typeof DemoFormRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
 
@@ -85,6 +115,13 @@ declare module '@tanstack/solid-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -101,6 +138,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DemoFormRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
       path: '/demo/start/server-funcs'
@@ -113,8 +157,10 @@ declare module '@tanstack/solid-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BlogSlugRoute: BlogSlugRoute,
   DemoFormRoute: DemoFormRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  BlogIndexRoute: BlogIndexRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }
 export const routeTree = rootRouteImport
