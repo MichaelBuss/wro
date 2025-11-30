@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { For } from 'solid-js'
 import {
-  Zap,
-  Server,
   Route as RouteIcon,
+  Server,
   Shield,
-  Waves,
   Sparkles,
+  Waves,
+  Zap,
 } from 'lucide-solid'
 
 export const Route = createFileRoute('/')({ component: App })

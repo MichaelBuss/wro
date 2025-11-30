@@ -17,7 +17,7 @@ function App() {
     <div class="p-4">
       <h1 class="text-2xl mb-4">People list from Swapi</h1>
       <ul>
-        {peopleQuery.data?.map((person) => (
+        {peopleQuery.data.map((person) => (
           <li>{person.name}</li>
         ))}
       </ul>

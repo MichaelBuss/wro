@@ -1,4 +1,4 @@
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 import { createFileRoute, useRouter } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 

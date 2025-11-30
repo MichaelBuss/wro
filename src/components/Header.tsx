@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/solid-router'
 
-import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
 
 import { createSignal } from 'solid-js'
 import {
@@ -13,6 +12,7 @@ import {
   Menu,
   X,
 } from 'lucide-solid'
+import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
 
 export default function Header() {
   const [isOpen, setIsOpen] = createSignal(false)
