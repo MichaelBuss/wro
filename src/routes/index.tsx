@@ -8,6 +8,7 @@ import {
   Waves,
   Zap,
 } from 'lucide-solid'
+import { CONSTANTS } from '~/lib/constants'
 
 export const Route = createFileRoute('/')({ component: App })
 
@@ -15,37 +16,34 @@ function App() {
   const features = [
     {
       icon: <Zap class="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
-      description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
+      title: 'Hvad kan man vinde?',
+      description: `Hovedpremien er en fuldtbetalt rejse til WRO-verdensfinalen som i år afholdes i ${CONSTANTS.WORLD_FINAL_LOCATION}.`,
     },
     {
       icon: <Server class="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
+      title: 'Hvornår afholdes den danske finale?',
+      description: `Den danske finale afholdes ${CONSTANTS.DANISH_FINAL_DATE.toLocaleDateString('da-DK', { day: '2-digit', month: '2-digit', year: 'numeric' })} på ${CONSTANTS.DANISH_FINAL_LOCATION}.`,
     },
     {
       icon: <RouteIcon class="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
+      title: 'Hvad skal man bruge for at deltage?',
       description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
+        'Du skal bruge et robotsæt og byggematerialer. De fleste bruger LEGO EV3 eller Spike Prime. Se mere om hvilke materialer der er tilladte her: https://wro-association.org/competition/2025-season/',
     },
     {
       icon: <Shield class="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
-      description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
+      title: 'Hvad koster det at deltage?',
+      description: 'Man skal kun betale for en øve-bane',
     },
     {
       icon: <Waves class="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
+      title: 'Gode råd fra tidligere deltagere',
       description:
         'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
     },
     {
       icon: <Sparkles class="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
+      title: 'Andre online ressourcer',
       description:
         'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
     },
