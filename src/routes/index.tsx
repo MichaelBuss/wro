@@ -1,22 +1,11 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { For } from 'solid-js'
-import type {CarouselImage} from '~/components/HeroCarousel';
-import {  HeroCarousel } from '~/components/HeroCarousel'
+import { HeroCarousel } from '~/components/HeroCarousel'
 import { InfoTopicCard } from '~/components/InfoTopicCard'
+import { CAROUSEL_IMAGES } from '~/lib/images'
 import { INFO_TOPICS } from '~/lib/info-topics'
 
 export const Route = createFileRoute('/')({ component: HomePage })
-
-// Carousel images - stored in /public/images/carousel/
-const CAROUSEL_IMAGES: Array<CarouselImage> = [
-  { src: '/images/carousel/abu-dhabi-1.jpg', alt: 'WRO konkurrence i aktion' },
-  {
-    src: '/images/carousel/abu-dhabi-2.jpg',
-    alt: 'Robotbyggeri og programmering',
-  },
-  // { src: '/images/carousel/slide-3.webp', alt: 'Hold arbejder sammen' },
-  // { src: '/images/carousel/slide-4.webp', alt: 'Verdensfinalen' },
-]
 
 function HomePage() {
   return (

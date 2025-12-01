@@ -10,7 +10,8 @@
     "lint": "eslint",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
-    "start": "node .output/server/index.mjs"
+    "start": "node .output/server/index.mjs",
+    "images:generate": "tsx scripts/generate-images.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.1.1",
@@ -43,6 +44,8 @@
     "@tanstack/eslint-config": "^0.3.2",
     "@types/marked": "^5.0.2",
     "prettier": "^3.5.3",
+    "sharp": "^0.33.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vite-plugin-solid": "^2.11.10"
