@@ -9,6 +9,7 @@ import {
 import { CarouselNav } from './CarouselNav'
 import type { Accessor, JSX, ParentProps } from 'solid-js'
 import type { ObjectPosition } from '~/lib/images/alt-texts'
+import { cx } from '~/cva.config'
 
 export type { ObjectPosition }
 
@@ -83,7 +84,10 @@ export function Carousel(props: CarouselProps): JSX.Element {
 
   return (
     <section
-      class={`isolate grid grid-rows-fr-min h-[60vh] min-h-[400px] max-h-[700px] ${props.class ?? ''}`}
+      class={cx(
+        'isolate grid grid-rows-fr-min h-[60vh] min-h-[400px] max-h-[700px]',
+        props.class,
+      )}
     >
       {/* Slides - full bleed (both rows), base layer */}
       <div

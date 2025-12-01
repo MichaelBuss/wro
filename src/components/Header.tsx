@@ -4,6 +4,33 @@ import { For, createSignal } from 'solid-js'
 import { Home, Info, Layers, Menu, X } from 'lucide-solid'
 import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
 import { INFO_TOPICS } from '~/data/info-topics'
+import { cva } from '~/cva.config'
+
+const sidebarVariants = cva({
+  base: 'fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col',
+  variants: {
+    open: {
+      true: 'translate-x-0',
+      false: '-translate-x-full',
+    },
+  },
+  defaultVariants: {
+    open: false,
+  },
+})
+
+const chevronVariants = cva({
+  base: 'w-4 h-4 transition-transform',
+  variants: {
+    expanded: {
+      true: 'rotate-180',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    expanded: false,
+  },
+})
 
 export default function Header() {
   const [isOpen, setIsOpen] = createSignal(false)
@@ -26,11 +53,7 @@ export default function Header() {
         </h1>
       </header>
 
-      <aside
-        class={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen() ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
+      <aside class={sidebarVariants({ open: isOpen() })}>
         <div class="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 class="text-xl font-bold">Navigation</h2>
           <button
@@ -67,7 +90,7 @@ export default function Header() {
                 <span class="font-medium">Information</span>
               </div>
               <svg
-                class={`w-4 h-4 transition-transform ${infoExpanded() ? 'rotate-180' : ''}`}
+                class={chevronVariants({ expanded: infoExpanded() })}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

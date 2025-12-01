@@ -1,9 +1,23 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft, Check, ExternalLink } from 'lucide-solid'
 import { getInfoTopicByRoute } from '~/data/info-topics'
+import { cva } from '~/cva.config'
 
 export const Route = createFileRoute('/info/materials')({
   component: MaterialsPage,
+})
+
+const kitCardVariants = cva({
+  base: 'p-6 rounded-lg border',
+  variants: {
+    recommended: {
+      true: 'bg-cyan-500/10 border-cyan-500/30',
+      false: 'bg-slate-700/50 border-slate-600',
+    },
+  },
+  defaultVariants: {
+    recommended: false,
+  },
 })
 
 function MaterialsPage() {
@@ -64,13 +78,7 @@ function MaterialsPage() {
 
           <div class="grid gap-4 mb-8">
             {robotKits.map((kit) => (
-              <div
-                class={`p-6 rounded-lg border ${
-                  kit.recommended
-                    ? 'bg-cyan-500/10 border-cyan-500/30'
-                    : 'bg-slate-700/50 border-slate-600'
-                }`}
-              >
+              <div class={kitCardVariants({ recommended: kit.recommended })}>
                 <div class="flex items-start justify-between">
                   <div>
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">

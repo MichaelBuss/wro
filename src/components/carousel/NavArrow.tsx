@@ -1,6 +1,20 @@
 import type { JSX } from 'solid-js'
+import { cva, cx } from '~/cva.config'
 
 export type NavArrowDirection = 'prev' | 'next'
+
+const navArrowVariants = cva({
+  base: 'transition-opacity duration-200',
+  variants: {
+    disabled: {
+      true: 'text-white/20 cursor-not-allowed',
+      false: 'text-white/60 hover:text-white cursor-pointer',
+    },
+  },
+  defaultVariants: {
+    disabled: false,
+  },
+})
 
 interface NavArrowProps {
   direction: NavArrowDirection
@@ -26,13 +40,14 @@ export function NavArrow(props: NavArrowProps): JSX.Element {
       onClick={props.onClick}
       disabled={props.disabled}
       aria-label={arrowLabels[props.direction]}
-      class={`transition-opacity duration-200 ${props.class ?? ''} ${
-        props.disabled
-          ? 'text-white/20 cursor-not-allowed'
-          : 'text-white/60 hover:text-white cursor-pointer'
-      }`}
+      class={navArrowVariants({ disabled: props.disabled, class: props.class })}
     >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -43,4 +58,3 @@ export function NavArrow(props: NavArrowProps): JSX.Element {
     </button>
   )
 }
-
