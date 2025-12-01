@@ -11,6 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as InfoTipsRouteImport } from './routes/info.tips'
+import { Route as InfoResourcesRouteImport } from './routes/info.resources'
+import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
+import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
+import { Route as InfoDateRouteImport } from './routes/info.date'
+import { Route as InfoCostRouteImport } from './routes/info.cost'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as DemoFormRouteImport } from './routes/demo.form'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -24,6 +30,36 @@ const IndexRoute = IndexRouteImport.update({
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoTipsRoute = InfoTipsRouteImport.update({
+  id: '/info/tips',
+  path: '/info/tips',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoResourcesRoute = InfoResourcesRouteImport.update({
+  id: '/info/resources',
+  path: '/info/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoPrizesRoute = InfoPrizesRouteImport.update({
+  id: '/info/prizes',
+  path: '/info/prizes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoMaterialsRoute = InfoMaterialsRouteImport.update({
+  id: '/info/materials',
+  path: '/info/materials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoDateRoute = InfoDateRouteImport.update({
+  id: '/info/date',
+  path: '/info/date',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoCostRoute = InfoCostRouteImport.update({
+  id: '/info/cost',
+  path: '/info/cost',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -52,6 +88,12 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/info/cost': typeof InfoCostRoute
+  '/info/date': typeof InfoDateRoute
+  '/info/materials': typeof InfoMaterialsRoute
+  '/info/prizes': typeof InfoPrizesRoute
+  '/info/resources': typeof InfoResourcesRoute
+  '/info/tips': typeof InfoTipsRoute
   '/blog': typeof BlogIndexRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -60,6 +102,12 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/info/cost': typeof InfoCostRoute
+  '/info/date': typeof InfoDateRoute
+  '/info/materials': typeof InfoMaterialsRoute
+  '/info/prizes': typeof InfoPrizesRoute
+  '/info/resources': typeof InfoResourcesRoute
+  '/info/tips': typeof InfoTipsRoute
   '/blog': typeof BlogIndexRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -69,6 +117,12 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/info/cost': typeof InfoCostRoute
+  '/info/date': typeof InfoDateRoute
+  '/info/materials': typeof InfoMaterialsRoute
+  '/info/prizes': typeof InfoPrizesRoute
+  '/info/resources': typeof InfoResourcesRoute
+  '/info/tips': typeof InfoTipsRoute
   '/blog/': typeof BlogIndexRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -79,6 +133,12 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/info/cost'
+    | '/info/date'
+    | '/info/materials'
+    | '/info/prizes'
+    | '/info/resources'
+    | '/info/tips'
     | '/blog'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +147,12 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/info/cost'
+    | '/info/date'
+    | '/info/materials'
+    | '/info/prizes'
+    | '/info/resources'
+    | '/info/tips'
     | '/blog'
     | '/demo/start/server-funcs'
   id:
@@ -95,6 +161,12 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/info/cost'
+    | '/info/date'
+    | '/info/materials'
+    | '/info/prizes'
+    | '/info/resources'
+    | '/info/tips'
     | '/blog/'
     | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
@@ -104,6 +176,12 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   DemoFormRoute: typeof DemoFormRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  InfoCostRoute: typeof InfoCostRoute
+  InfoDateRoute: typeof InfoDateRoute
+  InfoMaterialsRoute: typeof InfoMaterialsRoute
+  InfoPrizesRoute: typeof InfoPrizesRoute
+  InfoResourcesRoute: typeof InfoResourcesRoute
+  InfoTipsRoute: typeof InfoTipsRoute
   BlogIndexRoute: typeof BlogIndexRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
@@ -122,6 +200,48 @@ declare module '@tanstack/solid-router' {
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/tips': {
+      id: '/info/tips'
+      path: '/info/tips'
+      fullPath: '/info/tips'
+      preLoaderRoute: typeof InfoTipsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/resources': {
+      id: '/info/resources'
+      path: '/info/resources'
+      fullPath: '/info/resources'
+      preLoaderRoute: typeof InfoResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/prizes': {
+      id: '/info/prizes'
+      path: '/info/prizes'
+      fullPath: '/info/prizes'
+      preLoaderRoute: typeof InfoPrizesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/materials': {
+      id: '/info/materials'
+      path: '/info/materials'
+      fullPath: '/info/materials'
+      preLoaderRoute: typeof InfoMaterialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/date': {
+      id: '/info/date'
+      path: '/info/date'
+      fullPath: '/info/date'
+      preLoaderRoute: typeof InfoDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/cost': {
+      id: '/info/cost'
+      path: '/info/cost'
+      fullPath: '/info/cost'
+      preLoaderRoute: typeof InfoCostRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -160,6 +280,12 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   DemoFormRoute: DemoFormRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  InfoCostRoute: InfoCostRoute,
+  InfoDateRoute: InfoDateRoute,
+  InfoMaterialsRoute: InfoMaterialsRoute,
+  InfoPrizesRoute: InfoPrizesRoute,
+  InfoResourcesRoute: InfoResourcesRoute,
+  InfoTipsRoute: InfoTipsRoute,
   BlogIndexRoute: BlogIndexRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }

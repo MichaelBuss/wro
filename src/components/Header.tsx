@@ -1,23 +1,13 @@
 import { Link } from '@tanstack/solid-router'
 
-import { createSignal } from 'solid-js'
-import {
-  ChevronDown,
-  ChevronRight,
-  Globe,
-  Home,
-  House,
-  Layers,
-  Menu,
-  X,
-} from 'lucide-solid'
+import { For, createSignal } from 'solid-js'
+import { Home, Info, Layers, Menu, X } from 'lucide-solid'
 import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
+import { INFO_TOPICS } from '~/lib/info-topics'
 
 export default function Header() {
   const [isOpen, setIsOpen] = createSignal(false)
-  const [groupedExpanded, setGroupedExpanded] = createSignal<
-    Record<string, boolean>
-  >({})
+  const [infoExpanded, setInfoExpanded] = createSignal(true)
 
   return (
     <>
@@ -63,8 +53,54 @@ export default function Header() {
             }}
           >
             <Home size={20} />
-            <span class="font-medium">Home</span>
+            <span class="font-medium">Forside</span>
           </Link>
+
+          {/* Info Topics Section */}
+          <div class="mb-2">
+            <button
+              onClick={() => setInfoExpanded(!infoExpanded())}
+              class="flex items-center justify-between w-full p-3 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              <div class="flex items-center gap-3">
+                <Info size={20} />
+                <span class="font-medium">Information</span>
+              </div>
+              <svg
+                class={`w-4 h-4 transition-transform ${infoExpanded() ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {infoExpanded() && (
+              <div class="ml-4 mt-1 space-y-1">
+                <For each={INFO_TOPICS}>
+                  {(topic) => (
+                    <Link
+                      to={topic.route}
+                      onClick={() => setIsOpen(false)}
+                      class="flex items-center gap-3 p-2 pl-4 rounded-lg hover:bg-gray-800 transition-colors text-sm text-gray-300 hover:text-white"
+                      activeProps={{
+                        class:
+                          'flex items-center gap-3 p-2 pl-4 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors text-sm text-white',
+                      }}
+                    >
+                      <span>{topic.shortTitle}</span>
+                    </Link>
+                  )}
+                </For>
+              </div>
+            )}
+          </div>
 
           <Link
             to="/blog"
@@ -78,49 +114,6 @@ export default function Header() {
             <Layers size={20} />
             <span class="font-medium">Blog</span>
           </Link>
-
-          {/* Demo Links Start */}
-
-          <Link
-            to="/demo/start/server-funcs"
-            onClick={() => setIsOpen(false)}
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              class:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Globe size={20} />
-            <span class="font-medium">Start - Server Functions</span>
-          </Link>
-
-          <Link
-            to="/demo/form"
-            onClick={() => setIsOpen(false)}
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              class:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Globe size={20} />
-            <span class="font-medium">Form</span>
-          </Link>
-
-          <Link
-            to="/demo/tanstack-query"
-            onClick={() => setIsOpen(false)}
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              class:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Globe size={20} />
-            <span class="font-medium">TanStack Query</span>
-          </Link>
-
-          {/* Demo Links End */}
         </nav>
 
         <div class="p-4 border-t border-gray-700 bg-gray-800 flex flex-col gap-2">
