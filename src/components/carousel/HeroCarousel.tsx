@@ -1,15 +1,13 @@
-import { For } from 'solid-js'
+import { For, type JSX, type ParentProps } from 'solid-js'
 import { CarouselArrow } from './CarouselArrow'
-import type { JSX } from 'solid-js'
 
 export interface CarouselImage {
   src: string
   alt: string
 }
 
-interface HeroCarouselProps {
+interface HeroCarouselProps extends ParentProps {
   images: Array<CarouselImage>
-  children?: JSX.Element
 }
 
 export function HeroCarousel(props: HeroCarouselProps): JSX.Element {
@@ -85,15 +83,12 @@ export function HeroCarousel(props: HeroCarouselProps): JSX.Element {
         onClick={() => scrollCarousel('right')}
       />
 
-      {/* Content overlay */}
-      {props.children && (
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div class="text-center px-6 pointer-events-auto">
-            {props.children}
-          </div>
+      {/* Content overlay - always rendered */}
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div class="text-center px-6 pointer-events-auto">
+          {props.children}
         </div>
-      )}
+      </div>
     </section>
   )
 }
-
