@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/solid-router'
+import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft } from 'lucide-solid'
 import { CONSTANTS } from '~/lib/constants'
 import { getInfoTopicByRoute } from '~/lib/info-topics'
