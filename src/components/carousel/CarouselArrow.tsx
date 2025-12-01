@@ -5,6 +5,7 @@ export type CarouselArrowDirection = 'left' | 'right'
 interface CarouselArrowProps {
   direction: CarouselArrowDirection
   onClick: () => void
+  disabled?: boolean
   class?: string
 }
 
@@ -28,8 +29,13 @@ export function CarouselArrow(props: CarouselArrowProps): JSX.Element {
     <button
       type="button"
       onClick={props.onClick}
+      disabled={props.disabled}
       aria-label={arrowLabels[props.direction]}
-      class={`absolute top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 hover:text-white transition-all cursor-pointer ${positionClasses[props.direction]} ${props.class ?? ''}`}
+      class={`absolute top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center transition-all ${positionClasses[props.direction]} ${props.class ?? ''} ${
+        props.disabled
+          ? 'bg-black/20 text-white/30 cursor-not-allowed'
+          : 'bg-black/40 text-white/80 hover:bg-black/60 hover:text-white cursor-pointer'
+      }`}
     >
       <svg
         class="w-6 h-6"
@@ -47,4 +53,3 @@ export function CarouselArrow(props: CarouselArrowProps): JSX.Element {
     </button>
   )
 }
-

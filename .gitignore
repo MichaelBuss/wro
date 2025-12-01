@@ -7,3 +7,6 @@ dist-ssr
 .nitro
 .tanstack
 .wrangler
+
+# Generated images (regenerate with: npm run images:generate)
+public/images/
