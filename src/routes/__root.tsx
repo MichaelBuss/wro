@@ -15,7 +15,10 @@ import styleCss from '../styles.css?url'
 
 export const Route = createRootRouteWithContext()({
   head: () => ({
-    links: [{ rel: 'stylesheet', href: styleCss }],
+    links: [
+      { rel: 'stylesheet', href: styleCss },
+      { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+    ],
   }),
   shellComponent: RootComponent,
   notFoundComponent: NotFound,

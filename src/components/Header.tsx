@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/solid-router'
 
-
 import { createSignal } from 'solid-js'
 import {
   ChevronDown,
@@ -22,7 +21,7 @@ export default function Header() {
 
   return (
     <>
-      <header class="p-4 flex items-center bg-gray-800 text-white shadow-lg">
+      <header class="p-4 flex items-center bg-wro-blue-950 text-white shadow-lg">
         <button
           onClick={() => setIsOpen(true)}
           class="p-2 hover:bg-gray-700 rounded-lg transition-colors"
@@ -32,11 +31,7 @@ export default function Header() {
         </button>
         <h1 class="ml-4 text-xl font-semibold">
           <Link to="/">
-            <img
-              src="/tanstack-word-logo-white.svg"
-              alt="TanStack Logo"
-              class="h-10"
-            />
+            <img src="/wro-logo.webp" alt="WRO Logo" class="h-10" />
           </Link>
         </h1>
       </header>

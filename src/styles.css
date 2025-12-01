@@ -19,7 +19,20 @@ code {
 }
 
 :root {
-  --background: oklch(1 0 0);
+  /* wro-blue color scale - hue 294.52 (violet-blue) */
+  --wro-blue-50: oklch(0.97 0.015 294.52);
+  --wro-blue-100: oklch(0.94 0.028 294.52);
+  --wro-blue-200: oklch(0.88 0.05 294.52);
+  --wro-blue-300: oklch(0.79 0.085 294.52);
+  --wro-blue-400: oklch(0.68 0.12 294.52);
+  --wro-blue-500: oklch(0.56 0.14 294.52);
+  --wro-blue-600: oklch(0.46 0.13 294.52);
+  --wro-blue-700: oklch(0.36 0.105 294.52);
+  --wro-blue-800: oklch(0.28 0.075 294.52);
+  --wro-blue-900: oklch(0.22 0.055 294.52);
+  --wro-blue-950: oklch(0.1934 0.0437 294.52);
+
+  --background: var(--wro-blue-950);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
@@ -55,7 +68,7 @@ code {
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
+  --background: var(--wro-blue-950);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.141 0.005 285.823);
   --card-foreground: oklch(0.985 0 0);
@@ -90,6 +103,19 @@ code {
 }
 
 @theme inline {
+  /* wro-blue palette */
+  --color-wro-blue-50: var(--wro-blue-50);
+  --color-wro-blue-100: var(--wro-blue-100);
+  --color-wro-blue-200: var(--wro-blue-200);
+  --color-wro-blue-300: var(--wro-blue-300);
+  --color-wro-blue-400: var(--wro-blue-400);
+  --color-wro-blue-500: var(--wro-blue-500);
+  --color-wro-blue-600: var(--wro-blue-600);
+  --color-wro-blue-700: var(--wro-blue-700);
+  --color-wro-blue-800: var(--wro-blue-800);
+  --color-wro-blue-900: var(--wro-blue-900);
+  --color-wro-blue-950: var(--wro-blue-950);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

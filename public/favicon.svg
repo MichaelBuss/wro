@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>favicon</title>
+    <g id="favicon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle" stroke="#000000" fill="#D32D7D" x="0.5" y="12.5" width="4" height="7" rx="2"></rect>
+        <rect id="Rectangle-Copy" stroke="#000000" fill="#D32D7D" x="27.5" y="12.5" width="4" height="7" rx="2"></rect>
+        <rect id="Rectangle" stroke="#000000" fill="#469DDD" x="3.5" y="6.5" width="25" height="20" rx="7"></rect>
+        <line x1="29.4999" y1="12.5" x2="29.4999" y2="7.5" id="Line" stroke="#000000" stroke-linecap="square"></line>
+        <line x1="2.5" y1="12.5" x2="2.5" y2="7.5" id="Line-Copy" stroke="#000000" stroke-linecap="square"></line>
+        <circle id="Oval" stroke="#000000" fill="#D32D7D" cx="29.5" cy="6" r="1.5"></circle>
+        <circle id="Oval-Copy" stroke="#000000" fill="#D32D7D" cx="2.5" cy="6" r="1.5"></circle>
+        <rect id="Rectangle" stroke="#000000" fill="#E4EEF6" x="7.5" y="10.5" width="17" height="12" rx="4"></rect>
+        <path d="M13.5,18 C14.1666667,18.6666667 15,19 16,19 C17,19 17.8333333,18.6666667 18.5,18" id="Line-2" stroke="#000000" stroke-linecap="round"></path>
+        <line x1="19.4999" y1="15" x2="19.4999" y2="16" id="Line-3" stroke="#000000" stroke-linecap="round"></line>
+        <line x1="12.5" y1="15" x2="12.5" y2="16" id="Line-3-Copy" stroke="#000000" stroke-linecap="round"></line>
+    </g>
+</svg>

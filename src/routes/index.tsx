@@ -38,14 +38,13 @@ function App() {
     {
       icon: <Waves class="w-12 h-12 text-cyan-400" />,
       title: 'Gode råd fra tidligere deltagere',
-      description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
+      description: 'Hør hvad andre deltagere har at sige om at deltage i WRO.',
     },
     {
       icon: <Sparkles class="w-12 h-12 text-cyan-400" />,
       title: 'Andre online ressourcer',
       description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
+        'Find links til andre ressourcer om WRO, robot-byggeri, programmering og mere.',
     },
   ]
 
