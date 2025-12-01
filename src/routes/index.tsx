@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { For } from 'solid-js'
-import { HeroCarousel } from '~/components/carousel'
+import { Carousel } from '~/components/carousel'
 import { InfoTopicCard } from '~/components/InfoTopicCard'
 import { CAROUSEL_IMAGES } from '~/lib/images'
 import { INFO_TOPICS } from '~/data/info-topics'
@@ -10,9 +10,9 @@ export const Route = createFileRoute('/')({ component: HomePage })
 function HomePage() {
   return (
     <div class="min-h-screen bg-linear-to-b from-slate-900 via-slate-800 to-slate-900">
-      <HeroCarousel images={CAROUSEL_IMAGES}>
+      <Carousel images={CAROUSEL_IMAGES}>
         <HeroContent />
-      </HeroCarousel>
+      </Carousel>
 
       <section class="py-16 px-6 max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

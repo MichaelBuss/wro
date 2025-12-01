@@ -171,3 +171,16 @@ code {
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
+
+/* Grid row utilities for common layout patterns */
+@utility grid-rows-min-fr {
+  grid-template-rows: min-content minmax(0, 1fr);
+}
+
+@utility grid-rows-min-fr-min {
+  grid-template-rows: min-content minmax(0, 1fr) min-content;
+}
+
+@utility grid-rows-fr-min {
+  grid-template-rows: minmax(0, 1fr) min-content;
+}

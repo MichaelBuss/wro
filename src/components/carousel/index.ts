@@ -1,3 +1,2 @@
-export { CarouselArrow, type CarouselArrowDirection } from './CarouselArrow'
-export { HeroCarousel, type CarouselImage } from './HeroCarousel'
-
+export { Carousel } from './Carousel'
+export type { CarouselImage, ObjectPosition } from './Carousel'
