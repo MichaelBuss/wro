@@ -1,8 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { For } from 'solid-js'
 import { ArrowLeft, Calendar, Clock, MapPin } from 'lucide-solid'
-import { CONSTANTS, DANISH_FINAL_SCHEDULE } from '~/lib/constants'
-import { getInfoTopicByRoute } from '~/lib/info-topics'
+import { CONSTANTS, DANISH_FINAL_SCHEDULE } from '~/data/constants'
+import { getInfoTopicByRoute } from '~/data/info-topics'
 
 export const Route = createFileRoute('/info/date')({ component: DatePage })
 

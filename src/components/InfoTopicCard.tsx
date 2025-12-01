@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/solid-router'
-import type { InfoTopic } from '~/lib/info-topics'
+import type { InfoTopic } from '~/data/info-topics'
 
 interface InfoTopicCardProps {
   topic: InfoTopic

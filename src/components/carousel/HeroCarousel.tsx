@@ -96,3 +96,4 @@ export function HeroCarousel(props: HeroCarouselProps): JSX.Element {
     </section>
   )
 }
+

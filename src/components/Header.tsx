@@ -3,7 +3,7 @@ import { Link } from '@tanstack/solid-router'
 import { For, createSignal } from 'solid-js'
 import { Home, Info, Layers, Menu, X } from 'lucide-solid'
 import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
-import { INFO_TOPICS } from '~/lib/info-topics'
+import { INFO_TOPICS } from '~/data/info-topics'
 
 export default function Header() {
   const [isOpen, setIsOpen] = createSignal(false)

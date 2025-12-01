@@ -37,3 +37,4 @@ export const DANISH_FINAL_SCHEDULE = [
     description: 'Vindere kåres og præmier uddeles',
   },
 ] as const
+

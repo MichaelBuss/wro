@@ -47,3 +47,4 @@ export function CarouselArrow(props: CarouselArrowProps): JSX.Element {
     </button>
   )
 }
+

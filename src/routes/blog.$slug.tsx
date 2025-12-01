@@ -1,8 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { Show } from 'solid-js'
-import type { BlogPost } from '~/lib/content.server'
-import { getBlogPost, getBlogSlugs } from '~/lib/content.server'
+import type { BlogPost } from '~/server/content'
+import { getBlogPost, getBlogSlugs } from '~/server/content'
 
 const getPost = createServerFn({
   method: 'GET',

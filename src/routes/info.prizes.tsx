@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft } from 'lucide-solid'
-import { CONSTANTS } from '~/lib/constants'
-import { getInfoTopicByRoute } from '~/lib/info-topics'
+import { CONSTANTS } from '~/data/constants'
+import { getInfoTopicByRoute } from '~/data/info-topics'
 
 export const Route = createFileRoute('/info/prizes')({ component: PrizesPage })
 

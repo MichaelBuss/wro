@@ -1,4 +1,4 @@
-import type { CarouselImage } from '~/components/HeroCarousel'
+import type { CarouselImage } from '~/components/carousel'
 import { ALT_TEXTS } from './alt-texts'
 import { IMAGE_FOLDERS } from './manifest.generated'
 

@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft, Check } from 'lucide-solid'
-import { getInfoTopicByRoute } from '~/lib/info-topics'
+import { getInfoTopicByRoute } from '~/data/info-topics'
 
 export const Route = createFileRoute('/info/cost')({ component: CostPage })
 

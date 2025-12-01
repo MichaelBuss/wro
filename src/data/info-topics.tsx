@@ -79,3 +79,4 @@ export function getInfoTopicByRoute(route: InfoRoute): InfoTopic {
   }
   return topic
 }
+
