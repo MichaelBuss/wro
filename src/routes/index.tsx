@@ -10,7 +10,7 @@ export const Route = createFileRoute('/')({ component: HomePage })
 function HomePage() {
   return (
     <div class="min-h-screen bg-linear-to-b from-slate-900 via-slate-800 to-slate-900">
-      <Carousel images={CAROUSEL_IMAGES}>
+      <Carousel tint="cool" images={CAROUSEL_IMAGES}>
         <HeroContent />
       </Carousel>
 

@@ -12,6 +12,17 @@ import type { ObjectPosition } from '~/lib/images/alt-texts'
 
 export type { ObjectPosition }
 
+/** Named tint options for the carousel */
+export type CarouselTint = 'cool' | 'warm' | 'sepia' | 'cyan' | 'none'
+
+const TINT_COLORS: Record<CarouselTint, string | undefined> = {
+  cool: 'oklch(60% 0.15 250 / 0.3)', // blue
+  warm: 'oklch(70% 0.18 50 / 0.25)', // orange
+  sepia: 'oklch(65% 0.08 70 / 0.35)', // vintage brown
+  cyan: 'oklch(75% 0.14 195 / 0.25)', // cyan
+  none: undefined,
+}
+
 export interface CarouselImage {
   src: string
   srcset?: string
@@ -25,8 +36,8 @@ interface CarouselProps extends ParentProps {
   images: Array<CarouselImage>
   /** Optional class for the carousel container */
   class?: string
-  /** Optional color tint overlay (any CSS color value) */
-  tint?: string
+  /** Optional color tint overlay */
+  tint?: CarouselTint
 }
 
 export function Carousel(props: CarouselProps): JSX.Element {
@@ -96,16 +107,15 @@ export function Carousel(props: CarouselProps): JSX.Element {
                 style={{ 'object-position': image.objectPosition ?? 'center' }}
               />
               {/* Color tint overlay */}
-              <Show when={props.tint}>
+              <Show when={props.tint && TINT_COLORS[props.tint]}>
                 <div
                   class="absolute inset-0"
                   style={{
-                    'background-color': props.tint,
+                    'background-color': TINT_COLORS[props.tint!],
                     'mix-blend-mode': 'color',
                   }}
                 />
               </Show>
-              {/* Dark overlay for readability - always render to avoid hydration mismatch */}
               <div class="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/60 to-transparent" />
             </div>
           )}
