@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft, Book, Code, ExternalLink, Users, Video } from 'lucide-solid'
+import { For } from "solid-js";
 import { getInfoTopicByRoute } from '~/data/info-topics'
 
 export const Route = createFileRoute('/info/resources')({
@@ -127,7 +128,7 @@ function ResourcesPage() {
         <p class="text-xl text-gray-300 mb-8">{topic.description}</p>
 
         <div class="space-y-8">
-          {resourceCategories.map((category) => (
+          <For each={resourceCategories}>{(category) => (
             <div class="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div class="flex items-center gap-3 mb-6">
                 {category.icon}
@@ -137,7 +138,7 @@ function ResourcesPage() {
               </div>
 
               <div class="grid gap-4">
-                {category.resources.map((resource) => (
+                <For each={category.resources}>{(resource) => (
                   <a
                     href={resource.url}
                     target="_blank"
@@ -159,10 +160,10 @@ function ResourcesPage() {
                       </div>
                     </div>
                   </a>
-                ))}
+                )}</For>
               </div>
             </div>
-          ))}
+          )}</For>
         </div>
 
         <div class="mt-8 p-6 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">

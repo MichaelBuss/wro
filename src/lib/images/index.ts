@@ -1,7 +1,7 @@
-import { IMAGE_META } from './alt-texts'
-import { IMAGE_FOLDERS, IMAGE_WIDTHS } from './manifest.generated'
-import type { ObjectPosition } from './alt-texts'
 import type { CarouselImage } from '~/components/carousel'
+import { IMAGE_META } from './alt-texts'
+import type { ObjectPosition } from './alt-texts'
+import { IMAGE_FOLDERS, IMAGE_WIDTHS } from './manifest.generated'
 
 /**
  * Build the srcset string for a responsive image.
@@ -28,7 +28,7 @@ function getDefaultSrc(folder: string, filename: string): string {
  */
 function buildImageArray<T extends keyof typeof IMAGE_FOLDERS>(
   folder: T,
-  sizes: string = '100vw',
+  sizes = '100vw',
 ): Array<CarouselImage> {
   const filenames = IMAGE_FOLDERS[folder]
   const meta = IMAGE_META[folder] as Record<

@@ -6,10 +6,10 @@ import {
   onCleanup,
   onMount,
 } from 'solid-js'
-import { CarouselNav } from './CarouselNav'
 import type { Accessor, JSX, ParentProps } from 'solid-js'
-import type { ObjectPosition } from '~/lib/images/alt-texts'
 import { cx } from '~/cva.config'
+import type { ObjectPosition } from '~/lib/images/alt-texts'
+import { CarouselNav } from './CarouselNav'
 
 export type { ObjectPosition }
 

@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
-
 import type { JSX } from 'solid-js'
 
 const queryClient = new QueryClient()

@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/solid-router'
 import { For } from 'solid-js'
 import { Carousel } from '~/components/carousel'
 import { InfoTopicCard } from '~/components/InfoTopicCard'
-import { CAROUSEL_IMAGES } from '~/lib/images'
 import { INFO_TOPICS } from '~/data/info-topics'
+import { CAROUSEL_IMAGES } from '~/lib/images'
 
 export const Route = createFileRoute('/')({ component: HomePage })
 

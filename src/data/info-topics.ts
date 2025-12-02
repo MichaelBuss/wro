@@ -6,9 +6,9 @@ import {
   PiggyBank,
   Trophy,
 } from 'lucide-solid'
-import { CONSTANTS } from './constants'
 import type { Component } from 'solid-js'
 import type { FileRoutesByFullPath } from '~/routeTree.gen'
+import { CONSTANTS } from './constants'
 
 // Derive InfoRoute from the router's generated types - only /info/* routes
 type AllRoutes = keyof FileRoutesByFullPath

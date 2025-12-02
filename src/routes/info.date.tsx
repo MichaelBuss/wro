@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
-import { For } from 'solid-js'
 import { ArrowLeft, Calendar, Clock, MapPin } from 'lucide-solid'
+import { For } from 'solid-js'
 import { CONSTANTS, DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { getInfoTopicByRoute } from '~/data/info-topics'
 

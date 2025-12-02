@@ -1,7 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft, Check, ExternalLink } from 'lucide-solid'
-import { getInfoTopicByRoute } from '~/data/info-topics'
+import { For } from "solid-js";
 import { cva } from '~/cva.config'
+import { getInfoTopicByRoute } from '~/data/info-topics'
 
 export const Route = createFileRoute('/info/materials')({
   component: MaterialsPage,
@@ -77,7 +78,7 @@ function MaterialsPage() {
           </h2>
 
           <div class="grid gap-4 mb-8">
-            {robotKits.map((kit) => (
+            <For each={robotKits}>{(kit) => (
               <div class={kitCardVariants({ recommended: kit.recommended })}>
                 <div class="flex items-start justify-between">
                   <div>
@@ -93,7 +94,7 @@ function MaterialsPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            )}</For>
           </div>
 
           <h2 class="text-2xl font-semibold text-white mb-6">
@@ -101,17 +102,17 @@ function MaterialsPage() {
           </h2>
 
           <div class="space-y-3 mb-8">
-            {[
+            <For each={[
               'Øvebane til træning (kan købes eller laves selv)',
               'Computer til programmering',
               'Ekstra LEGO-klodser til at bygge robotten',
               'Tid og tålmodighed til at øve!',
-            ].map((item) => (
+            ]}>{(item) => (
               <div class="flex items-center gap-3 text-gray-300">
                 <Check class="w-5 h-5 text-green-400 flex-shrink-0" />
                 <span>{item}</span>
               </div>
-            ))}
+            )}</For>
           </div>
 
           <div class="p-6 bg-slate-700/50 rounded-lg">

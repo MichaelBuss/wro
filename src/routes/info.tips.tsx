@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft, Quote } from 'lucide-solid'
+import { For } from "solid-js";
 import { getInfoTopicByRoute } from '~/data/info-topics'
 
 export const Route = createFileRoute('/info/tips')({ component: TipsPage })
@@ -93,7 +94,7 @@ function TipsPage() {
           </h2>
 
           <div class="grid gap-6">
-            {tips.map((tip) => (
+            <For each={tips}>{(tip) => (
               <div class="p-6 bg-slate-700/50 rounded-lg border-l-4 border-cyan-500">
                 <div class="flex gap-3">
                   <Quote class="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
@@ -108,7 +109,7 @@ function TipsPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            )}</For>
           </div>
         </div>
 

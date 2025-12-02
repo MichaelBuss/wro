@@ -1,7 +1,7 @@
 import { For } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { NavArrow } from './NavArrow'
 import { NavDot } from './NavDot'
-import type { JSX } from 'solid-js'
 
 interface CarouselNavProps {
   totalSlides: number

@@ -1,8 +1,7 @@
-import { createFileRoute } from '@tanstack/solid-router'
 import { createForm } from '@tanstack/solid-form'
-
-import type { JSX } from 'solid-js/jsx-runtime'
 import type { ValidationError } from '@tanstack/solid-form'
+import { createFileRoute } from '@tanstack/solid-router'
+import type { JSX } from 'solid-js/jsx-runtime'
 
 export const Route = createFileRoute('/demo/form')({
   component: FormExample,

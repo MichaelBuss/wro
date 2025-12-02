@@ -1,10 +1,9 @@
 import { Link } from '@tanstack/solid-router'
-
-import { For, createSignal } from 'solid-js'
 import { Home, Info, Layers, Menu, X } from 'lucide-solid'
-import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
-import { INFO_TOPICS } from '~/data/info-topics'
+import { For, createSignal } from 'solid-js'
 import { cva } from '~/cva.config'
+import { INFO_TOPICS } from '~/data/info-topics'
+import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
 
 const sidebarVariants = cva({
   base: 'fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col',
