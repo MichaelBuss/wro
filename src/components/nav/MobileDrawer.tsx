@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/solid-router'
 import { BookOpen, Home, X } from 'lucide-solid'
 import type { ParentProps } from 'solid-js'
-import { For, createEffect } from 'solid-js'
+import { For, onMount } from 'solid-js'
 import { cva, cx } from '~/cva.config'
 import { INFO_TOPICS } from '~/data/info-topics'
 
@@ -16,11 +16,6 @@ const mobileNavLink = cva({
   },
   defaultVariants: { active: false },
 })
-
-interface MobileDrawerProps {
-  open: boolean
-  onClose: () => void
-}
 
 // Panel classes as array for readability
 const panelClasses = [
@@ -42,62 +37,66 @@ const panelClasses = [
   'starting:translate-x-full',
 ]
 
+// Dialog classes as array - using Tailwind's backdrop: and starting: variants
+const dialogClasses = [
+  'fixed',
+  'inset-0',
+  'm-0',
+  'p-0',
+  'w-full',
+  'h-full',
+  'max-w-none',
+  'max-h-none',
+  'bg-transparent',
+  // Backdrop styles
+  'backdrop:bg-black/40',
+  'backdrop:backdrop-blur-sm',
+  'backdrop:transition-all',
+  'backdrop:duration-300',
+  // Backdrop entry animation
+  'starting:backdrop:bg-black/0',
+  'starting:backdrop:backdrop-blur-0',
+]
+
+/** Dialog ID for invoker commands */
+export const MOBILE_DRAWER_ID = 'mobile-drawer'
+
+/** Close the mobile drawer (for use in nav links) */
+const closeDrawer = () => {
+  document.getElementById(MOBILE_DRAWER_ID)?.closest('dialog')?.close()
+}
+
 /**
- * Mobile navigation drawer using native <dialog>.
+ * Mobile navigation drawer using native <dialog> with modern features:
  *
- * Benefits of native dialog:
- * - Focus trapping (prevents tabbing outside)
- * - Escape key closes automatically
- * - ::backdrop pseudo-element for overlay
- * - Proper accessibility semantics
- * - Inert attribute on background content
+ * - Invoker Commands (Chrome 135): Open/close declaratively with commandfor/command
+ * - Dialog Light Dismiss (Chrome 134): closedby="any" for click-outside-to-close
+ * - No JavaScript state syncing needed!
+ *
+ * @see https://chrome.dev/css-wrapped-2025/#invoker-commands
+ * @see https://chrome.dev/css-wrapped-2025/#dialog-light-dismiss
  */
-export function MobileDrawer(props: MobileDrawerProps) {
+export function MobileDrawer() {
   let dialogRef: HTMLDialogElement | undefined
 
-  // Sync dialog state with props
-  createEffect(() => {
-    if (!dialogRef) return
-
-    if (props.open && !dialogRef.open) {
-      dialogRef.showModal()
-    } else if (!props.open && dialogRef.open) {
-      dialogRef.close()
+  // Set closedby attribute (not in JSX types yet)
+  onMount(() => {
+    if (dialogRef) {
+      dialogRef.setAttribute('closedby', 'any')
     }
   })
 
-  // Handle native close events (Escape key, form submission)
-  const handleClose = () => {
-    props.onClose()
-  }
-
-  // Handle backdrop click - dialog click events bubble from ::backdrop
+  // Fallback backdrop click handler (for browsers without closedby="any")
   const handleClick = (e: MouseEvent) => {
-    // Only close if clicking directly on dialog (the backdrop area)
     if (e.target === dialogRef) {
-      props.onClose()
+      dialogRef.close()
     }
   }
-
-  // Dialog classes as array
-  const dialogClasses = [
-    'fixed',
-    'inset-0',
-    'm-0',
-    'p-0',
-    'w-full',
-    'h-full',
-    'max-w-none',
-    'max-h-none',
-    'bg-transparent',
-    'backdrop:bg-black/40',
-    'backdrop:backdrop-blur-sm',
-  ]
 
   return (
     <dialog
       ref={dialogRef}
-      onClose={handleClose}
+      id={MOBILE_DRAWER_ID}
       onClick={handleClick}
       class={cx(dialogClasses)}
     >
@@ -105,8 +104,10 @@ export function MobileDrawer(props: MobileDrawerProps) {
         {/* Header */}
         <div class="flex items-center justify-between p-4 border-b border-white/10">
           <span class="text-white/90 font-medium">Navigation</span>
+          {/* Close button using Invoker Commands */}
           <button
-            onClick={props.onClose}
+            commandfor={MOBILE_DRAWER_ID}
+            command="close"
             class="p-2 -mr-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
             aria-label="Luk menu"
           >
@@ -118,7 +119,7 @@ export function MobileDrawer(props: MobileDrawerProps) {
         <nav class="flex-1 py-4 overflow-y-auto">
           <Link
             to="/"
-            onClick={props.onClose}
+            onClick={closeDrawer}
             class={mobileNavLink({ active: false })}
             activeProps={{ class: mobileNavLink({ active: true }) }}
             activeOptions={{ exact: true }}
@@ -132,7 +133,7 @@ export function MobileDrawer(props: MobileDrawerProps) {
               {(topic) => (
                 <Link
                   to={topic.route}
-                  onClick={props.onClose}
+                  onClick={closeDrawer}
                   class={mobileNavLink({ active: false })}
                   activeProps={{ class: mobileNavLink({ active: true }) }}
                 >
@@ -146,7 +147,7 @@ export function MobileDrawer(props: MobileDrawerProps) {
           <MobileNavSection title="Mere">
             <Link
               to="/blog"
-              onClick={props.onClose}
+              onClick={closeDrawer}
               class={mobileNavLink({ active: false })}
               activeProps={{ class: mobileNavLink({ active: true }) }}
             >

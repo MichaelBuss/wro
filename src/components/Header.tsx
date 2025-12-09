@@ -1,10 +1,22 @@
 import { Menu } from 'lucide-solid'
-import { createSignal } from 'solid-js'
-import { ExternalLink, Logo, MobileDrawer, NavDropdown, NavLink } from './nav'
+import {
+  ExternalLink,
+  Logo,
+  MOBILE_DRAWER_ID,
+  MobileDrawer,
+  NavDropdown,
+  NavLink,
+} from './nav'
 
+/**
+ * Site header with responsive navigation.
+ *
+ * Uses modern web platform features:
+ * - Invoker Commands for declarative dialog control (no state management!)
+ * - Popover API for dropdown menus
+ * - CSS Anchor Positioning for precise placement
+ */
 export default function Header() {
-  const [mobileOpen, setMobileOpen] = createSignal(false)
-
   return (
     <>
       <header class="sticky top-0 z-40 w-full">
@@ -29,10 +41,11 @@ export default function Header() {
               <ExternalLink href="https://wro.dk">wro.dk ↗</ExternalLink>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - uses Invoker Commands! */}
             <button
+              commandfor={MOBILE_DRAWER_ID}
+              command="show-modal"
               class="md:hidden p-2 -mr-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              onClick={() => setMobileOpen(true)}
               aria-label="Åbn menu"
             >
               <Menu size={22} />
@@ -41,7 +54,7 @@ export default function Header() {
         </nav>
       </header>
 
-      <MobileDrawer open={mobileOpen()} onClose={() => setMobileOpen(false)} />
+      <MobileDrawer />
     </>
   )
 }
