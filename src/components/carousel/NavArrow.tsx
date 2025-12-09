@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { cva, cx } from '~/cva.config'
+import { cva } from '~/cva.config'
 
 export type NavArrowDirection = 'prev' | 'next'
 

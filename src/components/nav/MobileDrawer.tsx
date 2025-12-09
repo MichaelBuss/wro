@@ -1,0 +1,187 @@
+import { Link } from '@tanstack/solid-router'
+import { BookOpen, Home, X } from 'lucide-solid'
+import type { ParentProps } from 'solid-js'
+import { For, createEffect } from 'solid-js'
+import { cva, cx } from '~/cva.config'
+import { INFO_TOPICS } from '~/data/info-topics'
+
+// Mobile nav link styles
+const mobileNavLink = cva({
+  base: 'flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors rounded-lg mx-2',
+  variants: {
+    active: {
+      true: 'text-white bg-white/10',
+      false: '',
+    },
+  },
+  defaultVariants: { active: false },
+})
+
+interface MobileDrawerProps {
+  open: boolean
+  onClose: () => void
+}
+
+// Panel classes as array for readability
+const panelClasses = [
+  'ml-auto',
+  'h-full',
+  'w-[min(85vw,320px)]',
+  'bg-wro-blue-950/95',
+  'backdrop-blur-xl',
+  'border-l',
+  'border-white/10',
+  'shadow-2xl',
+  'flex',
+  'flex-col',
+  // Slide animation using Tailwind's starting: variant
+  'translate-x-0',
+  'transition-transform',
+  'duration-300',
+  'ease-[cubic-bezier(0.32,0.72,0,1)]',
+  'starting:translate-x-full',
+]
+
+/**
+ * Mobile navigation drawer using native <dialog>.
+ *
+ * Benefits of native dialog:
+ * - Focus trapping (prevents tabbing outside)
+ * - Escape key closes automatically
+ * - ::backdrop pseudo-element for overlay
+ * - Proper accessibility semantics
+ * - Inert attribute on background content
+ */
+export function MobileDrawer(props: MobileDrawerProps) {
+  let dialogRef: HTMLDialogElement | undefined
+
+  // Sync dialog state with props
+  createEffect(() => {
+    if (!dialogRef) return
+
+    if (props.open && !dialogRef.open) {
+      dialogRef.showModal()
+    } else if (!props.open && dialogRef.open) {
+      dialogRef.close()
+    }
+  })
+
+  // Handle native close events (Escape key, form submission)
+  const handleClose = () => {
+    props.onClose()
+  }
+
+  // Handle backdrop click - dialog click events bubble from ::backdrop
+  const handleClick = (e: MouseEvent) => {
+    // Only close if clicking directly on dialog (the backdrop area)
+    if (e.target === dialogRef) {
+      props.onClose()
+    }
+  }
+
+  // Dialog classes as array
+  const dialogClasses = [
+    'fixed',
+    'inset-0',
+    'm-0',
+    'p-0',
+    'w-full',
+    'h-full',
+    'max-w-none',
+    'max-h-none',
+    'bg-transparent',
+    'backdrop:bg-black/40',
+    'backdrop:backdrop-blur-sm',
+  ]
+
+  return (
+    <dialog
+      ref={dialogRef}
+      onClose={handleClose}
+      onClick={handleClick}
+      class={cx(dialogClasses)}
+    >
+      <div class={cx(panelClasses)}>
+        {/* Header */}
+        <div class="flex items-center justify-between p-4 border-b border-white/10">
+          <span class="text-white/90 font-medium">Navigation</span>
+          <button
+            onClick={props.onClose}
+            class="p-2 -mr-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+            aria-label="Luk menu"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Navigation Links */}
+        <nav class="flex-1 py-4 overflow-y-auto">
+          <Link
+            to="/"
+            onClick={props.onClose}
+            class={mobileNavLink({ active: false })}
+            activeProps={{ class: mobileNavLink({ active: true }) }}
+            activeOptions={{ exact: true }}
+          >
+            <Home size={18} />
+            <span>Forside</span>
+          </Link>
+
+          <MobileNavSection title="Information">
+            <For each={INFO_TOPICS}>
+              {(topic) => (
+                <Link
+                  to={topic.route}
+                  onClick={props.onClose}
+                  class={mobileNavLink({ active: false })}
+                  activeProps={{ class: mobileNavLink({ active: true }) }}
+                >
+                  <topic.Icon class="w-[18px] h-[18px] text-cyan-400/60" />
+                  <span>{topic.shortTitle}</span>
+                </Link>
+              )}
+            </For>
+          </MobileNavSection>
+
+          <MobileNavSection title="Mere">
+            <Link
+              to="/blog"
+              onClick={props.onClose}
+              class={mobileNavLink({ active: false })}
+              activeProps={{ class: mobileNavLink({ active: true }) }}
+            >
+              <BookOpen size={18} />
+              <span>Blog</span>
+            </Link>
+          </MobileNavSection>
+        </nav>
+
+        {/* Footer */}
+        <div class="p-4 border-t border-white/10">
+          <a
+            href="https://wro.dk"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center justify-center gap-2 w-full py-2.5 text-sm text-white/60 hover:text-white/90 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+          >
+            <span>Besøg wro.dk</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+    </dialog>
+  )
+}
+
+function MobileNavSection(props: ParentProps<{ title: string }>) {
+  return (
+    <div class="mt-4">
+      <div class="mb-2 px-4">
+        <span class="text-xs font-medium uppercase tracking-wider text-white/40">
+          {props.title}
+        </span>
+      </div>
+      {props.children}
+    </div>
+  )
+}

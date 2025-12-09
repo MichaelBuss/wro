@@ -1,147 +1,47 @@
-import { Link } from '@tanstack/solid-router'
-import { Home, Info, Layers, Menu, X } from 'lucide-solid'
-import { For, createSignal } from 'solid-js'
-import { cva } from '~/cva.config'
-import { INFO_TOPICS } from '~/data/info-topics'
-import TanStackQueryHeaderUser from '../integrations/tanstack-query/header-user.tsx'
-
-const sidebarVariants = cva({
-  base: 'fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col',
-  variants: {
-    open: {
-      true: 'translate-x-0',
-      false: '-translate-x-full',
-    },
-  },
-  defaultVariants: {
-    open: false,
-  },
-})
-
-const chevronVariants = cva({
-  base: 'w-4 h-4 transition-transform',
-  variants: {
-    expanded: {
-      true: 'rotate-180',
-      false: '',
-    },
-  },
-  defaultVariants: {
-    expanded: false,
-  },
-})
+import { Menu } from 'lucide-solid'
+import { createSignal } from 'solid-js'
+import { ExternalLink, Logo, MobileDrawer, NavDropdown, NavLink } from './nav'
 
 export default function Header() {
-  const [isOpen, setIsOpen] = createSignal(false)
-  const [infoExpanded, setInfoExpanded] = createSignal(true)
+  const [mobileOpen, setMobileOpen] = createSignal(false)
 
   return (
     <>
-      <header class="p-4 flex items-center bg-wro-blue-950 text-white shadow-lg">
-        <button
-          onClick={() => setIsOpen(true)}
-          class="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
-        <h1 class="ml-4 text-xl font-semibold">
-          <Link to="/">
-            <img src="/wro-logo.webp" alt="WRO Logo" class="h-10" />
-          </Link>
-        </h1>
+      <header class="sticky top-0 z-40 w-full">
+        {/* Glassmorphism background */}
+        <div class="absolute inset-0 bg-wro-blue-950/80 backdrop-blur-xl border-b border-white/5" />
+
+        <nav class="relative max-w-6xl mx-auto px-4 sm:px-6">
+          <div class="flex items-center justify-between h-16">
+            <Logo />
+
+            {/* Desktop Navigation */}
+            <div class="hidden md:flex items-center gap-1">
+              <NavLink to="/" exact>
+                Forside
+              </NavLink>
+              <NavDropdown />
+              <NavLink to="/blog">Blog</NavLink>
+            </div>
+
+            {/* External Link - Desktop */}
+            <div class="hidden md:block">
+              <ExternalLink href="https://wro.dk">wro.dk ↗</ExternalLink>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              class="md:hidden p-2 -mr-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Åbn menu"
+            >
+              <Menu size={22} />
+            </button>
+          </div>
+        </nav>
       </header>
 
-      <aside class={sidebarVariants({ open: isOpen() })}>
-        <div class="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 class="text-xl font-bold">Navigation</h2>
-          <button
-            onClick={() => setIsOpen(false)}
-            class="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-            aria-label="Close menu"
-          >
-            <X size={24} />
-          </button>
-        </div>
-
-        <nav class="flex-1 p-4 overflow-y-auto">
-          <Link
-            to="/"
-            onClick={() => setIsOpen(false)}
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              class:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Home size={20} />
-            <span class="font-medium">Forside</span>
-          </Link>
-
-          {/* Info Topics Section */}
-          <div class="mb-2">
-            <button
-              onClick={() => setInfoExpanded(!infoExpanded())}
-              class="flex items-center justify-between w-full p-3 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              <div class="flex items-center gap-3">
-                <Info size={20} />
-                <span class="font-medium">Information</span>
-              </div>
-              <svg
-                class={chevronVariants({ expanded: infoExpanded() })}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-
-            {infoExpanded() && (
-              <div class="ml-4 mt-1 space-y-1">
-                <For each={INFO_TOPICS}>
-                  {(topic) => (
-                    <Link
-                      to={topic.route}
-                      onClick={() => setIsOpen(false)}
-                      class="flex items-center gap-3 p-2 pl-4 rounded-lg hover:bg-gray-800 transition-colors text-sm text-gray-300 hover:text-white"
-                      activeProps={{
-                        class:
-                          'flex items-center gap-3 p-2 pl-4 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors text-sm text-white',
-                      }}
-                    >
-                      <span>{topic.shortTitle}</span>
-                    </Link>
-                  )}
-                </For>
-              </div>
-            )}
-          </div>
-
-          <Link
-            to="/blog"
-            onClick={() => setIsOpen(false)}
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              class:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Layers size={20} />
-            <span class="font-medium">Blog</span>
-          </Link>
-        </nav>
-
-        <div class="p-4 border-t border-gray-700 bg-gray-800 flex flex-col gap-2">
-          <TanStackQueryHeaderUser />
-        </div>
-      </aside>
+      <MobileDrawer open={mobileOpen()} onClose={() => setMobileOpen(false)} />
     </>
   )
 }
