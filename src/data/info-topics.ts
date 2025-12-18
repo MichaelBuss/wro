@@ -20,7 +20,7 @@ export type IconComponent = Component<{ class?: string }>
 // Info topic definition type
 export interface InfoTopic {
   route: InfoRoute
-  Icon: IconComponent
+  icon: IconComponent
   title: string
   description: string
   shortTitle: string
@@ -30,21 +30,21 @@ export interface InfoTopic {
 export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   {
     route: '/info/prizes',
-    Icon: Trophy,
+    icon: Trophy,
     title: 'Hvad kan man vinde?',
     shortTitle: 'Præmier',
     description: `Hovedpremien er en fuldtbetalt rejse til WRO-verdensfinalen som i år afholdes i ${CONSTANTS.WORLD_FINAL_LOCATION}.`,
   },
   {
     route: '/info/date',
-    Icon: MapPin,
+    icon: MapPin,
     title: 'Hvor og hvornår afholdes den danske finale?',
     shortTitle: 'Dato & Sted',
     description: `Den danske finale afholdes ${CONSTANTS.DANISH_FINAL_DATE.toLocaleDateString('da-DK', { day: '2-digit', month: '2-digit', year: 'numeric' })} på ${CONSTANTS.DANISH_FINAL_LOCATION}.`,
   },
   {
     route: '/info/materials',
-    Icon: Bot,
+    icon: Bot,
     title: 'Hvad skal man bruge for at deltage?',
     shortTitle: 'Materialer',
     description:
@@ -52,21 +52,21 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   },
   {
     route: '/info/cost',
-    Icon: PiggyBank,
+    icon: PiggyBank,
     title: 'Hvad koster det at deltage?',
     shortTitle: 'Pris',
     description: 'Man skal kun betale for en øve-bane',
   },
   {
     route: '/info/tips',
-    Icon: HeartHandshake,
+    icon: HeartHandshake,
     title: 'Gode råd fra tidligere deltagere',
     shortTitle: 'Tips & Tricks',
     description: 'Hør hvad andre deltagere har at sige om at deltage i WRO.',
   },
   {
     route: '/info/resources',
-    Icon: BookText,
+    icon: BookText,
     title: 'Andre online ressourcer',
     shortTitle: 'Ressourcer',
     description:

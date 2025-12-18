@@ -112,13 +112,15 @@ export function Carousel(props: CarouselProps): JSX.Element {
               />
               {/* Color tint overlay */}
               <Show when={props.tint && TINT_COLORS[props.tint]}>
-                <div
-                  class="absolute inset-0"
-                  style={{
-                    'background-color': TINT_COLORS[props.tint!],
-                    'mix-blend-mode': 'color',
-                  }}
-                />
+                {(tintColor) => (
+                  <div
+                    class="absolute inset-0"
+                    style={{
+                      'background-color': tintColor(),
+                      'mix-blend-mode': 'color',
+                    }}
+                  />
+                )}
               </Show>
               <div class="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/60 to-transparent" />
             </div>

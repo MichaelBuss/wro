@@ -24,7 +24,7 @@ export function NavDot(props: NavDotProps): JSX.Element {
   return (
     <button
       type="button"
-      onClick={props.onClick}
+      onClick={() => props.onClick()}
       class={navDotVariants({ active: props.isActive })}
       aria-label={`Gå til billede ${props.index + 1}`}
       aria-current={props.isActive ? 'true' : undefined}

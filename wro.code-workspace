@@ -34,7 +34,12 @@
     },
     "typescript.tsdk": "node_modules/typescript/lib",
     "typescript.enablePromptUseWorkspaceTsdk": true,
-    "tailwindCSS.classFunctions": ["cva"],
+    "tailwindCSS.classFunctions": [
+      "cva"
+    ],
+    "cSpell.words": [
+      "commandfor"
+    ],
   },
   "extensions": {
     "recommendations": [

@@ -35,7 +35,7 @@ function BlogPostPage() {
           <div class="py-16 px-6 max-w-4xl mx-auto text-center">
             <h1 class="text-4xl font-bold text-white mb-4">Post ikke fundet</h1>
             <Link
-              href="/blog"
+              to="/blog"
               class="text-cyan-400 hover:text-cyan-300 transition-colors"
             >
               ← Tilbage til blog
@@ -46,7 +46,7 @@ function BlogPostPage() {
         {(postData) => (
           <article class="py-16 px-6 max-w-4xl mx-auto">
             <Link
-              href="/blog"
+              to="/blog"
               class="inline-block mb-8 text-cyan-400 hover:text-cyan-300 transition-colors"
             >
               ← Tilbage til blog
@@ -88,6 +88,7 @@ function BlogPostPage() {
                 prose-li:marker:text-cyan-400
                 prose-code:text-cyan-400 prose-code:bg-slate-800 prose-code:px-1 prose-code:rounded
                 prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700"
+              // eslint-disable-next-line solid/no-innerhtml -- Markdown content is sanitized server-side
               innerHTML={postData().content}
             />
           </article>

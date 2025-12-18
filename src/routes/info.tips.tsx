@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { ArrowLeft, Quote } from 'lucide-solid'
-import { For } from "solid-js";
+import { For } from 'solid-js'
 import { getInfoTopicByRoute } from '~/data/info-topics'
 
 export const Route = createFileRoute('/info/tips')({ component: TipsPage })
@@ -80,7 +80,7 @@ function TipsPage() {
         </Link>
 
         <div class="flex items-center gap-4 mb-8">
-          {topic.icon}
+          <topic.icon class="w-10 h-10 text-cyan-400" />
           <h1 class="text-4xl md:text-5xl font-bold text-white">
             <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               {topic.title}
@@ -94,22 +94,24 @@ function TipsPage() {
           </h2>
 
           <div class="grid gap-6">
-            <For each={tips}>{(tip) => (
-              <div class="p-6 bg-slate-700/50 rounded-lg border-l-4 border-cyan-500">
-                <div class="flex gap-3">
-                  <Quote class="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
-                  <div>
-                    <p class="text-gray-300 text-lg italic mb-3">
-                      "{tip.quote}"
-                    </p>
-                    <div class="text-sm">
-                      <span class="text-white font-medium">{tip.author}</span>
-                      <span class="text-gray-500 ml-2">— {tip.team}</span>
+            <For each={tips}>
+              {(tip) => (
+                <div class="p-6 bg-slate-700/50 rounded-lg border-l-4 border-cyan-500">
+                  <div class="flex gap-3">
+                    <Quote class="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <p class="text-gray-300 text-lg italic mb-3">
+                        "{tip.quote}"
+                      </p>
+                      <div class="text-sm">
+                        <span class="text-white font-medium">{tip.author}</span>
+                        <span class="text-gray-500 ml-2">— {tip.team}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}</For>
+              )}
+            </For>
           </div>
         </div>
 
@@ -117,19 +119,21 @@ function TipsPage() {
           <h2 class="text-2xl font-semibold text-white mb-6">Praktiske tips</h2>
 
           <div class="grid md:grid-cols-2 gap-4">
-            {practicalTips.map((tip, index) => (
-              <div class="p-4 bg-slate-700/30 rounded-lg">
-                <div class="flex items-start gap-3">
-                  <span class="text-2xl font-bold text-cyan-400/50">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <h3 class="text-white font-medium mb-1">{tip.title}</h3>
-                    <p class="text-gray-400 text-sm">{tip.description}</p>
+            <For each={practicalTips}>
+              {(tip, index) => (
+                <div class="p-4 bg-slate-700/30 rounded-lg">
+                  <div class="flex items-start gap-3">
+                    <span class="text-2xl font-bold text-cyan-400/50">
+                      {index() + 1}
+                    </span>
+                    <div>
+                      <h3 class="text-white font-medium mb-1">{tip.title}</h3>
+                      <p class="text-gray-400 text-sm">{tip.description}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )}
+            </For>
           </div>
         </div>
       </section>

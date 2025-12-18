@@ -37,7 +37,7 @@ export function NavArrow(props: NavArrowProps): JSX.Element {
   return (
     <button
       type="button"
-      onClick={props.onClick}
+      onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-label={arrowLabels[props.direction]}
       class={navArrowVariants({ disabled: props.disabled, class: props.class })}

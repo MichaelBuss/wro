@@ -137,7 +137,7 @@ export function MobileDrawer() {
                   class={mobileNavLink({ active: false })}
                   activeProps={{ class: mobileNavLink({ active: true }) }}
                 >
-                  <topic.Icon class="w-[18px] h-[18px] text-cyan-400/60" />
+                  <topic.icon class="w-[18px] h-[18px] text-cyan-400/60" />
                   <span>{topic.shortTitle}</span>
                 </Link>
               )}

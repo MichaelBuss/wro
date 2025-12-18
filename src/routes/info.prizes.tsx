@@ -20,7 +20,7 @@ function PrizesPage() {
         </Link>
 
         <div class="flex items-center gap-4 mb-8">
-          {topic.icon}
+          <topic.icon class="w-10 h-10 text-cyan-400" />
           <h1 class="text-4xl md:text-5xl font-bold text-white">
             <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               {topic.title}
@@ -83,4 +83,3 @@ function PrizesPage() {
     </div>
   )
 }
-
