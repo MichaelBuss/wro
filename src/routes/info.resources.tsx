@@ -15,7 +15,7 @@ function ResourcesPage() {
   const resourceCategories = [
     {
       title: 'Officielle WRO ressourcer',
-      icon: <Book class="w-6 h-6 text-cyan-400" />,
+      icon: <Book class="w-6 h-6 text-wro-blue-500" />,
       resources: [
         {
           name: 'WRO Association',
@@ -32,7 +32,7 @@ function ResourcesPage() {
     },
     {
       title: 'Programmering',
-      icon: <Code class="w-6 h-6 text-green-400" />,
+      icon: <Code class="w-6 h-6 text-green-600" />,
       resources: [
         {
           name: 'SPIKE Prime App',
@@ -55,7 +55,7 @@ function ResourcesPage() {
     },
     {
       title: 'Video tutorials',
-      icon: <Video class="w-6 h-6 text-red-400" />,
+      icon: <Video class="w-6 h-6 text-red-500" />,
       resources: [
         {
           name: 'LEGO Education YouTube',
@@ -78,7 +78,7 @@ function ResourcesPage() {
     },
     {
       title: 'Communities',
-      icon: <Users class="w-6 h-6 text-purple-400" />,
+      icon: <Users class="w-6 h-6 text-purple-600" />,
       resources: [
         {
           name: 'LEGO Education Community',
@@ -106,7 +106,7 @@ function ResourcesPage() {
       <BackLink />
       <PageHeader icon={topic.icon} title={topic.title} />
 
-      <p class="text-xl text-gray-300 mb-8">{topic.description}</p>
+      <p class="text-xl text-slate-600 mb-8">{topic.description}</p>
 
       <div class="space-y-8">
         <For each={resourceCategories}>
@@ -114,7 +114,7 @@ function ResourcesPage() {
             <ContentCard>
               <div class="flex items-center gap-3 mb-6">
                 {category.icon}
-                <h2 class="text-xl font-semibold text-white">
+                <h2 class="text-xl font-semibold text-slate-800">
                   {category.title}
                 </h2>
               </div>
@@ -126,18 +126,18 @@ function ResourcesPage() {
                       href={resource.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="block p-4 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors group"
+                      class="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
                       <div class="flex items-start justify-between">
                         <div>
-                          <h3 class="text-white font-medium group-hover:text-cyan-400 transition-colors flex items-center gap-2">
+                          <h3 class="text-slate-800 font-medium group-hover:text-wro-blue-600 transition-colors flex items-center gap-2">
                             {resource.name}
                             <ExternalLink
                               size={14}
                               class="opacity-0 group-hover:opacity-100 transition-opacity"
                             />
                           </h3>
-                          <p class="text-gray-400 text-sm mt-1">
+                          <p class="text-slate-500 text-sm mt-1">
                             {resource.description}
                           </p>
                         </div>

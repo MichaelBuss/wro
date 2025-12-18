@@ -1,3 +1,4 @@
+import '@fontsource/inter'
 import {
   HeadContent,
   Outlet,
@@ -5,7 +6,6 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/solid-router'
 import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
-import '@fontsource/inter'
 import { Suspense } from 'solid-js'
 import { HydrationScript } from 'solid-js/web'
 import Header from '../components/Header'
@@ -25,13 +25,13 @@ export const Route = createRootRouteWithContext()({
 
 function NotFound() {
   return (
-    <div class="min-h-screen bg-linear-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+    <div class="min-h-screen bg-gray-50 flex items-center justify-center">
       <div class="text-center">
-        <h1 class="text-6xl font-bold text-white mb-4">404</h1>
-        <p class="text-xl text-gray-400 mb-8">Siden blev ikke fundet</p>
+        <h1 class="text-6xl font-bold text-slate-800 mb-4">404</h1>
+        <p class="text-xl text-slate-500 mb-8">Siden blev ikke fundet</p>
         <a
           href="/"
-          class="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors"
+          class="px-6 py-3 bg-wro-blue-600 hover:bg-wro-blue-500 text-white font-semibold rounded-lg transition-colors"
         >
           Gå til forsiden
         </a>

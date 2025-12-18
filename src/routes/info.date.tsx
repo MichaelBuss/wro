@@ -28,33 +28,35 @@ function DatePage() {
 
       <ContentCard>
         <div class="grid md:grid-cols-2 gap-6 mb-8">
-          <div class="flex items-start gap-4 p-6 bg-slate-700/50 rounded-lg">
-            <Calendar class="w-8 h-8 text-cyan-400 shrink-0" />
+          <div class="flex items-start gap-4 p-6 bg-gray-50 rounded-lg">
+            <Calendar class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
-              <h3 class="text-lg font-semibold text-white mb-1">Dato</h3>
-              <p class="text-gray-300 capitalize">{formattedDate}</p>
+              <h3 class="text-lg font-semibold text-slate-800 mb-1">Dato</h3>
+              <p class="text-slate-600 capitalize">{formattedDate}</p>
             </div>
           </div>
 
-          <div class="flex items-start gap-4 p-6 bg-slate-700/50 rounded-lg">
-            <MapPin class="w-8 h-8 text-cyan-400 shrink-0" />
+          <div class="flex items-start gap-4 p-6 bg-gray-50 rounded-lg">
+            <MapPin class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
-              <h3 class="text-lg font-semibold text-white mb-1">Sted</h3>
-              <p class="text-gray-300">{CONSTANTS.DANISH_FINAL_LOCATION}</p>
+              <h3 class="text-lg font-semibold text-slate-800 mb-1">Sted</h3>
+              <p class="text-slate-600">{CONSTANTS.DANISH_FINAL_LOCATION}</p>
             </div>
           </div>
 
-          <div class="flex items-start gap-4 p-6 bg-slate-700/50 rounded-lg">
-            <Clock class="w-8 h-8 text-cyan-400 shrink-0" />
+          <div class="flex items-start gap-4 p-6 bg-gray-50 rounded-lg">
+            <Clock class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
-              <h3 class="text-lg font-semibold text-white mb-1">Tidspunkt</h3>
-              <p class="text-gray-300">{CONSTANTS.DANISH_FINAL_TIME}</p>
+              <h3 class="text-lg font-semibold text-slate-800 mb-1">
+                Tidspunkt
+              </h3>
+              <p class="text-slate-600">{CONSTANTS.DANISH_FINAL_TIME}</p>
             </div>
           </div>
         </div>
 
-        <div class="prose prose-invert max-w-none">
-          <h2 class="text-2xl font-semibold text-white mb-4">
+        <div class="prose max-w-none">
+          <h2 class="text-2xl font-semibold text-slate-800 mb-4">
             Program for dagen
           </h2>
 
@@ -62,12 +64,12 @@ function DatePage() {
             <For each={DANISH_FINAL_SCHEDULE}>
               {(item) => (
                 <div class="flex gap-4 items-start">
-                  <span class="text-cyan-400 font-mono font-bold min-w-[80px]">
+                  <span class="text-wro-blue-600 font-mono font-bold min-w-[80px]">
                     {item.time}
                   </span>
                   <div>
-                    <h4 class="text-white font-medium">{item.title}</h4>
-                    <p class="text-gray-400 text-sm">{item.description}</p>
+                    <h4 class="text-slate-800 font-medium">{item.title}</h4>
+                    <p class="text-slate-500 text-sm">{item.description}</p>
                   </div>
                 </div>
               )}

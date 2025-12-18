@@ -9,15 +9,15 @@ export function InfoTopicCard(props: InfoTopicCardProps) {
   return (
     <Link
       to={props.topic.route}
-      class="block bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 group"
+      class="block bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:border-wro-blue-300 transition-all duration-300 hover:shadow-md group"
     >
       <div class="mb-4">
-        <props.topic.icon class="w-12 h-12 text-cyan-400" />
+        <props.topic.icon class="w-12 h-12 text-wro-blue-500" />
       </div>
-      <h3 class="text-xl font-semibold text-white mb-3 group-hover:text-cyan-400 transition-colors">
+      <h3 class="text-xl font-semibold text-slate-800 mb-3 group-hover:text-wro-blue-600 transition-colors">
         {props.topic.title}
       </h3>
-      <p class="text-gray-400 leading-relaxed">{props.topic.description}</p>
+      <p class="text-slate-600 leading-relaxed">{props.topic.description}</p>
     </Link>
   )
 }

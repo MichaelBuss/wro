@@ -79,16 +79,18 @@ function TipsPage() {
         <div class="grid gap-6">
           <For each={tips}>
             {(tip) => (
-              <div class="p-6 bg-slate-700/50 rounded-lg border-l-4 border-cyan-500">
+              <div class="p-6 bg-gray-50 rounded-lg border-l-4 border-wro-blue-500">
                 <div class="flex gap-3">
-                  <Quote class="w-6 h-6 text-cyan-400 shrink-0 mt-1" />
+                  <Quote class="w-6 h-6 text-wro-blue-500 shrink-0 mt-1" />
                   <div>
-                    <p class="text-gray-300 text-lg italic mb-3">
+                    <p class="text-slate-600 text-lg italic mb-3">
                       "{tip.quote}"
                     </p>
                     <div class="text-sm">
-                      <span class="text-white font-medium">{tip.author}</span>
-                      <span class="text-gray-500 ml-2">— {tip.team}</span>
+                      <span class="text-slate-800 font-medium">
+                        {tip.author}
+                      </span>
+                      <span class="text-slate-500 ml-2">— {tip.team}</span>
                     </div>
                   </div>
                 </div>
@@ -102,14 +104,14 @@ function TipsPage() {
         <div class="grid md:grid-cols-2 gap-4">
           <For each={practicalTips}>
             {(tip, index) => (
-              <div class="p-4 bg-slate-700/30 rounded-lg">
+              <div class="p-4 bg-gray-50 rounded-lg">
                 <div class="flex items-start gap-3">
-                  <span class="text-2xl font-bold text-cyan-400/50">
+                  <span class="text-2xl font-bold text-wro-blue-300">
                     {index() + 1}
                   </span>
                   <div>
-                    <h3 class="text-white font-medium mb-1">{tip.title}</h3>
-                    <p class="text-gray-400 text-sm">{tip.description}</p>
+                    <h3 class="text-slate-800 font-medium mb-1">{tip.title}</h3>
+                    <p class="text-slate-500 text-sm">{tip.description}</p>
                   </div>
                 </div>
               </div>
