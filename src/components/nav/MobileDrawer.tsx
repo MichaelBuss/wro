@@ -159,15 +159,13 @@ export function MobileDrawer() {
 
         {/* Footer */}
         <div class="p-4 border-t border-white/10">
-          <a
-            href="https://wro.dk"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex items-center justify-center gap-2 w-full py-2.5 text-sm text-white/60 hover:text-white/90 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+          <Link
+            to="/signup"
+            onClick={closeDrawer}
+            class="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-white bg-cyan-500 hover:bg-cyan-400 rounded-lg transition-colors"
           >
-            <span>Besøg wro.dk</span>
-            <span>↗</span>
-          </a>
+            Tilmeld dig nu
+          </Link>
         </div>
       </div>
     </dialog>

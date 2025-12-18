@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/solid-router'
+import { Link, createFileRoute } from '@tanstack/solid-router'
 import { For } from 'solid-js'
 import { Carousel } from '~/components/carousel'
 import { InfoTopicCard } from '~/components/InfoTopicCard'
@@ -45,16 +45,14 @@ function HeroContent() {
       </p>
 
       <div class="flex flex-col items-center gap-4">
-        <a
-          href="https://wro.dk"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to="/signup"
           class="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
         >
           Tilmeld dig nu
-        </a>
+        </Link>
         <p class="text-gray-300 text-sm mt-2 drop-shadow">
-          Læs mere nedenfor om hvordan du deltager
+          Læs mere nedenfor om hvorfor du skal deltage
         </p>
       </div>
     </>

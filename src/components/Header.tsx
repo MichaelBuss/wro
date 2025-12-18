@@ -1,6 +1,6 @@
+import { Link } from '@tanstack/solid-router'
 import { Menu } from 'lucide-solid'
 import {
-  ExternalLink,
   Logo,
   MOBILE_DRAWER_ID,
   MobileDrawer,
@@ -36,10 +36,13 @@ export default function Header() {
               <NavLink to="/blog">Blog</NavLink>
             </div>
 
-            {/* External Link - Desktop */}
-            <div class="hidden md:block">
-              <ExternalLink href="https://wro.dk">wro.dk ↗</ExternalLink>
-            </div>
+            {/* CTA Button - Desktop */}
+            <Link
+              to="/signup"
+              class="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-500 hover:bg-cyan-400 rounded-lg transition-colors"
+            >
+              Tilmeld dig nu
+            </Link>
 
             {/* Mobile Menu Button - uses Invoker Commands! */}
             <button
