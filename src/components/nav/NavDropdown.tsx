@@ -42,8 +42,10 @@ export function NavDropdown() {
   let popoverRef: HTMLDivElement | undefined
 
   onMount(() => {
-    popoverRef!.popover = 'auto'
-    triggerRef!.popoverTargetElement = popoverRef!
+    if (popoverRef && triggerRef) {
+      popoverRef.popover = 'auto'
+      triggerRef.popoverTargetElement = popoverRef
+    }
   })
 
   const handleToggle = (e: ToggleEvent) => {

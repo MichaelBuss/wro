@@ -20,7 +20,6 @@ export default function Header() {
   return (
     <>
       <header class="sticky top-0 z-40 w-full">
-        {/* Glassmorphism background */}
         <div class="absolute inset-0 bg-wro-blue-950/80 backdrop-blur-xl border-b border-white/5" />
 
         <nav class="relative max-w-6xl mx-auto px-4 sm:px-6">
@@ -37,6 +36,7 @@ export default function Header() {
             </div>
 
             {/* CTA Button - Desktop */}
+
             <Link
               to="/signup"
               class="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-500 hover:bg-cyan-400 rounded-lg transition-colors"
