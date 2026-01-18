@@ -1,3 +1,4 @@
+import type { RegisteredRouter } from '@tanstack/solid-router'
 import { Link } from '@tanstack/solid-router'
 import type { JSX } from 'solid-js'
 import { cva, cx } from '~/cva.config'
@@ -11,8 +12,10 @@ const cvaNavLink = cva({
   },
 })
 
+type ValidRoutes = RegisteredRouter['routesByPath']
+
 interface NavLinkProps {
-  to: string
+  to: keyof ValidRoutes
   exact?: boolean
   children: JSX.Element
 }
