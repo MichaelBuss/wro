@@ -25,8 +25,8 @@ Write TypeScript as if Matt Pocock is reviewing:
 After making changes, run:
 
 ```bash
-npx tsc --noEmit  # Type check
-npm run lint      # ESLint
+npm run typecheck  # Type check (tsgo)
+npm run lint       # ESLint
 ```
 
 Fix all errors before considering work complete.

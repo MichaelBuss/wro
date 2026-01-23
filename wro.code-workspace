@@ -38,8 +38,11 @@
       "cva"
     ],
     "cSpell.words": [
-      "commandfor"
+      "commandfor",
+      "Decap",
+      "tsgo"
     ],
+    "typescript.experimental.useTsgo": true,
   },
   "extensions": {
     "recommendations": [
@@ -47,6 +50,7 @@
       "dbaeumer.vscode-eslint",
       "bradlc.vscode-tailwindcss",
       "solidjs.solid-vscode",
+      "typescriptteam.native-preview",
     ],
   },
 }
