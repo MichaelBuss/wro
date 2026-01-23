@@ -33,7 +33,7 @@
     "gray-matter": "^4.0.3",
     "lucide-solid": "^0.544.0",
     "marked": "^17.0.1",
-    "nitro": "latest",
+    "nitro": "npm:nitro-nightly@latest",
     "solid-js": "^1.9.9",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.6",
