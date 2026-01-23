@@ -101,7 +101,7 @@ export interface FileRoutesByFullPath {
   '/info/prizes': typeof InfoPrizesRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
-  '/blog': typeof BlogIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRoutesByTo {
@@ -149,7 +149,7 @@ export interface FileRouteTypes {
     | '/info/prizes'
     | '/info/resources'
     | '/info/tips'
-    | '/blog'
+    | '/blog/'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -218,7 +218,7 @@ declare module '@tanstack/solid-router' {
     '/blog/': {
       id: '/blog/'
       path: '/blog'
-      fullPath: '/blog'
+      fullPath: '/blog/'
       preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

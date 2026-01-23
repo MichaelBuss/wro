@@ -30,7 +30,7 @@ function BlogIndex() {
           >
             {(post) => (
               <article class="bg-white border border-gray-200 rounded-xl p-6 hover:border-wro-blue-300 transition-all duration-300 hover:shadow-md">
-                <Link to={`/blog/${post.slug}`} class="block">
+                <Link to="/blog/$slug" params={{ slug: post.slug }} class="block">
                   <h2 class="text-2xl font-semibold text-slate-800 mb-2 hover:text-wro-blue-600 transition-colors">
                     {post.title}
                   </h2>
