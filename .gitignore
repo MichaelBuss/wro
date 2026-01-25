@@ -4,7 +4,9 @@ dist
 dist-ssr
 *.local
 .env
+.netlify
 .nitro
+.output
 .tanstack
 .wrangler
 
