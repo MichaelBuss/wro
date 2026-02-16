@@ -1,25 +1,33 @@
 import { createFileRoute } from '@tanstack/solid-router'
+import { createServerFn } from '@tanstack/solid-start'
 import { Calendar, Clock, MapPin } from 'lucide-solid'
 import { For } from 'solid-js'
 import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
 import { ContentCard } from '~/components/ui'
-import { CONSTANTS, DANISH_FINAL_SCHEDULE } from '~/data/constants'
+import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { getInfoTopicByRoute } from '~/data/info-topics'
+import { getPageContent } from '~/server/content'
 
-export const Route = createFileRoute('/info/date')({ component: DatePage })
+const getEventInfo = createServerFn({ method: 'GET' }).handler(() =>
+  getPageContent('event-info'),
+)
+
+export const Route = createFileRoute('/info/date')({
+  component: DatePage,
+  loader: () => getEventInfo(),
+})
 
 function DatePage() {
   const topic = getInfoTopicByRoute('/info/date')
+  const eventInfo = Route.useLoaderData()
 
-  const formattedDate = CONSTANTS.DANISH_FINAL_DATE.toLocaleDateString(
-    'da-DK',
-    {
+  const formattedDate = () =>
+    eventInfo().danish_final_date.toLocaleDateString('da-DK', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-    },
-  )
+    })
 
   return (
     <InfoPageLayout>
@@ -32,7 +40,7 @@ function DatePage() {
             <Calendar class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
               <h3 class="text-lg font-semibold text-slate-800 mb-1">Dato</h3>
-              <p class="text-slate-600 capitalize">{formattedDate}</p>
+              <p class="text-slate-600 capitalize">{formattedDate()}</p>
             </div>
           </div>
 
@@ -40,7 +48,7 @@ function DatePage() {
             <MapPin class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
               <h3 class="text-lg font-semibold text-slate-800 mb-1">Sted</h3>
-              <p class="text-slate-600">{CONSTANTS.DANISH_FINAL_LOCATION}</p>
+              <p class="text-slate-600">{eventInfo().danish_final_location}</p>
             </div>
           </div>
 
@@ -50,7 +58,7 @@ function DatePage() {
               <h3 class="text-lg font-semibold text-slate-800 mb-1">
                 Tidspunkt
               </h3>
-              <p class="text-slate-600">{CONSTANTS.DANISH_FINAL_TIME}</p>
+              <p class="text-slate-600">{eventInfo().danish_final_time}</p>
             </div>
           </div>
         </div>

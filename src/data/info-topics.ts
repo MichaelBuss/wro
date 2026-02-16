@@ -8,7 +8,6 @@ import {
 } from 'lucide-solid'
 import type { Component } from 'solid-js'
 import type { FileRoutesByFullPath } from '~/routeTree.gen'
-import { CONSTANTS } from './constants'
 
 // Derive InfoRoute from the router's generated types - only /info/* routes
 type AllRoutes = keyof FileRoutesByFullPath
@@ -33,14 +32,16 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
     icon: Trophy,
     title: 'Hvad kan man vinde?',
     shortTitle: 'Præmier',
-    description: `Hovedpremien er en fuldtbetalt rejse til WRO-verdensfinalen som i år afholdes i ${CONSTANTS.WORLD_FINAL_LOCATION}.`,
+    description:
+      'Hovedpremien er en fuldtbetalt rejse til WRO-verdensfinalen. Se alle præmier her.',
   },
   {
     route: '/info/date',
     icon: MapPin,
     title: 'Hvor og hvornår afholdes den danske finale?',
     shortTitle: 'Dato & Sted',
-    description: `Den danske finale afholdes ${CONSTANTS.DANISH_FINAL_DATE.toLocaleDateString('da-DK', { day: '2-digit', month: '2-digit', year: 'numeric' })} på ${CONSTANTS.DANISH_FINAL_LOCATION}.`,
+    description:
+      'Find dato, sted og program for den danske finale.',
   },
   {
     route: '/info/materials',

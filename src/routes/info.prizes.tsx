@@ -1,13 +1,22 @@
 import { createFileRoute } from '@tanstack/solid-router'
+import { createServerFn } from '@tanstack/solid-start'
 import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
 import { ContentCard, TipBox } from '~/components/ui'
-import { CONSTANTS } from '~/data/constants'
 import { getInfoTopicByRoute } from '~/data/info-topics'
+import { getPageContent } from '~/server/content'
 
-export const Route = createFileRoute('/info/prizes')({ component: PrizesPage })
+const getEventInfo = createServerFn({ method: 'GET' }).handler(() =>
+  getPageContent('event-info'),
+)
+
+export const Route = createFileRoute('/info/prizes')({
+  component: PrizesPage,
+  loader: () => getEventInfo(),
+})
 
 function PrizesPage() {
   const topic = getInfoTopicByRoute('/info/prizes')
+  const eventInfo = Route.useLoaderData()
 
   return (
     <InfoPageLayout>
@@ -29,7 +38,7 @@ function PrizesPage() {
               </h3>
               <p class="text-slate-600">
                 Fuldtbetalt rejse til WRO-verdensfinalen i{' '}
-                {CONSTANTS.WORLD_FINAL_LOCATION}! Dette inkluderer fly,
+                {eventInfo().world_final_location}! Dette inkluderer fly,
                 overnatning og deltagelse i verdensfinalen.
               </p>
             </div>

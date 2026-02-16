@@ -1,10 +1,3 @@
-export const CONSTANTS = {
-  DANISH_FINAL_DATE: new Date('2026-08-21'),
-  DANISH_FINAL_LOCATION: 'Århus Universitet',
-  DANISH_FINAL_TIME: '09:00 - 17:00',
-  WORLD_FINAL_LOCATION: 'New York, USA',
-}
-
 export const DANISH_FINAL_SCHEDULE = [
   {
     time: '08:00',
@@ -37,4 +30,3 @@ export const DANISH_FINAL_SCHEDULE = [
     description: 'Vindere kåres og præmier uddeles',
   },
 ] as const
-

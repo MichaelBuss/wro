@@ -36,6 +36,50 @@
                 { label: 'Body', name: 'body', widget: 'markdown' },
               ],
             },
+            {
+              name: 'carousel',
+              label: 'Carousel Images',
+              folder: 'content/carousel',
+              create: true,
+              slug: '{{slug}}',
+              fields: [
+                { label: 'Image', name: 'image', widget: 'image' },
+                { label: 'Alt Text', name: 'alt', widget: 'string' },
+                { label: 'Description', name: 'description', widget: 'text', required: false },
+                { label: 'Focal Point', name: 'position', widget: 'string', required: false, hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"' },
+                { label: 'Sort Order', name: 'order', widget: 'number', required: false, hint: 'Lower numbers appear first' },
+              ],
+            },
+            {
+              name: 'pages',
+              label: 'Pages',
+              files: [
+                {
+                  name: 'homepage',
+                  label: 'Homepage',
+                  file: 'content/pages/homepage.md',
+                  fields: [
+                    { label: 'Hero Heading', name: 'hero_heading', widget: 'string' },
+                    { label: 'Hero Heading Accent', name: 'hero_heading_accent', widget: 'string' },
+                    { label: 'Hero Subheading', name: 'hero_subheading', widget: 'string' },
+                    { label: 'Hero Description', name: 'hero_description', widget: 'text' },
+                    { label: 'CTA Button Text', name: 'cta_text', widget: 'string' },
+                    { label: 'CTA Subtext', name: 'cta_subtext', widget: 'string' },
+                  ],
+                },
+                {
+                  name: 'event-info',
+                  label: 'Event Info',
+                  file: 'content/pages/event-info.md',
+                  fields: [
+                    { label: 'Danish Final Date', name: 'danish_final_date', widget: 'datetime', date_format: 'YYYY-MM-DD', time_format: false },
+                    { label: 'Danish Final Location', name: 'danish_final_location', widget: 'string' },
+                    { label: 'Danish Final Time', name: 'danish_final_time', widget: 'string' },
+                    { label: 'World Final Location', name: 'world_final_location', widget: 'string' },
+                  ],
+                },
+              ],
+            },
           ],
         },
       });
