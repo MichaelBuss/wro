@@ -6,7 +6,7 @@ import { getAllBlogPosts } from '~/server/content'
 
 const getBlogPosts = createServerFn({
   method: 'GET',
-}).handler((): Array<BlogPostMeta> => {
+}).handler(async (): Promise<Array<BlogPostMeta>> => {
   return getAllBlogPosts()
 })
 

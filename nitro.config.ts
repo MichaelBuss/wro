@@ -2,4 +2,10 @@ import { defineNitroConfig } from 'nitro/config'
 
 export default defineNitroConfig({
   preset: 'netlify',
+  serverAssets: [
+    {
+      baseName: 'content',
+      dir: './content',
+    },
+  ],
 })

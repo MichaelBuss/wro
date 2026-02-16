@@ -8,7 +8,7 @@ import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { getInfoTopicByRoute } from '~/data/info-topics'
 import { getPageContent } from '~/server/content'
 
-const getEventInfo = createServerFn({ method: 'GET' }).handler(() =>
+const getEventInfo = createServerFn({ method: 'GET' }).handler(async () =>
   getPageContent('event-info'),
 )
 

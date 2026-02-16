@@ -1,7 +1,6 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import matter from 'gray-matter'
 import { marked } from 'marked'
+import { useStorage } from 'nitro/storage'
 import {
   collectionSchemas,
   pageSchemas,
@@ -13,7 +12,9 @@ import type {
   PageKey,
 } from '~/content/registry'
 
-const CONTENT_DIR = path.join(process.cwd(), 'content')
+function getContentStorage() {
+  return useStorage('assets:content')
+}
 
 // ---------------------------------------------------------------------------
 // Generic typed accessors
@@ -23,15 +24,15 @@ const CONTENT_DIR = path.join(process.cwd(), 'content')
  * Load a singleton page by key. Validates frontmatter against the registry schema.
  * TypeScript enforces that `key` must be a valid PageKey.
  */
-export function getPageContent<TKey extends PageKey>(key: TKey): PageContent<TKey> {
-  const filePath = path.join(CONTENT_DIR, 'pages', `${key}.md`)
+export async function getPageContent<TKey extends PageKey>(key: TKey): Promise<PageContent<TKey>> {
+  const storage = getContentStorage()
+  const raw = await storage.getItemRaw<string>(`pages:${key}.md`)
 
-  if (!fs.existsSync(filePath)) {
+  if (!raw) {
     throw new Error(`Content file not found: content/pages/${key}.md`)
   }
 
-  const fileContent = fs.readFileSync(filePath, 'utf-8')
-  const { data } = matter(fileContent)
+  const { data } = matter(String(raw))
 
   return pageSchemas[key].parse(data) as PageContent<TKey>
 }
@@ -40,30 +41,29 @@ export function getPageContent<TKey extends PageKey>(key: TKey): PageContent<TKe
  * Load all items in a folder collection. Validates each against its registry schema.
  * Returns items sorted by slug unless the schema includes an `order` field.
  */
-export function getCollectionItems<TCollection extends CollectionName>(
+export async function getCollectionItems<TCollection extends CollectionName>(
   collection: TCollection,
-): Array<CollectionItem<TCollection>> {
-  const collectionDir = path.join(CONTENT_DIR, collection)
+): Promise<Array<CollectionItem<TCollection>>> {
+  const storage = getContentStorage()
+  const allKeys = await storage.getKeys(collection)
+  const mdKeys = allKeys.filter((key) => key.endsWith('.md'))
 
-  if (!fs.existsSync(collectionDir)) {
+  if (mdKeys.length === 0) {
     return []
   }
 
-  const files = fs
-    .readdirSync(collectionDir)
-    .filter((file) => file.endsWith('.md'))
-
   const schema = collectionSchemas[collection]
 
-  const items = files.map((file) => {
-    const slug = file.replace(/\.md$/, '')
-    const filePath = path.join(collectionDir, file)
-    const fileContent = fs.readFileSync(filePath, 'utf-8')
-    const { data } = matter(fileContent)
-    const parsed = schema.parse(data)
+  const items = await Promise.all(
+    mdKeys.map(async (key) => {
+      const slug = key.replace(`${collection}:`, '').replace(/\.md$/, '')
+      const raw = await storage.getItemRaw<string>(key)
+      const { data } = matter(String(raw))
+      const parsed = schema.parse(data)
 
-    return { ...parsed, slug } as CollectionItem<TCollection>
-  })
+      return { ...parsed, slug } as CollectionItem<TCollection>
+    }),
+  )
 
   return items
 }
@@ -72,18 +72,18 @@ export function getCollectionItems<TCollection extends CollectionName>(
  * Load a single item from a folder collection by slug.
  * Returns null if the file doesn't exist.
  */
-export function getCollectionItem<TCollection extends CollectionName>(
+export async function getCollectionItem<TCollection extends CollectionName>(
   collection: TCollection,
   slug: string,
-): (CollectionItem<TCollection> & { content: string }) | null {
-  const filePath = path.join(CONTENT_DIR, collection, `${slug}.md`)
+): Promise<(CollectionItem<TCollection> & { content: string }) | null> {
+  const storage = getContentStorage()
+  const raw = await storage.getItemRaw<string>(`${collection}:${slug}.md`)
 
-  if (!fs.existsSync(filePath)) {
+  if (!raw) {
     return null
   }
 
-  const fileContent = fs.readFileSync(filePath, 'utf-8')
-  const { data, content } = matter(fileContent)
+  const { data, content } = matter(String(raw))
   const schema = collectionSchemas[collection]
   const parsed = schema.parse(data)
 
@@ -110,57 +110,53 @@ export interface BlogPost extends BlogPostMeta {
   content: string
 }
 
-const BLOG_DIR = path.join(CONTENT_DIR, 'blog')
+export async function getBlogSlugs(): Promise<Array<string>> {
+  const storage = getContentStorage()
+  const keys = await storage.getKeys('blog')
 
-export function getBlogSlugs(): Array<string> {
-  if (!fs.existsSync(BLOG_DIR)) {
-    return []
-  }
-
-  return fs
-    .readdirSync(BLOG_DIR)
-    .filter((file) => file.endsWith('.md'))
-    .map((file) => file.replace(/\.md$/, ''))
+  return keys
+    .filter((key) => key.endsWith('.md'))
+    .map((key) => key.replace('blog:', '').replace(/\.md$/, ''))
 }
 
-export function getAllBlogPosts(): Array<BlogPostMeta> {
-  const slugs = getBlogSlugs()
+export async function getAllBlogPosts(): Promise<Array<BlogPostMeta>> {
+  const storage = getContentStorage()
+  const slugs = await getBlogSlugs()
 
-  const posts = slugs
-    .map((slug) => {
-      const filePath = path.join(BLOG_DIR, `${slug}.md`)
-      const fileContent = fs.readFileSync(filePath, 'utf-8')
-      const { data } = matter(fileContent)
+  const posts = await Promise.all(
+    slugs.map(async (slug) => {
+      const raw = await storage.getItemRaw<string>(`blog:${slug}.md`)
+      const { data } = matter(String(raw))
 
       return {
         slug,
-        title: data.title || slug,
-        date: data.date ? new Date(data.date).toISOString() : '',
-        description: data.description,
-        image: data.image,
+        title: (data.title as string) || slug,
+        date: data.date ? new Date(data.date as string).toISOString() : '',
+        description: data.description as string | undefined,
+        image: data.image as string | undefined,
       }
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    }),
+  )
 
-  return posts
+  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
-export function getBlogPost(slug: string): BlogPost | null {
-  const filePath = path.join(BLOG_DIR, `${slug}.md`)
+export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  const storage = getContentStorage()
+  const raw = await storage.getItemRaw<string>(`blog:${slug}.md`)
 
-  if (!fs.existsSync(filePath)) {
+  if (!raw) {
     return null
   }
 
-  const fileContent = fs.readFileSync(filePath, 'utf-8')
-  const { data, content } = matter(fileContent)
+  const { data, content } = matter(String(raw))
 
   return {
     slug,
-    title: data.title || slug,
-    date: data.date ? new Date(data.date).toISOString() : '',
-    description: data.description,
-    image: data.image,
+    title: (data.title as string) || slug,
+    date: data.date ? new Date(data.date as string).toISOString() : '',
+    description: data.description as string | undefined,
+    image: data.image as string | undefined,
     content: marked(content) as string,
   }
 }

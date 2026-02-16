@@ -8,9 +8,9 @@ import { INFO_TOPICS } from '~/data/info-topics'
 import type { ObjectPosition } from '~/lib/images/alt-texts'
 import { getCollectionItems, getPageContent } from '~/server/content'
 
-const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
-  const hero = getPageContent('homepage')
-  const carouselItems = getCollectionItems('carousel')
+const getHomepageData = createServerFn({ method: 'GET' }).handler(async () => {
+  const hero = await getPageContent('homepage')
+  const carouselItems = await getCollectionItems('carousel')
 
   const sortedItems = [...carouselItems].sort(
     (a, b) => (a.order ?? 999) - (b.order ?? 999),

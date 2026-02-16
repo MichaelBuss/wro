@@ -8,14 +8,14 @@ const getPost = createServerFn({
   method: 'GET',
 })
   .inputValidator((slug: string) => slug)
-  .handler(({ data: slug }): BlogPost | null => {
+  .handler(async ({ data: slug }): Promise<BlogPost | null> => {
     return getBlogPost(slug)
   })
 
 // Export slugs for static prerendering
 export const getBlogPostSlugs = createServerFn({
   method: 'GET',
-}).handler((): Array<string> => {
+}).handler(async (): Promise<Array<string>> => {
   return getBlogSlugs()
 })
 
