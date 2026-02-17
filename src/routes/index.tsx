@@ -5,7 +5,6 @@ import { Carousel } from '~/components/carousel'
 import type { CarouselImage } from '~/components/carousel'
 import { InfoTopicCard } from '~/components/InfoTopicCard'
 import { INFO_TOPICS } from '~/data/info-topics'
-import type { ObjectPosition } from '~/lib/images/alt-texts'
 import { getCollectionItems, getPageContent } from '~/server/content'
 
 const getHomepageData = createServerFn({ method: 'GET' }).handler(async () => {
@@ -19,7 +18,7 @@ const getHomepageData = createServerFn({ method: 'GET' }).handler(async () => {
   const images: Array<CarouselImage> = sortedItems.map((item) => ({
     src: item.image,
     alt: item.alt,
-    objectPosition: (item.position ?? 'center') as ObjectPosition,
+    objectPosition: item.position ?? 'center',
   }))
 
   return { hero, images }

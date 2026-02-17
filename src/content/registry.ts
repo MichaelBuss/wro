@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { OBJECT_POSITIONS } from '~/lib/images/alt-texts'
 
 /**
  * Content registry — single source of truth for all CMS-managed content.
@@ -49,7 +50,7 @@ export const collectionSchemas = {
     image: z.string(),
     alt: z.string(),
     description: z.string().optional(),
-    position: z.string().optional(),
+    position: z.enum(OBJECT_POSITIONS).optional(),
     order: z.number().optional(),
   }),
 } as const

@@ -23,7 +23,7 @@ const tanstackRules = tanstackConfig.map((config) => {
 
 export default defineConfig([
   // Ignores
-  { ignores: ['node_modules', 'dist', '.output', '**/*.gen.ts'] },
+  { ignores: ['node_modules', 'dist', '.output', '.netlify', '**/*.gen.ts'] },
 
   // TanStack config (rules only, parser options filtered)
   ...tanstackRules,

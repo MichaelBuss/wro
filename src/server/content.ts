@@ -23,8 +23,13 @@ function getContentStorage() {
 /**
  * Load a singleton page by key. Validates frontmatter against the registry schema.
  * TypeScript enforces that `key` must be a valid PageKey.
+ *
+ * Overloads provide narrowed return types per key, since tsgo cannot infer
+ * them through generic indexed access on `pageSchemas`.
  */
-export async function getPageContent<TKey extends PageKey>(key: TKey): Promise<PageContent<TKey>> {
+export async function getPageContent(key: 'homepage'): Promise<PageContent<'homepage'>>
+export async function getPageContent(key: 'event-info'): Promise<PageContent<'event-info'>>
+export async function getPageContent(key: PageKey) {
   const storage = getContentStorage()
   const raw = await storage.getItemRaw<string>(`pages:${key}.md`)
 
@@ -34,16 +39,16 @@ export async function getPageContent<TKey extends PageKey>(key: TKey): Promise<P
 
   const { data } = matter(String(raw))
 
-  return pageSchemas[key].parse(data) as PageContent<TKey>
+  return pageSchemas[key].parse(data)
 }
 
 /**
  * Load all items in a folder collection. Validates each against its registry schema.
  * Returns items sorted by slug unless the schema includes an `order` field.
  */
-export async function getCollectionItems<TCollection extends CollectionName>(
-  collection: TCollection,
-): Promise<Array<CollectionItem<TCollection>>> {
+export async function getCollectionItems(collection: 'blog'): Promise<Array<CollectionItem<'blog'>>>
+export async function getCollectionItems(collection: 'carousel'): Promise<Array<CollectionItem<'carousel'>>>
+export async function getCollectionItems(collection: CollectionName) {
   const storage = getContentStorage()
   const allKeys = await storage.getKeys(collection)
   const mdKeys = allKeys.filter((key) => key.endsWith('.md'))
@@ -61,7 +66,7 @@ export async function getCollectionItems<TCollection extends CollectionName>(
       const { data } = matter(String(raw))
       const parsed = schema.parse(data)
 
-      return { ...parsed, slug } as CollectionItem<TCollection>
+      return { ...parsed, slug }
     }),
   )
 
@@ -72,10 +77,9 @@ export async function getCollectionItems<TCollection extends CollectionName>(
  * Load a single item from a folder collection by slug.
  * Returns null if the file doesn't exist.
  */
-export async function getCollectionItem<TCollection extends CollectionName>(
-  collection: TCollection,
-  slug: string,
-): Promise<(CollectionItem<TCollection> & { content: string }) | null> {
+export async function getCollectionItem(collection: 'blog', slug: string): Promise<(CollectionItem<'blog'> & { content: string }) | null>
+export async function getCollectionItem(collection: 'carousel', slug: string): Promise<(CollectionItem<'carousel'> & { content: string }) | null>
+export async function getCollectionItem(collection: CollectionName, slug: string) {
   const storage = getContentStorage()
   const raw = await storage.getItemRaw<string>(`${collection}:${slug}.md`)
 
@@ -84,14 +88,13 @@ export async function getCollectionItem<TCollection extends CollectionName>(
   }
 
   const { data, content } = matter(String(raw))
-  const schema = collectionSchemas[collection]
-  const parsed = schema.parse(data)
+  const parsed = collectionSchemas[collection].parse(data)
 
   return {
     ...parsed,
     slug,
-    content: marked(content) as string,
-  } as CollectionItem<TCollection> & { content: string }
+    content: marked(content, { async: false }),
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -123,17 +126,20 @@ export async function getAllBlogPosts(): Promise<Array<BlogPostMeta>> {
   const storage = getContentStorage()
   const slugs = await getBlogSlugs()
 
+  const blogSchema = collectionSchemas.blog
+
   const posts = await Promise.all(
     slugs.map(async (slug) => {
       const raw = await storage.getItemRaw<string>(`blog:${slug}.md`)
       const { data } = matter(String(raw))
+      const parsed = blogSchema.parse(data)
 
       return {
         slug,
-        title: (data.title as string) || slug,
-        date: data.date ? new Date(data.date as string).toISOString() : '',
-        description: data.description as string | undefined,
-        image: data.image as string | undefined,
+        title: parsed.title || slug,
+        date: parsed.date.toISOString(),
+        description: parsed.description,
+        image: parsed.image,
       }
     }),
   )
@@ -150,13 +156,14 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   }
 
   const { data, content } = matter(String(raw))
+  const parsed = collectionSchemas.blog.parse(data)
 
   return {
     slug,
-    title: (data.title as string) || slug,
-    date: data.date ? new Date(data.date as string).toISOString() : '',
-    description: data.description as string | undefined,
-    image: data.image as string | undefined,
-    content: marked(content) as string,
+    title: parsed.title || slug,
+    date: parsed.date.toISOString(),
+    description: parsed.description,
+    image: parsed.image,
+    content: marked(content, { async: false }),
   }
 }

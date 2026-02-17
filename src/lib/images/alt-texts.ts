@@ -3,21 +3,26 @@ import type { CarouselFilename } from './manifest.generated'
 /**
  * Valid CSS object-position values for controlling image focal points.
  * Used when images are cropped with object-cover.
+ *
+ * Defined as a const tuple so it can be shared with Zod schemas via `z.enum()`.
  */
-export type ObjectPosition =
-  | 'center'
-  | 'top'
-  | 'bottom'
-  | 'left'
-  | 'right'
-  | 'top left'
-  | 'top center'
-  | 'top right'
-  | 'center left'
-  | 'center right'
-  | 'bottom left'
-  | 'bottom center'
-  | 'bottom right'
+export const OBJECT_POSITIONS = [
+  'center',
+  'top',
+  'bottom',
+  'left',
+  'right',
+  'top left',
+  'top center',
+  'top right',
+  'center left',
+  'center right',
+  'bottom left',
+  'bottom center',
+  'bottom right',
+] as const
+
+export type ObjectPosition = (typeof OBJECT_POSITIONS)[number]
 
 /** Metadata for a single image */
 export interface ImageMeta {
