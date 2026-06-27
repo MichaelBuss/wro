@@ -1,6 +1,5 @@
 import matter from 'gray-matter'
 import { marked } from 'marked'
-import { useStorage } from 'nitro/storage'
 import {
   collectionSchemas,
   pageSchemas,
@@ -12,8 +11,28 @@ import type {
   PageKey,
 } from '~/content/registry'
 
-function getContentStorage() {
-  return useStorage('assets:content')
+/**
+ * All markdown under `content/` is inlined into the server bundle at build time.
+ * This runs in any server environment (dev SSR, Netlify build) without depending
+ * on a server-runtime storage layer, so content loading behaves identically in
+ * the framework SSR dev server and in the deployed function.
+ */
+const rawContentByPath = import.meta.glob<string>('/content/**/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+})
+
+function readContent(relativePath: string): string | undefined {
+  return rawContentByPath[`/content/${relativePath}`]
+}
+
+function listCollectionSlugs(collection: CollectionName): Array<string> {
+  const prefix = `/content/${collection}/`
+
+  return Object.keys(rawContentByPath)
+    .filter((path) => path.startsWith(prefix) && path.endsWith('.md'))
+    .map((path) => path.slice(prefix.length).replace(/\.md$/, ''))
 }
 
 // ---------------------------------------------------------------------------
@@ -27,17 +46,16 @@ function getContentStorage() {
  * Overloads provide narrowed return types per key, since tsgo cannot infer
  * them through generic indexed access on `pageSchemas`.
  */
-export async function getPageContent(key: 'homepage'): Promise<PageContent<'homepage'>>
-export async function getPageContent(key: 'event-info'): Promise<PageContent<'event-info'>>
-export async function getPageContent(key: PageKey) {
-  const storage = getContentStorage()
-  const raw = await storage.getItemRaw<string>(`pages:${key}.md`)
+export function getPageContent(key: 'homepage'): PageContent<'homepage'>
+export function getPageContent(key: 'event-info'): PageContent<'event-info'>
+export function getPageContent(key: PageKey) {
+  const raw = readContent(`pages/${key}.md`)
 
   if (!raw) {
     throw new Error(`Content file not found: content/pages/${key}.md`)
   }
 
-  const { data } = matter(String(raw))
+  const { data } = matter(raw)
 
   return pageSchemas[key].parse(data)
 }
@@ -46,48 +64,45 @@ export async function getPageContent(key: PageKey) {
  * Load all items in a folder collection. Validates each against its registry schema.
  * Returns items sorted by slug unless the schema includes an `order` field.
  */
-export async function getCollectionItems(collection: 'blog'): Promise<Array<CollectionItem<'blog'>>>
-export async function getCollectionItems(collection: 'carousel'): Promise<Array<CollectionItem<'carousel'>>>
-export async function getCollectionItems(collection: CollectionName) {
-  const storage = getContentStorage()
-  const allKeys = await storage.getKeys(collection)
-  const mdKeys = allKeys.filter((key) => key.endsWith('.md'))
+export function getCollectionItems(collection: 'blog'): Array<CollectionItem<'blog'>>
+export function getCollectionItems(collection: 'carousel'): Array<CollectionItem<'carousel'>>
+export function getCollectionItems(collection: CollectionName) {
+  const slugs = listCollectionSlugs(collection)
 
-  if (mdKeys.length === 0) {
+  if (slugs.length === 0) {
     return []
   }
 
   const schema = collectionSchemas[collection]
 
-  const items = await Promise.all(
-    mdKeys.map(async (key) => {
-      const slug = key.replace(`${collection}:`, '').replace(/\.md$/, '')
-      const raw = await storage.getItemRaw<string>(key)
-      const { data } = matter(String(raw))
-      const parsed = schema.parse(data)
+  return slugs.flatMap((slug) => {
+    const raw = readContent(`${collection}/${slug}.md`)
 
-      return { ...parsed, slug }
-    }),
-  )
+    if (!raw) {
+      return []
+    }
 
-  return items
+    const { data } = matter(raw)
+    const parsed = schema.parse(data)
+
+    return [{ ...parsed, slug }]
+  })
 }
 
 /**
  * Load a single item from a folder collection by slug.
  * Returns null if the file doesn't exist.
  */
-export async function getCollectionItem(collection: 'blog', slug: string): Promise<(CollectionItem<'blog'> & { content: string }) | null>
-export async function getCollectionItem(collection: 'carousel', slug: string): Promise<(CollectionItem<'carousel'> & { content: string }) | null>
-export async function getCollectionItem(collection: CollectionName, slug: string) {
-  const storage = getContentStorage()
-  const raw = await storage.getItemRaw<string>(`${collection}:${slug}.md`)
+export function getCollectionItem(collection: 'blog', slug: string): (CollectionItem<'blog'> & { content: string }) | null
+export function getCollectionItem(collection: 'carousel', slug: string): (CollectionItem<'carousel'> & { content: string }) | null
+export function getCollectionItem(collection: CollectionName, slug: string) {
+  const raw = readContent(`${collection}/${slug}.md`)
 
   if (!raw) {
     return null
   }
 
-  const { data, content } = matter(String(raw))
+  const { data, content } = matter(raw)
   const parsed = collectionSchemas[collection].parse(data)
 
   return {
@@ -113,49 +128,47 @@ export interface BlogPost extends BlogPostMeta {
   content: string
 }
 
-export async function getBlogSlugs(): Promise<Array<string>> {
-  const storage = getContentStorage()
-  const keys = await storage.getKeys('blog')
-
-  return keys
-    .filter((key) => key.endsWith('.md'))
-    .map((key) => key.replace('blog:', '').replace(/\.md$/, ''))
+export function getBlogSlugs(): Array<string> {
+  return listCollectionSlugs('blog')
 }
 
-export async function getAllBlogPosts(): Promise<Array<BlogPostMeta>> {
-  const storage = getContentStorage()
-  const slugs = await getBlogSlugs()
+export function getAllBlogPosts(): Array<BlogPostMeta> {
+  const slugs = getBlogSlugs()
 
   const blogSchema = collectionSchemas.blog
 
-  const posts = await Promise.all(
-    slugs.map(async (slug) => {
-      const raw = await storage.getItemRaw<string>(`blog:${slug}.md`)
-      const { data } = matter(String(raw))
-      const parsed = blogSchema.parse(data)
+  const posts = slugs.flatMap((slug) => {
+    const raw = readContent(`blog/${slug}.md`)
 
-      return {
+    if (!raw) {
+      return []
+    }
+
+    const { data } = matter(raw)
+    const parsed = blogSchema.parse(data)
+
+    return [
+      {
         slug,
         title: parsed.title || slug,
         date: parsed.date.toISOString(),
         description: parsed.description,
         image: parsed.image,
-      }
-    }),
-  )
+      },
+    ]
+  })
 
   return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
-export async function getBlogPost(slug: string): Promise<BlogPost | null> {
-  const storage = getContentStorage()
-  const raw = await storage.getItemRaw<string>(`blog:${slug}.md`)
+export function getBlogPost(slug: string): BlogPost | null {
+  const raw = readContent(`blog/${slug}.md`)
 
   if (!raw) {
     return null
   }
 
-  const { data, content } = matter(String(raw))
+  const { data, content } = matter(raw)
   const parsed = collectionSchemas.blog.parse(data)
 
   return {
