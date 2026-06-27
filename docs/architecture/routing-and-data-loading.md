@@ -114,8 +114,9 @@ The site is mostly static content, so prerendering is the intended long-term str
 
 **Client-side fetching for all data.** Would require exposing content as an API and handling loading states in every component. Loaders keep the data-fetching boundary at the route level, which is cleaner for a content site.
 
-**Static site generation (no server).** Would work for most pages, but having a server available (via Nitro) keeps the door open for dynamic features like form submissions or authenticated routes.
+**Static site generation (no server).** Would work for most pages, but having a server available (the Netlify SSR function) keeps the door open for dynamic features like form submissions or authenticated routes.
 
 ## Revision History
 
 - **2026-02-16** (Michael): Initial document capturing routing and data loading architecture
+- **2026-06-27** (Michael): Updated server reference from Nitro to the Netlify SSR function (see [Build & Deployment](build-and-deployment.md)).

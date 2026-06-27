@@ -7,15 +7,15 @@ import { getBlogPost, getBlogSlugs } from '~/server/content'
 const getPost = createServerFn({
   method: 'GET',
 })
-  .inputValidator((slug: string) => slug)
-  .handler(async ({ data: slug }): Promise<BlogPost | null> => {
+  .validator((slug: string) => slug)
+  .handler(({ data: slug }): BlogPost | null => {
     return getBlogPost(slug)
   })
 
 // Export slugs for static prerendering
 export const getBlogPostSlugs = createServerFn({
   method: 'GET',
-}).handler(async (): Promise<Array<string>> => {
+}).handler((): Array<string> => {
   return getBlogSlugs()
 })
 

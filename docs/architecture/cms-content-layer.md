@@ -4,7 +4,7 @@ status: implemented
 authors:
   - Michael
 created: 2026-02-16
-updated: 2026-02-16
+updated: 2026-06-27
 codeAnchors:
   - src/content/registry.ts
   - src/server/content.ts
@@ -39,7 +39,9 @@ We needed content to be editable through a CMS while keeping full type safety an
 
 ## Core Idea
 
-Content lives in Markdown frontmatter files under `content/`, editable via Decap CMS. A **Zod schema registry** (`src/content/registry.ts`) defines the expected shape for every content type. Server-side accessor functions parse and validate the files at request time, returning fully typed data to route loaders.
+Content lives in Markdown frontmatter files under `content/`, editable via Decap CMS. A **Zod schema registry** (`src/content/registry.ts`) defines the expected shape for every content type. Server-side accessor functions parse and validate the content, returning fully typed data to route loaders.
+
+The Markdown is inlined into the build via Vite's `import.meta.glob` (raw, eager), so content is available identically in dev SSR and in the deployed function with no server-runtime storage layer. Publishing edited content therefore requires a rebuild — acceptable for a Git-backed, CDN-served site.
 
 Adding or changing a content field is a three-place change: the registry schema, the CMS config, and the Markdown file — but the compiler and validation script catch any mismatches.
 
@@ -100,3 +102,4 @@ This runs as part of `npm run lint`, catching content drift in CI before it reac
 ## Revision History
 
 - **2026-02-16** (Michael): Initial document capturing CMS content layer architecture
+- **2026-06-27** (Michael): Content is now inlined at build time via `import.meta.glob` instead of read through a server-runtime storage layer; mechanism note added.
