@@ -15,7 +15,7 @@ const kitCardVariants = cva({
   variants: {
     recommended: {
       true: 'bg-wro-blue-50 border-wro-blue-200',
-      false: 'bg-gray-50 border-gray-200',
+      false: 'bg-muted border-border',
     },
   },
   defaultVariants: {
@@ -58,9 +58,9 @@ function MaterialsPage() {
       <PageHeader icon={topic.icon} title={topic.title} />
 
       <ContentCard>
-        <p class="text-xl text-slate-600 mb-8">{topic.description}</p>
+        <p class="text-xl text-muted-foreground mb-8">{topic.description}</p>
 
-        <h2 class="text-2xl font-semibold text-slate-800 mb-6">
+        <h2 class="text-2xl font-semibold text-foreground mb-6">
           Godkendte robotsæt
         </h2>
 
@@ -70,7 +70,7 @@ function MaterialsPage() {
               <div class={kitCardVariants({ recommended: kit.recommended })}>
                 <div class="flex items-start justify-between">
                   <div>
-                    <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
                       {kit.name}
                       {kit.recommended && (
                         <span class="text-xs bg-wro-blue-600 text-white px-2 py-0.5 rounded-full">
@@ -78,7 +78,7 @@ function MaterialsPage() {
                         </span>
                       )}
                     </h3>
-                    <p class="text-slate-500 mt-1">{kit.description}</p>
+                    <p class="text-muted-foreground mt-1">{kit.description}</p>
                   </div>
                 </div>
               </div>
@@ -86,7 +86,7 @@ function MaterialsPage() {
           </For>
         </div>
 
-        <h2 class="text-2xl font-semibold text-slate-800 mb-6">
+        <h2 class="text-2xl font-semibold text-foreground mb-6">
           Andet du skal bruge
         </h2>
 
@@ -100,7 +100,7 @@ function MaterialsPage() {
             ]}
           >
             {(item) => (
-              <div class="flex items-center gap-3 text-slate-600">
+              <div class="flex items-center gap-3 text-foreground/80">
                 <Check class="w-5 h-5 text-green-600 shrink-0" />
                 <span>{item}</span>
               </div>
@@ -108,11 +108,11 @@ function MaterialsPage() {
           </For>
         </div>
 
-        <div class="p-6 bg-gray-50 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-800 mb-3">
+        <div class="p-6 bg-muted rounded-lg">
+          <h3 class="text-lg font-semibold text-foreground mb-3">
             Officielle regler og materialer
           </h3>
-          <p class="text-slate-500 mb-4">
+          <p class="text-muted-foreground mb-4">
             Find de komplette regler og liste over tilladte materialer på WROs
             officielle hjemmeside.
           </p>

@@ -36,35 +36,35 @@ function DatePage() {
 
       <ContentCard>
         <div class="grid md:grid-cols-2 gap-6 mb-8">
-          <div class="flex items-start gap-4 p-6 bg-gray-50 rounded-lg">
+          <div class="flex items-start gap-4 p-6 bg-muted rounded-lg">
             <Calendar class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
-              <h3 class="text-lg font-semibold text-slate-800 mb-1">Dato</h3>
-              <p class="text-slate-600 capitalize">{formattedDate()}</p>
+              <h3 class="text-lg font-semibold text-foreground mb-1">Dato</h3>
+              <p class="text-foreground/80 capitalize">{formattedDate()}</p>
             </div>
           </div>
 
-          <div class="flex items-start gap-4 p-6 bg-gray-50 rounded-lg">
+          <div class="flex items-start gap-4 p-6 bg-muted rounded-lg">
             <MapPin class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
-              <h3 class="text-lg font-semibold text-slate-800 mb-1">Sted</h3>
-              <p class="text-slate-600">{eventInfo().danish_final_location}</p>
+              <h3 class="text-lg font-semibold text-foreground mb-1">Sted</h3>
+              <p class="text-foreground/80">{eventInfo().danish_final_location}</p>
             </div>
           </div>
 
-          <div class="flex items-start gap-4 p-6 bg-gray-50 rounded-lg">
+          <div class="flex items-start gap-4 p-6 bg-muted rounded-lg">
             <Clock class="w-8 h-8 text-wro-blue-500 shrink-0" />
             <div>
-              <h3 class="text-lg font-semibold text-slate-800 mb-1">
+              <h3 class="text-lg font-semibold text-foreground mb-1">
                 Tidspunkt
               </h3>
-              <p class="text-slate-600">{eventInfo().danish_final_time}</p>
+              <p class="text-foreground/80">{eventInfo().danish_final_time}</p>
             </div>
           </div>
         </div>
 
         <div class="prose max-w-none">
-          <h2 class="text-2xl font-semibold text-slate-800 mb-4">
+          <h2 class="text-2xl font-semibold text-foreground mb-4">
             Program for dagen
           </h2>
 
@@ -76,8 +76,8 @@ function DatePage() {
                     {item.time}
                   </span>
                   <div>
-                    <h4 class="text-slate-800 font-medium">{item.title}</h4>
-                    <p class="text-slate-500 text-sm">{item.description}</p>
+                    <h4 class="text-foreground font-medium">{item.title}</h4>
+                    <p class="text-muted-foreground text-sm">{item.description}</p>
                   </div>
                 </div>
               )}

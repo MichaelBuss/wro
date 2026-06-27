@@ -39,7 +39,7 @@ export default function Header() {
 
             <Link
               to="/signup"
-              class="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-500 hover:bg-cyan-400 rounded-lg transition-colors"
+              class="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-wro-blue-500 hover:bg-wro-blue-400 rounded-lg transition-colors"
             >
               Tilmeld dig nu
             </Link>

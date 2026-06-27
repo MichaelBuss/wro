@@ -14,7 +14,7 @@ export function TipBox(props: TipBoxProps) {
       <h3 class="text-lg font-semibold text-wro-blue-700 mb-3">
         {props.title}
       </h3>
-      <p class="text-slate-600">{props.children}</p>
+      <p class="text-foreground/80">{props.children}</p>
     </div>
   )
 }

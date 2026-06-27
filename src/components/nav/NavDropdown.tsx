@@ -100,7 +100,7 @@ export function NavDropdown() {
               }}
               role="menuitem"
             >
-              <topic.icon class="w-4 h-4 text-cyan-400/70" />
+              <topic.icon class="w-4 h-4 text-wro-blue-400/70" />
               <span>{topic.shortTitle}</span>
             </Link>
           )}

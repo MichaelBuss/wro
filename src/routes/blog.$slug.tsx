@@ -28,12 +28,12 @@ function BlogPostPage() {
   const post = Route.useLoaderData()
 
   return (
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-background">
       <Show
         when={post()}
         fallback={
           <div class="py-16 px-6 max-w-4xl mx-auto text-center">
-            <h1 class="text-4xl font-bold text-slate-800 mb-4">
+            <h1 class="text-4xl font-bold text-foreground mb-4">
               Post ikke fundet
             </h1>
             <Link
@@ -55,15 +55,15 @@ function BlogPostPage() {
             </Link>
 
             <header class="mb-8">
-              <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+              <h1 class="text-4xl md:text-5xl font-bold text-foreground mb-4">
                 {postData().title}
               </h1>
               {postData().description && (
-                <p class="text-xl text-slate-500 mb-4">
+                <p class="text-xl text-muted-foreground mb-4">
                   {postData().description}
                 </p>
               )}
-              <time class="text-slate-400">
+              <time class="text-muted-foreground/70">
                 {new Date(postData().date).toLocaleDateString('da-DK', {
                   year: 'numeric',
                   month: 'long',
@@ -76,20 +76,20 @@ function BlogPostPage() {
               <img
                 src={postData().image}
                 alt={postData().title}
-                class="w-full rounded-xl mb-8 border border-gray-200"
+                class="w-full rounded-xl mb-8 border border-border"
               />
             )}
 
             <div
               class="prose prose-lg max-w-none
-                prose-headings:text-slate-800 prose-headings:font-semibold
-                prose-p:text-slate-600 prose-p:leading-relaxed
+                prose-headings:text-foreground prose-headings:font-semibold
+                prose-p:text-foreground/80 prose-p:leading-relaxed
                 prose-a:text-wro-blue-600 prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-slate-800
-                prose-ul:text-slate-600 prose-ol:text-slate-600
+                prose-strong:text-foreground
+                prose-ul:text-foreground/80 prose-ol:text-foreground/80
                 prose-li:marker:text-wro-blue-500
-                prose-code:text-wro-blue-700 prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded
-                prose-pre:bg-gray-100 prose-pre:border prose-pre:border-gray-200"
+                prose-code:text-wro-blue-700 prose-code:bg-muted prose-code:px-1 prose-code:rounded
+                prose-pre:bg-muted prose-pre:border prose-pre:border-border"
               // eslint-disable-next-line solid/no-innerhtml -- Markdown content is sanitized server-side
               innerHTML={postData().content}
             />

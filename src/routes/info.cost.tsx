@@ -15,7 +15,7 @@ function CostPage() {
       <PageHeader icon={topic.icon} title={topic.title} />
 
       <ContentCard>
-        <p class="text-xl text-slate-600 mb-8">{topic.description}</p>
+        <p class="text-xl text-muted-foreground mb-8">{topic.description}</p>
 
         <div class="grid md:grid-cols-2 gap-6 mb-8">
           <div class="p-6 bg-green-50 border border-green-200 rounded-lg">
@@ -23,7 +23,7 @@ function CostPage() {
               <Check class="w-6 h-6" />
               Gratis
             </h3>
-            <ul class="space-y-3 text-slate-600">
+            <ul class="space-y-3 text-foreground/80">
               <li class="flex items-start gap-2">
                 <Check class="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
                 <span>Tilmelding til konkurrencen</span>
@@ -47,7 +47,7 @@ function CostPage() {
             <h3 class="text-xl font-semibold text-amber-700 mb-4 flex items-center gap-2">
               💰 Egne udgifter
             </h3>
-            <ul class="space-y-3 text-slate-600">
+            <ul class="space-y-3 text-foreground/80">
               <li class="flex items-start gap-2">
                 <span class="text-amber-600 font-bold min-w-[100px]">
                   ~500-800 kr
@@ -76,11 +76,11 @@ function CostPage() {
           hold om at dele en øvebane.
         </TipBox>
 
-        <div class="p-6 bg-gray-50 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-800 mb-3">
+        <div class="p-6 bg-muted rounded-lg">
+          <h3 class="text-lg font-semibold text-foreground mb-3">
             Søg om støtte
           </h3>
-          <p class="text-slate-500">
+          <p class="text-muted-foreground">
             Nogle fonde og organisationer støtter STEM-aktiviteter for unge.
             Kontakt jeres skole eller kommune for at høre om muligheder for
             økonomisk støtte.

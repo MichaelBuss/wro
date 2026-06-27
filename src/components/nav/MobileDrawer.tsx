@@ -162,7 +162,7 @@ export function MobileDrawer() {
           <Link
             to="/signup"
             onClick={closeDrawer}
-            class="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-white bg-cyan-500 hover:bg-cyan-400 rounded-lg transition-colors"
+            class="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-white bg-wro-blue-500 hover:bg-wro-blue-400 rounded-lg transition-colors"
           >
             Tilmeld dig nu
           </Link>

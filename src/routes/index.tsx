@@ -33,12 +33,12 @@ function HomePage() {
   const data = Route.useLoaderData()
 
   return (
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-background">
       <Carousel tint="cool" images={data().images}>
         <HeroContent />
       </Carousel>
 
-      <section class="py-16 px-6 max-w-7xl mx-auto bg-gray-50">
+      <section class="py-16 px-6 max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <For each={INFO_TOPICS}>
             {(topic) => <InfoTopicCard topic={topic} />}
@@ -55,17 +55,17 @@ function HeroContent() {
   return (
     <>
       <h1 class="text-6xl md:text-8xl font-black text-white tracking-[-0.04em] drop-shadow-2xl">
-        <span class="text-gray-100">{data().hero.hero_heading}</span>{' '}
+        <span class="text-white/90">{data().hero.hero_heading}</span>{' '}
         <span class="bg-linear-to-r from-wro-blue-300 to-wro-blue-400 bg-clip-text text-transparent">
           {data().hero.hero_heading_accent}
         </span>
       </h1>
 
-      <p class="text-2xl md:text-3xl text-gray-200 mb-4 font-light drop-shadow-lg">
+      <p class="text-2xl md:text-3xl text-white/80 mb-4 font-light drop-shadow-lg">
         {data().hero.hero_subheading}
       </p>
 
-      <p class="text-lg text-gray-300 max-w-3xl mx-auto mb-8 drop-shadow-md">
+      <p class="text-lg text-white/70 max-w-3xl mx-auto mb-8 drop-shadow-md">
         {data().hero.hero_description}
       </p>
 
@@ -76,7 +76,7 @@ function HeroContent() {
         >
           {data().hero.cta_text}
         </Link>
-        <p class="text-gray-300 text-sm mt-2 drop-shadow">
+        <p class="text-white/60 text-sm mt-2 drop-shadow">
           {data().hero.cta_subtext}
         </p>
       </div>

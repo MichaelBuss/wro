@@ -18,9 +18,11 @@
     "images:generate": "tsx scripts/generate-images.ts"
   },
   "dependencies": {
+    "@fontsource/fraunces": "^5.2.9",
     "@fontsource/inter": "^5.2.8",
     "@kobalte/core": "^0.13.11",
     "@t3-oss/env-core": "^0.13.10",
+    "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/router-plugin": "^1.168.18",
     "@tanstack/solid-form": "^1.33.0",

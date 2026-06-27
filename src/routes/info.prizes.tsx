@@ -25,9 +25,9 @@ function PrizesPage() {
 
       <ContentCard>
         <div class="prose max-w-none">
-          <p class="text-xl text-slate-600 mb-6">{topic.description}</p>
+          <p class="text-xl text-muted-foreground mb-6">{topic.description}</p>
 
-          <h2 class="text-2xl font-semibold text-slate-800 mb-4">
+          <h2 class="text-2xl font-semibold text-foreground mb-4">
             Præmier ved WRO Danmark
           </h2>
 
@@ -36,16 +36,16 @@ function PrizesPage() {
               <h3 class="text-xl font-bold text-yellow-700 mb-2">
                 🥇 1. plads - Hovedpræmien
               </h3>
-              <p class="text-slate-600">
+              <p class="text-foreground/80">
                 Fuldtbetalt rejse til WRO-verdensfinalen i{' '}
                 {eventInfo().world_final_location}! Dette inkluderer fly,
                 overnatning og deltagelse i verdensfinalen.
               </p>
             </div>
 
-            <div class="bg-gray-100 border border-gray-200 rounded-lg p-6">
-              <h3 class="text-xl font-bold text-slate-600 mb-2">🥈 2. plads</h3>
-              <p class="text-slate-600">
+            <div class="bg-muted border border-border rounded-lg p-6">
+              <h3 class="text-xl font-bold text-muted-foreground mb-2">🥈 2. plads</h3>
+              <p class="text-foreground/80">
                 Spændende præmier og anerkendelse for jeres fantastiske indsats.
               </p>
             </div>
@@ -54,7 +54,7 @@ function PrizesPage() {
               <h3 class="text-xl font-bold text-orange-700 mb-2">
                 🥉 3. plads
               </h3>
-              <p class="text-slate-600">
+              <p class="text-foreground/80">
                 Præmier og diplom for jeres flotte præstation.
               </p>
             </div>
