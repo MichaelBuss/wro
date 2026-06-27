@@ -9,6 +9,7 @@ codeAnchors:
   - tsconfig.json
   - package.json
   - .oxlintrc.json
+  - .oxfmtrc.json
   - src/env.ts
 overview: >
   Strict TypeScript with tsgo for fast typechecking, zero-tolerance oxlint policy,
@@ -56,7 +57,15 @@ The policy is:
 
 This keeps the linter output trustworthy — if it reports zero errors, the codebase is clean.
 
-**Migration trade-offs (from ESLint):** The `no-unassigned-vars` correctness rule is disabled because it produces false positives on Solid's `let ref; ... ref={ref}` binding pattern, which oxlint cannot see as an assignment. oxlint also does not yet implement `import/order`, so automatic import ordering is no longer enforced — import grouping is now left to convention and prettier/editor organize-imports.
+**Migration trade-offs (from ESLint):** The `no-unassigned-vars` correctness rule is disabled because it produces false positives on Solid's `let ref; ... ref={ref}` binding pattern, which oxlint cannot see as an assignment. oxlint also does not yet implement `import/order`, so automatic import ordering is no longer enforced — import grouping is now left to convention and editor organize-imports (oxfmt's `sortImports` could restore this later; see the formatting section).
+
+### Formatting: oxfmt (not Prettier)
+
+Formatting uses **oxfmt** (`.oxfmtrc.json`) — the Oxc formatter — replacing Prettier. It keeps the same style the project used under Prettier (`semi: false`, `singleQuote: true`, `trailingComma: "all"`) and pins `printWidth: 80` to match the previous formatting (oxfmt's own default is 100). Lock files and generated `*.gen.ts` files are excluded via `ignorePatterns`.
+
+Scripts: `npm run fmt` formats in place; `npm run fmt:check` verifies without writing (for CI); `npm run check` formats then runs `oxlint --fix`. Editor format-on-save is wired to the Oxc VS Code extension (`oxc.oxc-vscode`) in `.vscode/settings.json`, which also handles JS/TS/JSON.
+
+**Early-days trade-off:** oxfmt is pre-1.0, so its output is not byte-identical to Prettier and may shift between releases — accepted for this project. oxfmt also has built-in (currently unused) sorting features for imports, Tailwind classes, and `package.json` that could later replace the `import/order` capability lost in the ESLint→oxlint migration.
 
 ### Environment Variables: Typed with @t3-oss/env-core
 
@@ -83,3 +92,4 @@ All three must pass before work is considered complete.
 
 - **2026-02-16** (Michael): Initial document capturing DX and tooling decisions
 - **2026-06-27**: Migrated linting from ESLint to oxlint; documented trade-offs (no `import/order`, `no-unassigned-vars` disabled for Solid refs). Enabled type-aware linting via `oxlint-tsgolint` (`--type-aware`), and restored Solid rules by loading `eslint-plugin-solid` through oxlint's `jsPlugins`.
+- **2026-06-27**: Migrated formatting from Prettier to oxfmt (`.oxfmtrc.json`); preserved the existing style (no semicolons, single quotes, trailing commas, 80-column), wired format-on-save to the Oxc VS Code extension, and accepted oxfmt's pre-1.0 status.

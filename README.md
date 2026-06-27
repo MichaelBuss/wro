@@ -144,12 +144,13 @@ Files prefixed with `demo` can be safely deleted. They are there to provide a st
 
 ## Linting & Formatting
 
-This project uses [oxlint](https://oxc.rs/docs/guide/usage/linter) and [prettier](https://prettier.io/) for linting and formatting. Oxlint is configured via `.oxlintrc.json`. The following scripts are available:
+This project uses [oxlint](https://oxc.rs/docs/guide/usage/linter) and [oxfmt](https://oxc.rs/docs/guide/usage/formatter) for linting and formatting. Oxlint is configured via `.oxlintrc.json` and oxfmt via `.oxfmtrc.json`. The following scripts are available:
 
 ```bash
-npm run lint
-npm run format
-npm run check
+npm run lint        # oxlint + content validation
+npm run fmt         # format with oxfmt
+npm run fmt:check   # verify formatting without writing
+npm run check       # format then auto-fix lint
 ```
 
 # Learn More

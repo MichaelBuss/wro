@@ -5,7 +5,13 @@
   "categories": {
     "correctness": "error"
   },
-  "ignorePatterns": ["node_modules", "dist", ".output", ".netlify", "**/*.gen.ts"],
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    ".output",
+    ".netlify",
+    "**/*.gen.ts"
+  ],
   "env": {
     "builtin": true,
     "es2024": true,

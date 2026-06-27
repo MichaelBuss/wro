@@ -26,10 +26,15 @@ After making changes, run:
 
 ```bash
 npm run typecheck  # Type check (tsgo)
-npm run lint       # oxlint
+npm run lint       # oxlint + content validation
+npm run fmt        # oxfmt (format) — or `fmt:check` to verify only
 ```
 
 Fix all errors before considering work complete.
+
+## Formatting (oxfmt)
+
+Formatting uses **oxfmt** (`.oxfmtrc.json`), the Oxc formatter, not Prettier. Style: no semicolons, single quotes, trailing commas, 80-column width. Don't hand-format — run `npm run fmt`.
 
 ## Linting (oxlint)
 

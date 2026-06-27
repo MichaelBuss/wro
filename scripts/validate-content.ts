@@ -20,7 +20,12 @@ const CONTENT_DIR = join(process.cwd(), 'content')
 const PAGES_DIR = join(CONTENT_DIR, 'pages')
 
 interface ValidationError {
-  type: 'missing-file' | 'orphaned-file' | 'missing-dir' | 'orphaned-dir' | 'schema-error'
+  type:
+    | 'missing-file'
+    | 'orphaned-file'
+    | 'missing-dir'
+    | 'orphaned-dir'
+    | 'schema-error'
   message: string
 }
 
@@ -37,7 +42,9 @@ function error(type: ValidationError['type'], message: string) {
 
 console.log('Validating singleton pages...')
 
-const registeredPages = Object.keys(pageSchemas) as Array<keyof typeof pageSchemas>
+const registeredPages = Object.keys(pageSchemas) as Array<
+  keyof typeof pageSchemas
+>
 const pageFilesOnDisk = existsSync(PAGES_DIR)
   ? readdirSync(PAGES_DIR)
       .filter((f) => f.endsWith('.md'))
@@ -48,7 +55,10 @@ for (const key of registeredPages) {
   const filePath = join(PAGES_DIR, `${key}.md`)
 
   if (!existsSync(filePath)) {
-    error('missing-file', `Registry defines page "${key}" but content/pages/${key}.md does not exist`)
+    error(
+      'missing-file',
+      `Registry defines page "${key}" but content/pages/${key}.md does not exist`,
+    )
     continue
   }
 
@@ -58,13 +68,19 @@ for (const key of registeredPages) {
   const result = schema.safeParse(data)
 
   if (!result.success) {
-    error('schema-error', `content/pages/${key}.md frontmatter validation failed:\n    ${result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n    ')}`)
+    error(
+      'schema-error',
+      `content/pages/${key}.md frontmatter validation failed:\n    ${result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n    ')}`,
+    )
   }
 }
 
 for (const file of pageFilesOnDisk) {
   if (!registeredPages.includes(file as keyof typeof pageSchemas)) {
-    error('orphaned-file', `content/pages/${file}.md exists but "${file}" is not defined in pageSchemas`)
+    error(
+      'orphaned-file',
+      `content/pages/${file}.md exists but "${file}" is not defined in pageSchemas`,
+    )
   }
 }
 
@@ -74,7 +90,9 @@ for (const file of pageFilesOnDisk) {
 
 console.log('Validating folder collections...')
 
-const registeredCollections = Object.keys(collectionSchemas) as Array<keyof typeof collectionSchemas>
+const registeredCollections = Object.keys(collectionSchemas) as Array<
+  keyof typeof collectionSchemas
+>
 
 const contentDirs = existsSync(CONTENT_DIR)
   ? readdirSync(CONTENT_DIR).filter((entry) => {
@@ -87,7 +105,10 @@ for (const collection of registeredCollections) {
   const collectionDir = join(CONTENT_DIR, collection)
 
   if (!existsSync(collectionDir)) {
-    error('missing-dir', `Registry defines collection "${collection}" but content/${collection}/ does not exist`)
+    error(
+      'missing-dir',
+      `Registry defines collection "${collection}" but content/${collection}/ does not exist`,
+    )
     continue
   }
 
@@ -101,14 +122,20 @@ for (const collection of registeredCollections) {
     const result = schema.safeParse(data)
 
     if (!result.success) {
-      error('schema-error', `content/${collection}/${file} frontmatter validation failed:\n    ${result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n    ')}`)
+      error(
+        'schema-error',
+        `content/${collection}/${file} frontmatter validation failed:\n    ${result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n    ')}`,
+      )
     }
   }
 }
 
 for (const dir of contentDirs) {
   if (!registeredCollections.includes(dir as keyof typeof collectionSchemas)) {
-    error('orphaned-dir', `content/${dir}/ exists but "${dir}" is not defined in collectionSchemas`)
+    error(
+      'orphaned-dir',
+      `content/${dir}/ exists but "${dir}" is not defined in collectionSchemas`,
+    )
   }
 }
 

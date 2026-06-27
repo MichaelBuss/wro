@@ -11,7 +11,13 @@
  * Force regenerate: npm run images:generate -- --force
  */
 
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { basename, extname, join } from 'node:path'
 import sharp from 'sharp'
 
@@ -69,7 +75,9 @@ async function main() {
   if (!existsSync(SOURCE_DIR)) {
     mkdirSync(SOURCE_DIR, { recursive: true })
     console.log(`📁 Created ${SOURCE_DIR}/`)
-    console.log('   Add your source images here in subfolders (e.g., carousel/, gallery/)')
+    console.log(
+      '   Add your source images here in subfolders (e.g., carousel/, gallery/)',
+    )
     return
   }
 
@@ -90,7 +98,9 @@ async function main() {
     return
   }
 
-  console.log(`Found ${subfolders.length} image folder(s): ${subfolders.join(', ')}\n`)
+  console.log(
+    `Found ${subfolders.length} image folder(s): ${subfolders.join(', ')}\n`,
+  )
 
   // Process each folder
   const results: Array<FolderResult> = []
@@ -106,7 +116,11 @@ async function main() {
       mkdirSync(outputFolderPath, { recursive: true })
     }
 
-    const folderResult = await processFolder(folder, sourceFolderPath, outputFolderPath)
+    const folderResult = await processFolder(
+      folder,
+      sourceFolderPath,
+      outputFolderPath,
+    )
     if (folderResult.images.length > 0) {
       results.push(folderResult)
 
@@ -131,7 +145,9 @@ async function main() {
   console.log(`   Skipped (up-to-date): ${totalSkipped} image(s)`)
 
   if (totalGenerated > 0) {
-    console.log('\n💡 If you added new images, update ALT_TEXTS in src/lib/images/alt-texts.ts')
+    console.log(
+      '\n💡 If you added new images, update ALT_TEXTS in src/lib/images/alt-texts.ts',
+    )
   }
 }
 
@@ -160,7 +176,11 @@ async function processFolder(
     const sourceFilePath = join(sourcePath, sourceFile)
     const filenameWithoutExt = basename(sourceFile, extname(sourceFile))
 
-    const result = await processImage(filenameWithoutExt, sourceFilePath, outputPath)
+    const result = await processImage(
+      filenameWithoutExt,
+      sourceFilePath,
+      outputPath,
+    )
     imageResults.push(result)
   }
 
@@ -235,7 +255,9 @@ async function processImage(
       })
 
       const sizeKB = Math.round(size / 1024)
-      console.log(`      → ${outputFilename}${OUTPUT_EXTENSION} (${finalWidth}w, ${sizeKB}KB)`)
+      console.log(
+        `      → ${outputFilename}${OUTPUT_EXTENSION} (${finalWidth}w, ${sizeKB}KB)`,
+      )
     } catch (error) {
       console.error(`      ❌ Failed to generate ${outputFilename}:`, error)
     }

@@ -22,14 +22,14 @@ Capture the "why" behind significant design choices in concise architecture docs
 ```yaml
 ---
 name: Controls as Data
-status: implemented  # draft | proposed | accepted | implemented | superseded | deprecated
+status: implemented # draft | proposed | accepted | implemented | superseded | deprecated
 authors:
   - Michael
 created: 2026-02-01
 updated: 2026-02-10
-codeAnchors:           # optional: paths for sync checks
+codeAnchors: # optional: paths for sync checks
   - libs/react/map/src/controls/
-relatedPlans:          # optional: related doc filenames without .md
+relatedPlans: # optional: related doc filenames without .md
   - provider-agnostic-map-system
 overview: >
   Declarative, config-driven controls system where controls are plain data

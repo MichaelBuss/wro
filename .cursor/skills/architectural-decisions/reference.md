@@ -5,7 +5,7 @@
 ````markdown
 ---
 name: Controls as Data
-status: implemented  # draft | proposed | accepted | implemented | superseded | deprecated
+status: implemented # draft | proposed | accepted | implemented | superseded | deprecated
 authors:
   - Michael
 created: 2026-02-01
@@ -50,14 +50,14 @@ Adding a new control type to the discriminated union produces a compile error un
 
 ```tsx
 const MyMap = () => {
-  const [Map, api] = useMap(googleMapsAdapter({ apiKey }));
+  const [Map, api] = useMap(googleMapsAdapter({ apiKey }))
   return (
     <MapContainer>
       <Map>{children}</Map>
       <Controls api={api} />
     </MapContainer>
-  );
-};
+  )
+}
 ```
 
 The consumer doesn't wire up handlers or refs. `Controls` builds its config internally from the map API.
@@ -101,7 +101,7 @@ A pure middleware pipeline resolves these before renderers see the config. Rende
 
 ## Lightweight Decision Note Example
 
-````markdown
+```markdown
 ---
 name: Relative Zoom Over Absolute Zoom
 status: implemented
@@ -138,4 +138,4 @@ Controls exclusively use `zoom(delta)` -- it's self-contained, avoids stale clos
 ## Revision History
 
 - **2026-02-03** (Michael): Initial decision during controls implementation
-````
+```

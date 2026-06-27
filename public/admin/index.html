@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
     <script>
-      window.CMS_MANUAL_INIT = true;
+      window.CMS_MANUAL_INIT = true
     </script>
   </head>
   <body>
@@ -31,8 +31,18 @@
               fields: [
                 { label: 'Title', name: 'title', widget: 'string' },
                 { label: 'Publish Date', name: 'date', widget: 'datetime' },
-                { label: 'Description', name: 'description', widget: 'text', required: false },
-                { label: 'Featured Image', name: 'image', widget: 'image', required: false },
+                {
+                  label: 'Description',
+                  name: 'description',
+                  widget: 'text',
+                  required: false,
+                },
+                {
+                  label: 'Featured Image',
+                  name: 'image',
+                  widget: 'image',
+                  required: false,
+                },
                 { label: 'Body', name: 'body', widget: 'markdown' },
               ],
             },
@@ -45,9 +55,26 @@
               fields: [
                 { label: 'Image', name: 'image', widget: 'image' },
                 { label: 'Alt Text', name: 'alt', widget: 'string' },
-                { label: 'Description', name: 'description', widget: 'text', required: false },
-                { label: 'Focal Point', name: 'position', widget: 'string', required: false, hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"' },
-                { label: 'Sort Order', name: 'order', widget: 'number', required: false, hint: 'Lower numbers appear first' },
+                {
+                  label: 'Description',
+                  name: 'description',
+                  widget: 'text',
+                  required: false,
+                },
+                {
+                  label: 'Focal Point',
+                  name: 'position',
+                  widget: 'string',
+                  required: false,
+                  hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"',
+                },
+                {
+                  label: 'Sort Order',
+                  name: 'order',
+                  widget: 'number',
+                  required: false,
+                  hint: 'Lower numbers appear first',
+                },
               ],
             },
             {
@@ -59,12 +86,36 @@
                   label: 'Homepage',
                   file: 'content/pages/homepage.md',
                   fields: [
-                    { label: 'Hero Heading', name: 'hero_heading', widget: 'string' },
-                    { label: 'Hero Heading Accent', name: 'hero_heading_accent', widget: 'string' },
-                    { label: 'Hero Subheading', name: 'hero_subheading', widget: 'string' },
-                    { label: 'Hero Description', name: 'hero_description', widget: 'text' },
-                    { label: 'CTA Button Text', name: 'cta_text', widget: 'string' },
-                    { label: 'CTA Subtext', name: 'cta_subtext', widget: 'string' },
+                    {
+                      label: 'Hero Heading',
+                      name: 'hero_heading',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Hero Heading Accent',
+                      name: 'hero_heading_accent',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Hero Subheading',
+                      name: 'hero_subheading',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Hero Description',
+                      name: 'hero_description',
+                      widget: 'text',
+                    },
+                    {
+                      label: 'CTA Button Text',
+                      name: 'cta_text',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'CTA Subtext',
+                      name: 'cta_subtext',
+                      widget: 'string',
+                    },
                   ],
                 },
                 {
@@ -72,17 +123,35 @@
                   label: 'Event Info',
                   file: 'content/pages/event-info.md',
                   fields: [
-                    { label: 'Danish Final Date', name: 'danish_final_date', widget: 'datetime', date_format: 'YYYY-MM-DD', time_format: false },
-                    { label: 'Danish Final Location', name: 'danish_final_location', widget: 'string' },
-                    { label: 'Danish Final Time', name: 'danish_final_time', widget: 'string' },
-                    { label: 'World Final Location', name: 'world_final_location', widget: 'string' },
+                    {
+                      label: 'Danish Final Date',
+                      name: 'danish_final_date',
+                      widget: 'datetime',
+                      date_format: 'YYYY-MM-DD',
+                      time_format: false,
+                    },
+                    {
+                      label: 'Danish Final Location',
+                      name: 'danish_final_location',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Danish Final Time',
+                      name: 'danish_final_time',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'World Final Location',
+                      name: 'world_final_location',
+                      widget: 'string',
+                    },
                   ],
                 },
               ],
             },
           ],
         },
-      });
+      })
     </script>
   </body>
 </html>
