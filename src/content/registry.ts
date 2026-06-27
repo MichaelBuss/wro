@@ -52,6 +52,7 @@ export const collectionSchemas = {
     description: z.string().optional(),
     position: z.enum(OBJECT_POSITIONS).optional(),
     order: z.number().optional(),
+    year: z.number().optional(),
   }),
 } as const
 
