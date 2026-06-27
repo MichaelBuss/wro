@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/solid-router'
-import { Quote } from 'lucide-solid'
 import { For } from 'solid-js'
 import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
 import { ContentCard } from '~/components/ui'
@@ -75,44 +74,47 @@ function TipsPage() {
       <BackLink />
       <PageHeader icon={topic.icon} title={topic.title} />
 
-      <ContentCard title="Hvad siger tidligere deltagere?" class="mb-8">
-        <div class="grid gap-6">
+      <ContentCard class="mb-8">
+        <h2 class="font-sans text-h3 font-semibold text-foreground mb-6">
+          Hvad siger tidligere deltagere?
+        </h2>
+        <div class="divide-y divide-border">
           <For each={tips}>
             {(tip) => (
-              <div class="p-6 bg-muted rounded-lg border-l-4 border-wro-blue-500">
-                <div class="flex gap-3">
-                  <Quote class="w-6 h-6 text-wro-blue-500 shrink-0 mt-1" />
-                  <div>
-                    <p class="text-foreground/80 text-lg italic mb-3">
-                      "{tip.quote}"
-                    </p>
-                    <div class="text-sm">
-                      <span class="text-foreground font-medium">
-                        {tip.author}
-                      </span>
-                      <span class="text-muted-foreground ml-2">— {tip.team}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <blockquote class="py-6 first:pt-0 last:pb-0">
+                <p class="font-serif text-h5 font-normal text-foreground/80 italic mb-3">
+                  "{tip.quote}"
+                </p>
+                <footer class="text-caption text-muted-foreground">
+                  <span class="font-sans not-italic font-medium text-foreground/70">
+                    {tip.author}
+                  </span>
+                  <span class="ml-2">— {tip.team}</span>
+                </footer>
+              </blockquote>
             )}
           </For>
         </div>
       </ContentCard>
 
-      <ContentCard title="Praktiske tips">
-        <div class="grid md:grid-cols-2 gap-4">
+      <ContentCard>
+        <h2 class="font-sans text-h3 font-semibold text-foreground mb-6">
+          Praktiske tips
+        </h2>
+        <div class="divide-y divide-border">
           <For each={practicalTips}>
             {(tip, index) => (
-              <div class="p-4 bg-muted rounded-lg">
-                <div class="flex items-start gap-3">
-                  <span class="text-2xl font-bold text-wro-blue-300">
-                    {index() + 1}
-                  </span>
-                  <div>
-                    <h3 class="text-foreground font-medium mb-1">{tip.title}</h3>
-                    <p class="text-muted-foreground text-sm">{tip.description}</p>
-                  </div>
+              <div class="flex gap-5 py-5 first:pt-0 last:pb-0">
+                <span class="font-serif text-h4 text-muted-foreground/40 tabular-nums shrink-0 w-6 text-right">
+                  {index() + 1}
+                </span>
+                <div>
+                  <h3 class="font-sans text-sm-copy font-medium text-foreground mb-1">
+                    {tip.title}
+                  </h3>
+                  <p class="text-sm-copy text-muted-foreground">
+                    {tip.description}
+                  </p>
                 </div>
               </div>
             )}

@@ -15,7 +15,7 @@ function ResourcesPage() {
   const resourceCategories = [
     {
       title: 'Officielle WRO ressourcer',
-      icon: <Book class="w-6 h-6 text-wro-blue-500" />,
+      icon: <Book class="w-5 h-5 text-primary/60" />,
       resources: [
         {
           name: 'WRO Association',
@@ -32,7 +32,7 @@ function ResourcesPage() {
     },
     {
       title: 'Programmering',
-      icon: <Code class="w-6 h-6 text-green-600" />,
+      icon: <Code class="w-5 h-5 text-primary/60" />,
       resources: [
         {
           name: 'SPIKE Prime App',
@@ -55,7 +55,7 @@ function ResourcesPage() {
     },
     {
       title: 'Video tutorials',
-      icon: <Video class="w-6 h-6 text-red-500" />,
+      icon: <Video class="w-5 h-5 text-primary/60" />,
       resources: [
         {
           name: 'LEGO Education YouTube',
@@ -78,7 +78,7 @@ function ResourcesPage() {
     },
     {
       title: 'Communities',
-      icon: <Users class="w-6 h-6 text-purple-600" />,
+      icon: <Users class="w-5 h-5 text-primary/60" />,
       resources: [
         {
           name: 'LEGO Education Community',
@@ -106,7 +106,7 @@ function ResourcesPage() {
       <BackLink />
       <PageHeader icon={topic.icon} title={topic.title} />
 
-      <p class="text-xl text-muted-foreground mb-8">{topic.description}</p>
+      <p class="text-lead text-foreground/70 mb-10">{topic.description}</p>
 
       <div class="space-y-8">
         <For each={resourceCategories}>
@@ -114,33 +114,31 @@ function ResourcesPage() {
             <ContentCard>
               <div class="flex items-center gap-3 mb-6">
                 {category.icon}
-                <h2 class="text-xl font-semibold text-foreground">
+                <h2 class="font-sans text-h4 font-medium text-foreground">
                   {category.title}
                 </h2>
               </div>
 
-              <div class="grid gap-4">
+              <div class="divide-y divide-border">
                 <For each={category.resources}>
                   {(resource) => (
                     <a
                       href={resource.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="block p-4 bg-muted rounded-lg hover:bg-muted/70 transition-colors group"
+                      class="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0 group"
                     >
-                      <div class="flex items-start justify-between">
-                        <div>
-                          <h3 class="text-foreground font-medium group-hover:text-wro-blue-600 transition-colors flex items-center gap-2">
-                            {resource.name}
-                            <ExternalLink
-                              size={14}
-                              class="opacity-0 group-hover:opacity-100 transition-opacity"
-                            />
-                          </h3>
-                          <p class="text-muted-foreground text-sm mt-1">
-                            {resource.description}
-                          </p>
-                        </div>
+                      <div>
+                        <h3 class="text-sm-copy font-medium text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 mb-0.5">
+                          {resource.name}
+                          <ExternalLink
+                            size={12}
+                            class="opacity-0 group-hover:opacity-100 transition-opacity"
+                          />
+                        </h3>
+                        <p class="text-caption text-muted-foreground">
+                          {resource.description}
+                        </p>
                       </div>
                     </a>
                   )}
@@ -151,7 +149,7 @@ function ResourcesPage() {
         </For>
       </div>
 
-      <TipBox title="💡 Har du et godt tip?" class="mt-8">
+      <TipBox title="Har du et godt tip?" class="mt-8">
         Kender du en god ressource som mangler på listen? Kontakt os og del dit
         fund med andre WRO-deltagere!
       </TipBox>
