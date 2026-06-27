@@ -4,7 +4,7 @@ status: implemented
 authors:
   - Michael
 created: 2026-02-16
-updated: 2026-02-16
+updated: 2026-06-27
 codeAnchors:
   - package.json
   - vite.config.ts
@@ -44,7 +44,7 @@ Build with **Solid.js** and go all-in on the **TanStack ecosystem**:
 | Layer | Choice |
 |-------|--------|
 | UI framework | Solid.js |
-| Meta-framework | TanStack Start (Vite + Nitro) |
+| Meta-framework | TanStack Start (Vite) |
 | Routing | TanStack Solid Router (file-based) |
 | Server data | TanStack Start `createServerFn` |
 | Async state | TanStack Solid Query (available, not primary yet) |
@@ -66,10 +66,10 @@ Build with **Solid.js** and go all-in on the **TanStack ecosystem**:
 The stack centers on a small number of foundational choices:
 
 - **`solid-js`** — UI rendering with fine-grained reactivity
-- **`@tanstack/solid-start`** — SSR/SSG meta-framework built on Vite + Nitro
+- **`@tanstack/solid-start`** — SSR/SSG meta-framework built on Vite
 - **`@tanstack/solid-router`** — Type-safe, file-based routing with loaders
 - **`vite` (v7)** — Build tool and dev server
-- **`nitro` (nightly)** — Server engine powering TanStack Start (nightly required for compatibility)
+- **`@netlify/vite-plugin-tanstack-start`** — Official Netlify deployment adapter (see [Build & Deployment](build-and-deployment.md))
 - **`zod`** — Runtime validation for content, env vars, and server function inputs
 
 ## Alternatives Considered
@@ -85,3 +85,4 @@ The stack centers on a small number of foundational choices:
 ## Revision History
 
 - **2026-02-16** (Michael): Initial document capturing tech stack rationale
+- **2026-06-27** (Michael): Dropped Nitro as a direct dependency; deployment now goes through the official `@netlify/vite-plugin-tanstack-start` adapter. See [Build & Deployment](build-and-deployment.md).
