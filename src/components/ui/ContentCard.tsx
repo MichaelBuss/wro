@@ -9,11 +9,9 @@ interface ContentCardProps {
 
 export function ContentCard(props: ContentCardProps) {
   return (
-    <div
-      class={`bg-card border border-border rounded-xl p-8 shadow-sm ${props.class ?? ''}`}
-    >
+    <div class={`border border-border rounded-lg p-8 ${props.class ?? ''}`}>
       <Show when={props.title}>
-        <h2 class="text-2xl font-semibold text-foreground mb-6">
+        <h2 class="font-sans text-h3 font-semibold text-foreground mb-6">
           {props.title}
         </h2>
       </Show>

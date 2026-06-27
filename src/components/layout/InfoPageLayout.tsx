@@ -1,13 +1,10 @@
 import type { JSX } from 'solid-js'
+import { PageShell } from './PageShell'
 
 interface InfoPageLayoutProps {
   children: JSX.Element
 }
 
 export function InfoPageLayout(props: InfoPageLayoutProps) {
-  return (
-    <div class="min-h-screen bg-background">
-      <section class="py-16 px-6 max-w-4xl mx-auto">{props.children}</section>
-    </div>
-  )
+  return <PageShell>{props.children}</PageShell>
 }

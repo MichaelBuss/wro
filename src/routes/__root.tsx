@@ -13,6 +13,7 @@ import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
 import { Suspense } from 'solid-js'
 import { HydrationScript } from 'solid-js/web'
 import Header from '../components/Header'
+import { SiteFooter } from '../components/layout'
 import TanStackQueryProvider from '../integrations/tanstack-query/provider.tsx'
 import styleCss from '../styles.css?url'
 
@@ -56,6 +57,7 @@ function RootComponent() {
           <TanStackQueryProvider>
             <Header />
             <Outlet />
+            <SiteFooter />
             <TanStackRouterDevtools />
           </TanStackQueryProvider>
         </Suspense>
