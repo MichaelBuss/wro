@@ -17,7 +17,8 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart({
       prerender: {
-        enabled: false, // Temporarily disabled - see https://github.com/TanStack/router/issues/6322
+        enabled: true,
+        concurrency: 1,
         crawlLinks: true,
         // Exclude /admin since it's a static Decap CMS app, not a TanStack route
         filter: ({ path }) => !path.startsWith('/admin'),

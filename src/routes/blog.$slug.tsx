@@ -7,7 +7,7 @@ import { getBlogPost, getBlogSlugs } from '~/server/content'
 const getPost = createServerFn({
   method: 'GET',
 })
-  .inputValidator((slug: string) => slug)
+  .validator((slug: string) => slug)
   .handler(async ({ data: slug }): Promise<BlogPost | null> => {
     return getBlogPost(slug)
   })
