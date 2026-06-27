@@ -1,9 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
-import { For } from 'solid-js'
-import { Carousel } from '~/components/carousel'
-import type { CarouselImage } from '~/components/carousel'
-import { InfoTopicCard } from '~/components/InfoTopicCard'
+import { For, Show } from 'solid-js'
+import type { GalleryItem } from '~/components/ui'
+import { Gallery, Heading, Lead } from '~/components/ui'
 import { INFO_TOPICS } from '~/data/info-topics'
 import { getCollectionItems, getPageContent } from '~/server/content'
 
@@ -11,17 +10,18 @@ const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
   const hero = getPageContent('homepage')
   const carouselItems = getCollectionItems('carousel')
 
-  const sortedItems = [...carouselItems].sort(
-    (a, b) => (a.order ?? 999) - (b.order ?? 999),
-  )
+  const galleryItems: Array<GalleryItem> = [...carouselItems]
+    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
+    .slice(0, 5)
+    .map((item) => ({
+      src: item.image,
+      alt: item.alt,
+      caption: item.description,
+      year: item.year,
+      objectPosition: item.position,
+    }))
 
-  const images: Array<CarouselImage> = sortedItems.map((item) => ({
-    src: item.image,
-    alt: item.alt,
-    objectPosition: item.position ?? 'center',
-  }))
-
-  return { hero, images }
+  return { hero, galleryItems }
 })
 
 export const Route = createFileRoute('/')({
@@ -33,53 +33,102 @@ function HomePage() {
   const data = Route.useLoaderData()
 
   return (
-    <div class="min-h-screen bg-background">
-      <Carousel tint="cool" images={data().images}>
-        <HeroContent />
-      </Carousel>
+    <div>
+      <HeroSection />
 
-      <section class="py-16 px-6 max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <For each={INFO_TOPICS}>
-            {(topic) => <InfoTopicCard topic={topic} />}
-          </For>
-        </div>
-      </section>
+      <Show when={data().galleryItems.length > 0}>
+        <GallerySection />
+      </Show>
+
+      <InfoIndex />
     </div>
   )
 }
 
-function HeroContent() {
+function HeroSection() {
   const data = Route.useLoaderData()
 
   return (
-    <>
-      <h1 class="text-6xl md:text-8xl font-black text-white tracking-[-0.04em] drop-shadow-2xl">
-        <span class="text-white/90">{data().hero.hero_heading}</span>{' '}
-        <span class="bg-linear-to-r from-wro-blue-300 to-wro-blue-400 bg-clip-text text-transparent">
-          {data().hero.hero_heading_accent}
-        </span>
-      </h1>
+    <section class="pt-20 pb-16 md:pt-28 md:pb-20 px-6 max-w-5xl mx-auto">
+      <div class="max-w-3xl">
+        <Heading level="display" class="mb-6">
+          {data().hero.hero_heading}{' '}
+          <span class="text-primary">{data().hero.hero_heading_accent}</span>
+        </Heading>
 
-      <p class="text-2xl md:text-3xl text-white/80 mb-4 font-light drop-shadow-lg">
-        {data().hero.hero_subheading}
-      </p>
+        <Lead class="mb-6 max-w-xl">{data().hero.hero_subheading}</Lead>
 
-      <p class="text-lg text-white/70 max-w-3xl mx-auto mb-8 drop-shadow-md">
-        {data().hero.hero_description}
-      </p>
+        <p class="text-body text-foreground/60 max-w-lg mb-10">
+          {data().hero.hero_description}
+        </p>
 
-      <div class="flex flex-col items-center gap-4">
-        <Link
-          to="/signup"
-          class="px-8 py-3 bg-wro-blue-500 hover:bg-wro-blue-400 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-wro-blue-500/50"
-        >
-          {data().hero.cta_text}
-        </Link>
-        <p class="text-white/60 text-sm mt-2 drop-shadow">
-          {data().hero.cta_subtext}
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+          <Link
+            to="/signup"
+            class="text-sm font-medium text-foreground border border-foreground/20 hover:border-foreground/60 px-5 py-2.5 rounded transition-colors"
+          >
+            {data().hero.cta_text}
+          </Link>
+          <p class="text-caption text-muted-foreground">
+            {data().hero.cta_subtext}
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function GallerySection() {
+  const data = Route.useLoaderData()
+
+  return (
+    <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
+      <div class="mb-8">
+        <Heading level="h2" class="mb-1">
+          Glimt fra tidligere år
+        </Heading>
+        <p class="text-sm-copy text-muted-foreground">
+          Øjeblikke fra danske WRO-finaler
         </p>
       </div>
-    </>
+
+      <Gallery items={data().galleryItems} />
+    </section>
+  )
+}
+
+function InfoIndex() {
+  return (
+    <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
+      <Heading level="h2" class="mb-8">
+        Information
+      </Heading>
+
+      <ul class="divide-y divide-border">
+        <For each={INFO_TOPICS}>
+          {(topic) => (
+            <li>
+              <Link
+                to={topic.route}
+                class="flex items-start gap-5 py-5 -mx-3 px-3 rounded hover:bg-secondary/60 transition-colors group"
+              >
+                <topic.icon class="w-5 h-5 text-primary/60 shrink-0 mt-0.5" />
+                <div class="min-w-0">
+                  <span class="text-h5 font-medium text-foreground group-hover:text-primary transition-colors block mb-1">
+                    {topic.title}
+                  </span>
+                  <p class="text-sm-copy text-muted-foreground leading-snug">
+                    {topic.description}
+                  </p>
+                </div>
+                <span class="text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0 mt-0.5">
+                  →
+                </span>
+              </Link>
+            </li>
+          )}
+        </For>
+      </ul>
+    </section>
   )
 }
