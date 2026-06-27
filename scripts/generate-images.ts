@@ -28,7 +28,9 @@ const OUTPUT_EXTENSION = '.webp'
 const IMAGE_WIDTHS = [640, 1024, 1280, 1920] as const
 
 // WebP quality settings
-const WEBP_OPTIONS: sharp.WebpOptions = {
+type WebpOptions = NonNullable<Parameters<ReturnType<typeof sharp>['webp']>[0]>
+
+const WEBP_OPTIONS: WebpOptions = {
   quality: 80,
   effort: 6, // Higher = smaller file, slower encode (0-6)
 }

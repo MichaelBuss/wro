@@ -37,6 +37,7 @@
     "tailwindCSS.classFunctions": ["cva"],
     "cSpell.words": ["commandfor", "Decap", "tsgo", "esbenp", "solidjs"],
     "typescript.experimental.useTsgo": true,
+    "typescript.native-preview.tsdk": "node_modules/@typescript/native-preview",
   },
   "extensions": {
     "recommendations": [
