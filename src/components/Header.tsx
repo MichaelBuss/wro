@@ -20,7 +20,7 @@ export default function Header() {
   return (
     <>
       <header class="sticky top-0 z-40 w-full">
-        <div class="absolute inset-0 bg-wro-blue-950/80 backdrop-blur-xl border-b border-white/5" />
+        <div class="absolute inset-0 bg-background/90 backdrop-blur-xl border-b border-border" />
 
         <nav class="relative max-w-6xl mx-auto px-4 sm:px-6">
           <div class="flex items-center justify-between h-16">
@@ -35,20 +35,19 @@ export default function Header() {
               <NavLink to="/blog">Blog</NavLink>
             </div>
 
-            {/* CTA Button - Desktop */}
-
+            {/* Quiet signup link */}
             <Link
               to="/signup"
-              class="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-wro-blue-500 hover:bg-wro-blue-400 rounded-lg transition-colors"
+              class="hidden md:inline-flex text-sm text-foreground/60 hover:text-foreground underline-offset-4 hover:underline transition-colors"
             >
-              Tilmeld dig nu
+              Tilmeld dig
             </Link>
 
-            {/* Mobile Menu Button - uses Invoker Commands! */}
+            {/* Mobile Menu Button */}
             <button
               commandfor={MOBILE_DRAWER_ID}
               command="show-modal"
-              class="md:hidden p-2 -mr-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              class="md:hidden p-2 -mr-2 text-foreground/60 hover:text-foreground hover:bg-accent rounded-lg transition-colors"
               aria-label="Åbn menu"
             >
               <Menu size={22} />
