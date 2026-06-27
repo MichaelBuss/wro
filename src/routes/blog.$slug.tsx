@@ -90,7 +90,7 @@ function BlogPostPage() {
                 prose-li:marker:text-wro-blue-500
                 prose-code:text-wro-blue-700 prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded
                 prose-pre:bg-gray-100 prose-pre:border prose-pre:border-gray-200"
-              // eslint-disable-next-line solid/no-innerhtml -- Markdown content is sanitized server-side
+              // oxlint-disable-next-line solid/no-innerhtml -- Markdown content is sanitized server-side
               innerHTML={postData().content}
             />
           </article>

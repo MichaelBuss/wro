@@ -36,9 +36,7 @@ function Home() {
     <div class="p-4">
       <button
         onClick={() => {
-          updateCount({ data: 1 }).then(() => {
-            router.invalidate()
-          })
+          void updateCount({ data: 1 }).then(() => router.invalidate())
         }}
         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       >

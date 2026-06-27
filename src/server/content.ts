@@ -1,10 +1,7 @@
 import matter from 'gray-matter'
 import { marked } from 'marked'
 import { useStorage } from 'nitro/storage'
-import {
-  collectionSchemas,
-  pageSchemas,
-} from '~/content/registry'
+import { collectionSchemas, pageSchemas } from '~/content/registry'
 import type {
   CollectionItem,
   CollectionName,
@@ -27,8 +24,12 @@ function getContentStorage() {
  * Overloads provide narrowed return types per key, since tsgo cannot infer
  * them through generic indexed access on `pageSchemas`.
  */
-export async function getPageContent(key: 'homepage'): Promise<PageContent<'homepage'>>
-export async function getPageContent(key: 'event-info'): Promise<PageContent<'event-info'>>
+export async function getPageContent(
+  key: 'homepage',
+): Promise<PageContent<'homepage'>>
+export async function getPageContent(
+  key: 'event-info',
+): Promise<PageContent<'event-info'>>
 export async function getPageContent(key: PageKey) {
   const storage = getContentStorage()
   const raw = await storage.getItemRaw<string>(`pages:${key}.md`)
@@ -46,8 +47,12 @@ export async function getPageContent(key: PageKey) {
  * Load all items in a folder collection. Validates each against its registry schema.
  * Returns items sorted by slug unless the schema includes an `order` field.
  */
-export async function getCollectionItems(collection: 'blog'): Promise<Array<CollectionItem<'blog'>>>
-export async function getCollectionItems(collection: 'carousel'): Promise<Array<CollectionItem<'carousel'>>>
+export async function getCollectionItems(
+  collection: 'blog',
+): Promise<Array<CollectionItem<'blog'>>>
+export async function getCollectionItems(
+  collection: 'carousel',
+): Promise<Array<CollectionItem<'carousel'>>>
 export async function getCollectionItems(collection: CollectionName) {
   const storage = getContentStorage()
   const allKeys = await storage.getKeys(collection)
@@ -77,9 +82,18 @@ export async function getCollectionItems(collection: CollectionName) {
  * Load a single item from a folder collection by slug.
  * Returns null if the file doesn't exist.
  */
-export async function getCollectionItem(collection: 'blog', slug: string): Promise<(CollectionItem<'blog'> & { content: string }) | null>
-export async function getCollectionItem(collection: 'carousel', slug: string): Promise<(CollectionItem<'carousel'> & { content: string }) | null>
-export async function getCollectionItem(collection: CollectionName, slug: string) {
+export async function getCollectionItem(
+  collection: 'blog',
+  slug: string,
+): Promise<(CollectionItem<'blog'> & { content: string }) | null>
+export async function getCollectionItem(
+  collection: 'carousel',
+  slug: string,
+): Promise<(CollectionItem<'carousel'> & { content: string }) | null>
+export async function getCollectionItem(
+  collection: CollectionName,
+  slug: string,
+) {
   const storage = getContentStorage()
   const raw = await storage.getItemRaw<string>(`${collection}:${slug}.md`)
 
@@ -144,7 +158,9 @@ export async function getAllBlogPosts(): Promise<Array<BlogPostMeta>> {
     }),
   )
 
-  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  return posts.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  )
 }
 
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {

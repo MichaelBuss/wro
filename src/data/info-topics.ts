@@ -40,8 +40,7 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
     icon: MapPin,
     title: 'Hvor og hvornår afholdes den danske finale?',
     shortTitle: 'Dato & Sted',
-    description:
-      'Find dato, sted og program for den danske finale.',
+    description: 'Find dato, sted og program for den danske finale.',
   },
   {
     route: '/info/materials',

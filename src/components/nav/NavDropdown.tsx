@@ -80,7 +80,7 @@ export function NavDropdown() {
         role="menu"
         class={cx(popoverClasses)}
         style={{
-          // eslint-disable-next-line solid/style-prop
+          // oxlint-disable-next-line solid/style-prop -- position-anchor is valid CSS anchor positioning
           'position-anchor': anchorName,
           inset: 'unset',
           top: 'anchor(bottom)',

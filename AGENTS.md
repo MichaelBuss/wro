@@ -26,16 +26,22 @@ After making changes, run:
 
 ```bash
 npm run typecheck  # Type check (tsgo)
-npm run lint       # ESLint
+npm run lint       # oxlint + content validation
+npm run fmt        # oxfmt (format) — or `fmt:check` to verify only
 ```
 
 Fix all errors before considering work complete.
 
-## ESLint
+## Formatting (oxfmt)
 
-- Never use `eslint-disable` comments
-- Never silence warnings or errors
+Formatting uses **oxfmt** (`.oxfmtrc.json`), the Oxc formatter, not Prettier. Style: no semicolons, single quotes, trailing commas, 80-column width. Don't hand-format — run `npm run fmt`.
+
+## Linting (oxlint)
+
+- Avoid `oxlint-disable` / `eslint-disable` comments; a rare justified exception must include a `-- reason` justification
+- Never silence warnings or errors without a documented reason
 - Fix the root cause instead
+- Solid rules come from `eslint-plugin-solid` loaded via oxlint's `jsPlugins`
 
 ## Components
 
