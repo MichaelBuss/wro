@@ -49,27 +49,27 @@ function HeroSection() {
   const data = Route.useLoaderData()
 
   return (
-    <section class="pt-20 pb-16 md:pt-28 md:pb-20 px-6 max-w-5xl mx-auto">
+    <section class="pt-20 pb-16 md:pt-28 md:pb-24 px-6 max-w-5xl mx-auto">
       <div class="max-w-3xl">
-        <Heading level="display" class="mb-6">
+        <p class="text-caption font-sans font-medium uppercase tracking-[0.22em] text-muted-foreground mb-5">
+          {data().hero.hero_subheading}
+        </p>
+
+        <Heading level="display" class="mb-7">
           {data().hero.hero_heading}{' '}
           <span class="text-primary">{data().hero.hero_heading_accent}</span>
         </Heading>
 
-        <Lead class="mb-6 max-w-xl">{data().hero.hero_subheading}</Lead>
+        <Lead class="max-w-xl mb-10">{data().hero.hero_description}</Lead>
 
-        <p class="text-body text-foreground/60 max-w-lg mb-10">
-          {data().hero.hero_description}
-        </p>
-
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
           <Link
             to="/signup"
-            class="text-sm font-medium text-foreground border border-foreground/20 hover:border-foreground/60 px-5 py-2.5 rounded transition-colors"
+            class="text-sm font-medium text-foreground border border-foreground/25 hover:border-foreground/70 px-5 py-2.5 rounded-md transition-colors"
           >
             {data().hero.cta_text}
           </Link>
-          <p class="text-caption text-muted-foreground">
+          <p class="text-sm-copy text-muted-foreground">
             {data().hero.cta_subtext}
           </p>
         </div>
