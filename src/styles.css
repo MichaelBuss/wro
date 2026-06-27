@@ -92,7 +92,7 @@
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Fraunces', Georgia, ui-serif, serif;
+  --font-serif: 'Fraunces Variable', Georgia, ui-serif, serif;
   --font-mono: 'Source Code Pro', ui-monospace, Menlo, Monaco, Consolas, 'Courier New', monospace;
 
   /* Modular type scale — base 1rem (16px), ratio ~1.25 (major third)
@@ -107,17 +107,19 @@
    *   text-caption  — labels, timestamps, metadata
    */
 
-  /* Display — reserved for hero statements; always serif */
-  --text-display: 4.5rem;
-  --text-display--line-height: 1;
-  --text-display--letter-spacing: -0.03em;
+  /* Display — reserved for hero statements; always serif.
+   * Fluid so the hero scales gracefully from phone to desktop instead of
+   * forcing a fixed 72px that crowds small screens. */
+  --text-display: clamp(2.75rem, 6vw + 1rem, 4.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.035em;
 
   /* Heading scale */
-  --text-h1: 3rem;
+  --text-h1: clamp(2.25rem, 3vw + 1.25rem, 3rem);
   --text-h1--line-height: 1.1;
   --text-h1--letter-spacing: -0.025em;
 
-  --text-h2: 2.25rem;
+  --text-h2: clamp(1.75rem, 1.5vw + 1.25rem, 2.25rem);
   --text-h2--line-height: 1.2;
   --text-h2--letter-spacing: -0.02em;
 
@@ -208,6 +210,14 @@
     @apply bg-background text-foreground font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+  }
+  /* Let Fraunces lean into its high optical contrast at display sizes and
+   * keep kerning tight on the serif headings. */
+  .font-serif {
+    font-optical-sizing: auto;
+    font-kerning: normal;
   }
   code, kbd, samp, pre {
     @apply font-mono;
