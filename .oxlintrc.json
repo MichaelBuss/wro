@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "jsPlugins": ["eslint-plugin-solid"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": ["node_modules", "dist", ".output", ".netlify", "**/*.gen.ts"],
+  "env": {
+    "builtin": true,
+    "es2024": true,
+    "node": true
+  },
+  "rules": {
+    "typescript/array-type": ["error", { "default": "generic" }],
+    "typescript/consistent-type-imports": "error",
+    "no-unassigned-vars": "off",
+    "solid/jsx-no-duplicate-props": "error",
+    "solid/jsx-no-undef": ["error", { "typescriptEnabled": true }],
+    "solid/jsx-no-script-url": "error",
+    "solid/no-innerhtml": "error",
+    "solid/no-destructure": "error",
+    "solid/prefer-for": "error",
+    "solid/components-return-once": "warn",
+    "solid/reactivity": "warn",
+    "solid/event-handlers": "warn",
+    "solid/imports": "warn",
+    "solid/style-prop": "warn",
+    "solid/no-react-deps": "warn",
+    "solid/no-react-specific-props": "warn",
+    "solid/self-closing-comp": "warn",
+    "solid/jsx-uses-vars": "off",
+    "solid/no-unknown-namespaces": "off",
+    "solid/no-array-handlers": "off",
+    "solid/prefer-show": "off",
+    "solid/no-proxy-apis": "off",
+    "solid/prefer-classlist": "off"
+  }
+}

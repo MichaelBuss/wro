@@ -4,13 +4,14 @@ status: implemented
 authors:
   - Michael
 created: 2026-02-16
-updated: 2026-02-16
+updated: 2026-06-27
 codeAnchors:
   - tsconfig.json
   - package.json
+  - .oxlintrc.json
   - src/env.ts
 overview: >
-  Strict TypeScript with tsgo for fast typechecking, zero-tolerance ESLint policy,
+  Strict TypeScript with tsgo for fast typechecking, zero-tolerance oxlint policy,
   Zod-validated environment variables, and content validation integrated into the
   lint pipeline.
 ---
@@ -39,15 +40,23 @@ Typechecking uses **tsgo** (`@typescript/native-preview`) — the native TypeScr
 
 A zero-tolerance assertion policy applies: no `as` casts, no `!` non-null assertions. Types are inferred from usage or explicitly annotated — never forced. This is enforced socially (via AGENTS.md and code review) rather than with a lint rule.
 
-### ESLint: No Escape Hatches
+### oxlint: No Escape Hatches
 
-ESLint is configured with TanStack's shared config, Solid.js rules, and import ordering. The policy is:
+Linting uses **oxlint** (`.oxlintrc.json`) — the Rust-based linter from the Oxc project — which runs in a fraction of the time ESLint takes. The `correctness` category is enabled as errors, with the `typescript`, `import`, `unicorn`, and `oxc` plugins. Two project-specific rules are set explicitly: `typescript/array-type` (`generic`, i.e. `Array<T>`) and `typescript/consistent-type-imports`.
 
-- Never use `eslint-disable` comments
-- Never silence warnings or errors
+**Type-aware linting** is enabled via the `--type-aware` flag (in the `lint`/`lint:fix`/`check` scripts), backed by the `oxlint-tsgolint` dev dependency. This restores type-information rules that the syntactic linter can't provide — e.g. `no-floating-promises`, `no-misused-promises`, `await-thenable`. (The separate `--type-check` flag, which runs full compiler diagnostics, is left off; `tsgo` via `npm run typecheck` covers that.)
+
+**Solid rules** are restored by loading the official `eslint-plugin-solid` through oxlint's `jsPlugins` field (oxlint's ESLint-compatible JS plugin API). The `eslint-plugin-solid` TypeScript preset severities are mirrored in `.oxlintrc.json`, with two oxlint-specific adjustments: `solid/jsx-uses-vars` is off (oxlint detects JSX usage natively; the plugin's `markVariableAsUsed` API isn't implemented), and unused-namespace/React-compat noise rules are off. Note these Solid rules run in JS rather than Rust, so they don't get oxlint's native speed — acceptable for a project this size.
+
+The policy is:
+
+- Avoid `oxlint-disable` / `eslint-disable` comments; the rare justified exception must carry a `-- reason` justification (currently only `solid/no-innerhtml` on sanitized markdown and `solid/style-prop` on the valid-but-unrecognized `position-anchor` CSS property)
+- Never silence warnings or errors without a documented reason
 - Fix the root cause instead
 
 This keeps the linter output trustworthy — if it reports zero errors, the codebase is clean.
+
+**Migration trade-offs (from ESLint):** The `no-unassigned-vars` correctness rule is disabled because it produces false positives on Solid's `let ref; ... ref={ref}` binding pattern, which oxlint cannot see as an assignment. oxlint also does not yet implement `import/order`, so automatic import ordering is no longer enforced — import grouping is now left to convention and prettier/editor organize-imports.
 
 ### Environment Variables: Typed with @t3-oss/env-core
 
@@ -55,10 +64,10 @@ This keeps the linter output trustworthy — if it reports zero errors, the code
 
 ### Content Validation in Lint Pipeline
 
-`npm run lint` runs both ESLint and `scripts/validate-content.ts`. This means CI catches:
+`npm run lint` runs both oxlint and `scripts/validate-content.ts`. This means CI catches:
 
 - TypeScript type errors (via `typecheck`)
-- Code quality issues (via `lint` → ESLint)
+- Code quality issues (via `lint` → oxlint)
 - Content/schema drift (via `lint` → `validate-content`)
 
 All three must pass before work is considered complete.
@@ -73,3 +82,4 @@ All three must pass before work is considered complete.
 ## Revision History
 
 - **2026-02-16** (Michael): Initial document capturing DX and tooling decisions
+- **2026-06-27**: Migrated linting from ESLint to oxlint; documented trade-offs (no `import/order`, `no-unassigned-vars` disabled for Solid refs). Enabled type-aware linting via `oxlint-tsgolint` (`--type-aware`), and restored Solid rules by loading `eslint-plugin-solid` through oxlint's `jsPlugins`.

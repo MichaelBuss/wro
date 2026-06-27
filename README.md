@@ -144,7 +144,7 @@ Files prefixed with `demo` can be safely deleted. They are there to provide a st
 
 ## Linting & Formatting
 
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+This project uses [oxlint](https://oxc.rs/docs/guide/usage/linter) and [prettier](https://prettier.io/) for linting and formatting. Oxlint is configured via `.oxlintrc.json`. The following scripts are available:
 
 ```bash
 npm run lint

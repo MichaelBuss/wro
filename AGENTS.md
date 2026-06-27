@@ -26,16 +26,17 @@ After making changes, run:
 
 ```bash
 npm run typecheck  # Type check (tsgo)
-npm run lint       # ESLint
+npm run lint       # oxlint
 ```
 
 Fix all errors before considering work complete.
 
-## ESLint
+## Linting (oxlint)
 
-- Never use `eslint-disable` comments
-- Never silence warnings or errors
+- Avoid `oxlint-disable` / `eslint-disable` comments; a rare justified exception must include a `-- reason` justification
+- Never silence warnings or errors without a documented reason
 - Fix the root cause instead
+- Solid rules come from `eslint-plugin-solid` loaded via oxlint's `jsPlugins`
 
 ## Components
 
