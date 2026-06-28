@@ -104,17 +104,17 @@ function InfoIndex() {
         Information
       </Heading>
 
-      <ul class="divide-y divide-border">
+      <ul class="info-topics divide-y divide-border">
         <For each={INFO_TOPICS}>
           {(topic) => (
-            <li>
+            <li style={{ '--topic-color': `var(--wro-logo-${topic.color})` }}>
               <Link
                 to={topic.route}
                 class="flex items-start gap-5 py-5 -mx-3 px-3 rounded hover:bg-secondary/60 transition-colors group"
               >
-                <topic.icon class="w-5 h-5 text-primary/60 shrink-0 mt-0.5" />
+                <topic.icon class="topic-icon w-5 h-5 shrink-0 mt-0.5" />
                 <div class="min-w-0">
-                  <span class="text-h5 font-medium text-foreground group-hover:text-primary transition-colors block mb-1">
+                  <span class="topic-title text-h5 font-medium text-foreground transition-colors block mb-1">
                     {topic.title}
                   </span>
                   <p class="text-sm-copy text-muted-foreground leading-snug">
