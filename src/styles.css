@@ -411,6 +411,3 @@ dialog {
   }
 }
 
-/* Info topics: --topic-color is set per-item via inline style in the template */
-.info-topics .topic-icon { color: var(--topic-color); }
-.info-topics li:has(a:hover) .topic-title { color: var(--topic-color); }

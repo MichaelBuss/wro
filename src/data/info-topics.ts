@@ -93,6 +93,19 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   },
 ]
 
+// Full Tailwind class strings per palette colour — literal so the JIT scanner
+// picks them up at build time. Keeps colour application in the template layer.
+export const LOGO_PALETTE_CLASSES = {
+  blue:    { icon: 'text-wro-logo-blue',    hover: 'group-hover:text-wro-logo-blue' },
+  cyan:    { icon: 'text-wro-logo-cyan',    hover: 'group-hover:text-wro-logo-cyan' },
+  green:   { icon: 'text-wro-logo-green',   hover: 'group-hover:text-wro-logo-green' },
+  lime:    { icon: 'text-wro-logo-lime',    hover: 'group-hover:text-wro-logo-lime' },
+  yellow:  { icon: 'text-wro-logo-yellow',  hover: 'group-hover:text-wro-logo-yellow' },
+  orange:  { icon: 'text-wro-logo-orange',  hover: 'group-hover:text-wro-logo-orange' },
+  magenta: { icon: 'text-wro-logo-magenta', hover: 'group-hover:text-wro-logo-magenta' },
+  red:     { icon: 'text-wro-logo-red',     hover: 'group-hover:text-wro-logo-red' },
+} as const satisfies Record<LogoPaletteColor, { icon: string; hover: string }>
+
 // Helper to get an info topic by route
 export function getInfoTopicByRoute(route: InfoRoute): InfoTopic {
   const topic = INFO_TOPICS.find((t) => t.route === route)

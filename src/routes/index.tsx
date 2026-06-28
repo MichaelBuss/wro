@@ -3,7 +3,8 @@ import { createServerFn } from '@tanstack/solid-start'
 import { For, Show } from 'solid-js'
 import type { GalleryItem } from '~/components/ui'
 import { Gallery, Heading, Lead } from '~/components/ui'
-import { INFO_TOPICS } from '~/data/info-topics'
+import { cx } from '~/cva.config'
+import { INFO_TOPICS, LOGO_PALETTE_CLASSES } from '~/data/info-topics'
 import { getCollectionItems, getPageContent } from '~/server/content'
 
 const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
@@ -104,17 +105,17 @@ function InfoIndex() {
         Information
       </Heading>
 
-      <ul class="info-topics divide-y divide-border">
+      <ul class="divide-y divide-border">
         <For each={INFO_TOPICS}>
           {(topic) => (
-            <li style={{ '--topic-color': `var(--wro-logo-${topic.color})` }}>
+            <li>
               <Link
                 to={topic.route}
                 class="flex items-start gap-5 py-5 -mx-3 px-3 rounded hover:bg-secondary/60 transition-colors group"
               >
-                <topic.icon class="topic-icon w-5 h-5 shrink-0 mt-0.5" />
+                <topic.icon class={cx('w-5 h-5 shrink-0 mt-0.5', LOGO_PALETTE_CLASSES[topic.color].icon)} />
                 <div class="min-w-0">
-                  <span class="topic-title text-h5 font-medium text-foreground transition-colors block mb-1">
+                  <span class={cx('text-h5 font-medium text-foreground transition-colors block mb-1', LOGO_PALETTE_CLASSES[topic.color].hover)}>
                     {topic.title}
                   </span>
                   <p class="text-sm-copy text-muted-foreground leading-snug">
