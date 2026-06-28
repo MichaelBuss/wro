@@ -366,3 +366,44 @@ dialog {
     animation-delay: 420ms;
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes cta-rainbow {
+    0% {
+      border-color: var(--wro-logo-blue);
+      color: var(--wro-logo-blue);
+    }
+    14% {
+      border-color: var(--wro-logo-cyan);
+      color: var(--wro-logo-cyan);
+    }
+    28% {
+      border-color: var(--wro-logo-green);
+      color: var(--wro-logo-green);
+    }
+    42% {
+      border-color: var(--wro-logo-lime);
+      color: var(--wro-logo-lime);
+    }
+    56% {
+      border-color: var(--wro-logo-yellow);
+      color: var(--wro-logo-yellow);
+    }
+    70% {
+      border-color: var(--wro-logo-orange);
+      color: var(--wro-logo-orange);
+    }
+    84% {
+      border-color: var(--wro-logo-magenta);
+      color: var(--wro-logo-magenta);
+    }
+    100% {
+      border-color: var(--wro-logo-red);
+      color: var(--wro-logo-red);
+    }
+  }
+
+  .cta-rainbow:hover {
+    animation: cta-rainbow 0.9s steps(1, end) infinite alternate;
+  }
+}

@@ -65,7 +65,7 @@ function HeroSection() {
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
           <Link
             to="/signup"
-            class="text-sm font-medium text-foreground border border-foreground/25 hover:border-foreground/70 px-5 py-2.5 rounded-md transition-colors"
+            class="cta-rainbow text-sm font-medium text-foreground border border-foreground/25 px-5 py-2.5 rounded-md transition-colors"
           >
             {data().hero.cta_text}
           </Link>
