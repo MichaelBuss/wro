@@ -159,6 +159,9 @@
   --text-caption: 0.75rem;
   --text-caption--line-height: 1.4;
   --text-caption--letter-spacing: 0.01em;
+
+  /* Eyebrow label tracking — tight uppercase captions above hero headings */
+  --tracking-eyebrow: 0.22em;
 }
 
 @theme inline {
@@ -228,9 +231,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground font-sans antialiased;
     font-optical-sizing: auto;
     text-rendering: optimizeLegibility;
   }
@@ -269,25 +270,12 @@
 }
 
 /* Hide scrollbar for carousel - cross-browser */
-.scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
-}
-
-/* Grid row utilities for common layout patterns */
-@utility grid-rows-min-fr {
-  grid-template-rows: min-content minmax(0, 1fr);
-}
-
-@utility grid-rows-min-fr-min {
-  grid-template-rows: min-content minmax(0, 1fr) min-content;
-}
-
-@utility grid-rows-fr-min {
-  grid-template-rows: minmax(0, 1fr) min-content;
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Popover reset - minimal, let Tailwind handle the rest */
