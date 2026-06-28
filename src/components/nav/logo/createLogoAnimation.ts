@@ -1,7 +1,7 @@
 import { createSignal, onCleanup } from 'solid-js'
 import type { LogoAnimation } from './animations'
-import { DEFAULT_INTERACTIVE, interactiveAmounts, interactiveMode } from './interactive'
-import type { Field, InteractiveConfig } from './interactive'
+import { DEFAULT_INTERACTIVE, interactiveAmounts, interactiveMode, samplePointer } from './interactive'
+import type { Field, InteractiveConfig, MarkRect } from './interactive'
 
 export interface LogoAnimationController {
   /** CSS class to apply to the root SVG while a `class` animation runs. */
@@ -14,11 +14,12 @@ export interface LogoAnimationController {
   play: (name?: string) => void
   /** Stop any clip/interaction and return to rest. */
   stop: () => void
-  /** Cursor entered the mark at normalised x (0→1); begin following. */
-  pointerEnter: (x: number) => void
-  /** Cursor moved to normalised x (0→1) while over the mark. */
-  pointerMove: (x: number) => void
-  /** Cursor left the mark; ease the interaction back to rest. */
+  /**
+   * Report the raw cursor against the mark's screen rect. Drives the field via
+   * `samplePointer`: full over the mark, fading across the red girl's reach.
+   */
+  pointerAt: (rect: MarkRect, clientX: number, clientY: number) => void
+  /** Cursor gone (left the window); ease the interaction back to rest. */
   pointerLeave: () => void
 }
 
@@ -36,9 +37,11 @@ function prefersReducedMotion(): boolean {
  *   duration; `rig` animations tween progress `t` (0→1) via rAF. Random picks
  *   never repeat the previous clip. Triggered on load/refocus, never on hover.
  * - **Interactive ("follow the mouse")** — a spring rAF eases a normalised
- *   cursor field `{ x, influence, velocity, time }`, which `interactive.ts`
- *   turns into the crest hand-lift, the red girl's tracking wave, and the
- *   sticky colour chase. Hovering supersedes any clip; leaving eases to rest.
+ *   cursor field `{ x, y, influence }`, which `interactive.ts` turns into the
+ *   crest hand-lift and the red girl's arm pointing at the cursor. The field is
+ *   fed from raw cursor reports (`pointerAt`) via `samplePointer`, so presence
+ *   extends past the mark's right edge to greet the red girl. Hovering supersedes
+ *   any clip; leaving eases to rest.
  *
  * All motion is gated by `prefers-reduced-motion`, and every timer/frame is
  * cleaned up on unmount. `getConfig` is read each frame so the feel can be
@@ -53,8 +56,8 @@ export function createLogoAnimation(
   const [progress, setProgress] = createSignal(0)
 
   const [fieldX, setFieldX] = createSignal(0.5)
+  const [fieldY, setFieldY] = createSignal(0.5)
   const [influence, setInfluence] = createSignal(0)
-  const [clock, setClock] = createSignal(0)
   const [interacting, setInteracting] = createSignal(false)
 
   let lastName: string | null = null
@@ -62,10 +65,10 @@ export function createLogoAnimation(
   let frame: number | undefined
 
   // Interactive state (plain — only the eased signals above need reactivity).
-  let pointerInside = false
+  let presenceTarget = 0 // 0 (cursor gone) → 1 (settled over the mark)
   let targetX = 0.5
+  let targetY = 0.5
   let springFrame: number | undefined
-  let springStart = 0
 
   const reset = () => {
     if (timer !== undefined) clearTimeout(timer)
@@ -76,23 +79,22 @@ export function createLogoAnimation(
 
   const field = (): Field => ({
     x: fieldX(),
+    y: fieldY(),
     influence: influence(),
-    time: clock(),
   })
 
   /* — interactive (pointer follow) — */
 
-  const spring = (now: number) => {
+  const spring = () => {
     const cfg = getConfig()
-    setClock((now - springStart) / 1000)
 
-    const presence = pointerInside ? 1 : 0
-    const rate = pointerInside ? cfg.influenceIn : cfg.influenceOut
-    setInfluence(influence() + (presence - influence()) * rate)
+    const rate = presenceTarget > influence() ? cfg.influenceIn : cfg.influenceOut
+    setInfluence(influence() + (presenceTarget - influence()) * rate)
 
     setFieldX(fieldX() + (targetX - fieldX()) * cfg.springLag)
+    setFieldY(fieldY() + (targetY - fieldY()) * cfg.springLag)
 
-    if (!pointerInside && influence() < 0.002) {
+    if (presenceTarget <= 0 && influence() < 0.002) {
       setInfluence(0)
       setInteracting(false)
       springFrame = undefined
@@ -103,37 +105,35 @@ export function createLogoAnimation(
 
   const startSpring = () => {
     if (springFrame !== undefined) return
-    springStart = performance.now()
     springFrame = requestAnimationFrame(spring)
   }
 
-  const pointerEnter = (x: number) => {
-    if (prefersReducedMotion()) return
-    reset()
-    setCurrent(null)
-    setProgress(0)
-    targetX = x
+  const applyField = (x: number, y: number, presence: number) => {
+    // Cursor far away and nothing running: leave any clip ("movie") alone.
+    if (presence <= 0 && !interacting()) return
     if (!interacting()) {
+      reset() // hovering supersedes a clip
+      setCurrent(null)
+      setProgress(0)
       setFieldX(x)
+      setFieldY(y)
       setInfluence(0)
       setInteracting(true)
     }
-    pointerInside = true
+    targetX = x
+    targetY = y
+    presenceTarget = presence
     startSpring()
   }
 
-  const pointerMove = (x: number) => {
+  const pointerAt = (rect: MarkRect, clientX: number, clientY: number) => {
     if (prefersReducedMotion()) return
-    if (!interacting()) {
-      pointerEnter(x)
-      return
-    }
-    targetX = x
-    pointerInside = true
+    const sample = samplePointer(getConfig(), rect, clientX, clientY)
+    applyField(sample.x, sample.y, sample.presence)
   }
 
   const pointerLeave = () => {
-    pointerInside = false
+    presenceTarget = 0
   }
 
   /* — clips ("movies") — */
@@ -142,7 +142,7 @@ export function createLogoAnimation(
     reset()
     setCurrent(null)
     setProgress(0)
-    pointerInside = false
+    presenceTarget = 0
     if (springFrame !== undefined) cancelAnimationFrame(springFrame)
     springFrame = undefined
     setInteracting(false)
@@ -172,7 +172,7 @@ export function createLogoAnimation(
   }
 
   const play = (name?: string) => {
-    if (interacting() || pointerInside) return
+    if (interacting() || presenceTarget > 0) return
     if (current() !== null) return
     if (prefersReducedMotion()) return
 
@@ -225,8 +225,7 @@ export function createLogoAnimation(
     armAmounts,
     play,
     stop,
-    pointerEnter,
-    pointerMove,
+    pointerAt,
     pointerLeave,
   }
 }

@@ -35,6 +35,7 @@ const SESSION_KEY = 'wro-logo-greeted'
 
 export function WroLogoMark(props: WroLogoMarkProps) {
   const anim = createLogoAnimation(ANIMATION_POOL, FIGURES.length)
+  let svgEl: SVGSVGElement | undefined
 
   createEffect(() => {
     const name = props.animation
@@ -43,27 +44,11 @@ export function WroLogoMark(props: WroLogoMarkProps) {
     anim.play(name)
   })
 
-  const normalizedX = (event: PointerEvent): number => {
-    const target = event.currentTarget
-    if (!(target instanceof Element)) return 0.5
-    const rect = target.getBoundingClientRect()
-    if (rect.width === 0) return 0.5
-    return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
-  }
-
-  const onPointerEnter = (event: PointerEvent) => {
-    if (!props.interactive || event.pointerType === 'touch') return
-    anim.pointerEnter(normalizedX(event))
-  }
-
-  const onPointerMove = (event: PointerEvent) => {
-    if (!props.interactive || event.pointerType === 'touch') return
-    anim.pointerMove(normalizedX(event))
-  }
-
-  const onPointerLeave = () => {
-    if (!props.interactive) return
-    anim.pointerLeave()
+  // Tracked on the window (not the SVG) so the red girl can greet a cursor that
+  // approaches her hand side without ever touching the tiny mark.
+  const onWindowPointerMove = (event: PointerEvent) => {
+    if (event.pointerType === 'touch' || svgEl === undefined) return
+    anim.pointerAt(svgEl.getBoundingClientRect(), event.clientX, event.clientY)
   }
 
   // Touch has no hover; a tap plays a movie instead. (Inside a <Link to="/">,
@@ -98,21 +83,28 @@ export function WroLogoMark(props: WroLogoMarkProps) {
     }
     document.addEventListener('visibilitychange', onVisible)
     window.addEventListener('focus', maybePlayMovie)
+
+    // Follow the cursor across the page; release when it leaves the window.
+    window.addEventListener('pointermove', onWindowPointerMove)
+    window.addEventListener('blur', anim.pointerLeave)
+    document.addEventListener('pointerleave', anim.pointerLeave)
+
     onCleanup(() => {
       document.removeEventListener('visibilitychange', onVisible)
       window.removeEventListener('focus', maybePlayMovie)
+      window.removeEventListener('pointermove', onWindowPointerMove)
+      window.removeEventListener('blur', anim.pointerLeave)
+      document.removeEventListener('pointerleave', anim.pointerLeave)
     })
   })
 
   return (
     <svg
+      ref={svgEl}
       class={[props.class, anim.activeClass()].filter(Boolean).join(' ')}
       viewBox="0 -4 1152 171"
       role="img"
       aria-label="WRO Danmark"
-      onPointerEnter={onPointerEnter}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
       onPointerDown={onPointerDown}
     >
       <g class="wro-figs">

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/solid-router'
-import { For, createSignal } from 'solid-js'
+import { For, createSignal, onCleanup, onMount } from 'solid-js'
 import { ANIMATION_POOL } from '~/components/nav/logo/animations'
 import { createLogoAnimation } from '~/components/nav/logo/createLogoAnimation'
 import { FIGURES, WRO_TEXT_D } from '~/components/nav/logo/figures'
@@ -28,22 +28,27 @@ const SLIDERS: ReadonlyArray<SliderSpec> = [
   { key: 'springLag', label: 'crest · spring lag', min: 0.03, max: 0.6, step: 0.01 },
   { key: 'influenceIn', label: 'crest · fade in', min: 0.02, max: 0.4, step: 0.01 },
   { key: 'influenceOut', label: 'crest · fade out', min: 0.02, max: 0.4, step: 0.01 },
-  { key: 'redRange', label: 'red girl · range (right)', min: 0.01, max: 0.15, step: 0.005 },
-  { key: 'trackDeg', label: 'red girl · wave (°)', min: 0, max: 45, step: 1 },
-  { key: 'bobDeg', label: 'red girl · wave wobble (°)', min: 0, max: 10, step: 0.5 },
+  { key: 'reachPx', label: 'red girl · reach off edge (px)', min: 0, max: 400, step: 10 },
 ]
 
 function LogoPlay() {
   const [config, setConfig] = createSignal<InteractiveConfig>({ ...DEFAULT_INTERACTIVE })
   const anim = createLogoAnimation(ANIMATION_POOL, FIGURES.length, config)
+  let svgEl: SVGSVGElement | undefined
 
-  const normalizedX = (event: PointerEvent): number => {
-    const target = event.currentTarget
-    if (!(target instanceof Element)) return 0.5
-    const rect = target.getBoundingClientRect()
-    if (rect.width === 0) return 0.5
-    return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+  const onWindowPointerMove = (event: PointerEvent) => {
+    if (event.pointerType === 'touch' || svgEl === undefined) return
+    anim.pointerAt(svgEl.getBoundingClientRect(), event.clientX, event.clientY)
   }
+
+  onMount(() => {
+    window.addEventListener('pointermove', onWindowPointerMove)
+    window.addEventListener('blur', anim.pointerLeave)
+    onCleanup(() => {
+      window.removeEventListener('pointermove', onWindowPointerMove)
+      window.removeEventListener('blur', anim.pointerLeave)
+    })
+  })
 
   const set = (key: keyof InteractiveConfig, value: number) =>
     setConfig((prev) => ({ ...prev, [key]: value }))
@@ -60,13 +65,11 @@ function LogoPlay() {
           style={{ border: '1px solid #ddd', 'border-radius': '8px', background: '#fff', padding: '24px', cursor: 'crosshair' }}
         >
           <svg
+            ref={svgEl}
             viewBox="0 -4 1152 171"
             style={{ width: '100%', height: 'auto' }}
             role="img"
             aria-label="WRO Danmark"
-            onPointerEnter={(e) => anim.pointerEnter(normalizedX(e))}
-            onPointerMove={(e) => anim.pointerMove(normalizedX(e))}
-            onPointerLeave={() => anim.pointerLeave()}
           >
             <g class="wro-figs">
               <For each={FIGURES}>
