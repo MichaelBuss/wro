@@ -1,4 +1,5 @@
 import type { JSX } from 'solid-js'
+import { cx } from '~/cva.config'
 
 type PageShellSize = 'sm' | 'md' | 'lg'
 
@@ -17,7 +18,7 @@ export function PageShell(props: PageShellProps) {
   return (
     <div class="min-h-screen">
       <section
-        class={`py-16 px-6 mx-auto ${sizeClasses[props.size ?? 'md']}`}
+        class={cx('py-16 px-6 mx-auto', sizeClasses[props.size ?? 'md'])}
       >
         {props.children}
       </section>
