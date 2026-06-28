@@ -235,6 +235,29 @@
   }
 }
 
+/* Header underline reveal — the sticky header's bottom border stays hidden
+ * until the header sticks to the top of the viewport, then fades in. Uses a
+ * scroll-state container query (`stuck`), the web-platform feature built for
+ * exactly this. No JS.
+ *
+ * In browsers that don't support scroll-state queries the @supports guard is
+ * skipped, so the always-visible border declared in the markup simply stays —
+ * a perfectly acceptable default, no fallback machinery required. */
+@supports (container-type: scroll-state) {
+  .header-sticky {
+    container-type: scroll-state;
+  }
+  .header-surface {
+    border-bottom-color: transparent;
+    transition: border-bottom-color 0.2s ease;
+  }
+  @container scroll-state(stuck: top) {
+    .header-surface {
+      border-bottom-color: var(--border);
+    }
+  }
+}
+
 /* Hide scrollbar for carousel - cross-browser */
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */

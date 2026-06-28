@@ -19,8 +19,8 @@ import {
 export default function Header() {
   return (
     <>
-      <header class="sticky top-0 z-40 w-full">
-        <div class="absolute inset-0 bg-background/90 backdrop-blur-xl border-b border-border" />
+      <header class="header-sticky sticky top-0 z-40 w-full">
+        <div class="header-surface absolute inset-0 bg-background/90 backdrop-blur-xl border-b border-border" />
 
         <nav class="relative max-w-6xl mx-auto px-4 sm:px-6">
           <div class="flex items-center justify-between h-16">
