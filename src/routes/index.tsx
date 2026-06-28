@@ -49,7 +49,7 @@ function HeroSection() {
   const data = Route.useLoaderData()
 
   return (
-    <section class="pt-20 pb-16 md:pt-28 md:pb-24 px-6 max-w-5xl mx-auto">
+    <section class="pt-14 pb-16 md:pt-18 md:pb-24 px-6 max-w-5xl mx-auto">
       <div class="max-w-3xl">
         <p class="text-caption font-sans font-medium uppercase tracking-[0.22em] text-muted-foreground mb-5">
           {data().hero.hero_subheading}

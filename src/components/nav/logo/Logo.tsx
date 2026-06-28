@@ -8,7 +8,7 @@ export function Logo() {
       aria-label="WRO Danmark"
       class="flex items-center hover:opacity-80 transition-opacity"
     >
-      <WroLogoMark class="h-9 w-auto" interactive />
+      <WroLogoMark class="h-6 w-auto" interactive />
     </Link>
   )
 }
