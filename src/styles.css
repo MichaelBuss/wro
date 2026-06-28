@@ -19,6 +19,17 @@
   --wro-blue-900: oklch(0.22 0.055 294.52);
   --wro-blue-950: oklch(0.1934 0.0437 294.52);
 
+  /* WRO people-chain logo palette — sampled from the original mark.
+   * Left-to-right rainbow chain plus the lone red figure on the right. */
+  --wro-logo-blue: #006090;
+  --wro-logo-cyan: #00a8d8;
+  --wro-logo-green: #009030;
+  --wro-logo-lime: #90c018;
+  --wro-logo-yellow: #ffd800;
+  --wro-logo-orange: #f09000;
+  --wro-logo-magenta: #f00078;
+  --wro-logo-red: #d80018;
+
   /* Light editorial palette — warm paper-like surface */
   --background: oklch(0.985 0.007 85);
   --foreground: oklch(0.18 0.012 290);
@@ -262,4 +273,73 @@ dialog {
   max-height: none;
   background: transparent;
   color: inherit;
+}
+
+/* WRO logo mark — base figure colouring.
+ * Each figure exposes its palette colour via --wro-fig-color so the shuffle
+ * animation can settle back onto it. Arm motion (wave/chainwave) is a JS path
+ * morph (see poseFigure), not a CSS transform, so there are no transform-origin
+ * pivots here — only the colour-cycle `shuffle` is CSS. */
+.wro-fig {
+  fill: var(--wro-fig-color);
+}
+
+/* All logo motion is opt-out via prefers-reduced-motion (belt-and-suspenders
+ * with the JS guard in createLogoAnimation). */
+@media (prefers-reduced-motion: no-preference) {
+  /* shuffle — each figure flicks through the palette (steppy middle) then
+   * settles, with a slight overshoot, back onto its own colour. */
+  .anim-shuffle .wro-fig {
+    animation: wro-shuffle 0.9s steps(1, end);
+  }
+  @keyframes wro-shuffle {
+    0% {
+      fill: var(--wro-logo-blue);
+    }
+    14% {
+      fill: var(--wro-logo-cyan);
+    }
+    28% {
+      fill: var(--wro-logo-green);
+    }
+    42% {
+      fill: var(--wro-logo-lime);
+    }
+    56% {
+      fill: var(--wro-logo-yellow);
+    }
+    70% {
+      fill: var(--wro-logo-orange);
+    }
+    84% {
+      fill: var(--wro-logo-magenta);
+    }
+    100% {
+      fill: var(--wro-fig-color);
+    }
+  }
+
+  /* Per-figure stagger so the shuffle cycles left to right rather than in
+   * unison. Each .wro-fig is a direct child of .wro-figs. */
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(5) {
+    animation-delay: 240ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(6) {
+    animation-delay: 300ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(7) {
+    animation-delay: 360ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(8) {
+    animation-delay: 420ms;
+  }
 }
