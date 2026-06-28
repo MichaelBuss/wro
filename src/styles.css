@@ -175,6 +175,16 @@
   --color-wro-blue-900: var(--wro-blue-900);
   --color-wro-blue-950: var(--wro-blue-950);
 
+  /* Logo rainbow palette */
+  --color-wro-logo-blue:    var(--wro-logo-blue);
+  --color-wro-logo-cyan:    var(--wro-logo-cyan);
+  --color-wro-logo-green:   var(--wro-logo-green);
+  --color-wro-logo-lime:    var(--wro-logo-lime);
+  --color-wro-logo-yellow:  var(--wro-logo-yellow);
+  --color-wro-logo-orange:  var(--wro-logo-orange);
+  --color-wro-logo-magenta: var(--wro-logo-magenta);
+  --color-wro-logo-red:     var(--wro-logo-red);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
