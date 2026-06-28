@@ -369,41 +369,34 @@ dialog {
 
 @media (prefers-reduced-motion: no-preference) {
   @keyframes cta-rainbow {
-    0% {
-      border-color: var(--wro-logo-blue);
-      color: var(--wro-logo-blue);
-    }
-    14% {
-      border-color: var(--wro-logo-cyan);
-      color: var(--wro-logo-cyan);
-    }
-    28% {
-      border-color: var(--wro-logo-green);
-      color: var(--wro-logo-green);
-    }
-    42% {
-      border-color: var(--wro-logo-lime);
-      color: var(--wro-logo-lime);
-    }
-    56% {
-      border-color: var(--wro-logo-yellow);
-      color: var(--wro-logo-yellow);
-    }
-    70% {
-      border-color: var(--wro-logo-orange);
-      color: var(--wro-logo-orange);
-    }
-    84% {
-      border-color: var(--wro-logo-magenta);
-      color: var(--wro-logo-magenta);
-    }
-    100% {
-      border-color: var(--wro-logo-red);
-      color: var(--wro-logo-red);
+    to {
+      background-position: 100% 50%;
     }
   }
 
   .cta-rainbow:hover {
-    animation: cta-rainbow 0.9s steps(1, end) infinite alternate;
+    background-image: linear-gradient(
+      90deg,
+      var(--wro-logo-blue)    0%      6.25%,
+      var(--wro-logo-cyan)    6.25%   12.5%,
+      var(--wro-logo-green)   12.5%   18.75%,
+      var(--wro-logo-lime)    18.75%  25%,
+      var(--wro-logo-yellow)  25%     31.25%,
+      var(--wro-logo-orange)  31.25%  37.5%,
+      var(--wro-logo-magenta) 37.5%   43.75%,
+      var(--wro-logo-red)     43.75%  50%,
+      var(--wro-logo-blue)    50%     56.25%,
+      var(--wro-logo-cyan)    56.25%  62.5%,
+      var(--wro-logo-green)   62.5%   68.75%,
+      var(--wro-logo-lime)    68.75%  75%,
+      var(--wro-logo-yellow)  75%     81.25%,
+      var(--wro-logo-orange)  81.25%  87.5%,
+      var(--wro-logo-magenta) 87.5%   93.75%,
+      var(--wro-logo-red)     93.75%  100%
+    );
+    background-size: 200% 100%;
+    animation: cta-rainbow 1.6s linear infinite;
+    color: white;
+    border-color: transparent;
   }
 }
