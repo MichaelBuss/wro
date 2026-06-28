@@ -3,9 +3,7 @@ import { ChevronDown } from 'lucide-solid'
 import { For, createSignal, onMount } from 'solid-js'
 import { cx } from '~/cva.config'
 import { INFO_TOPICS } from '~/data/info-topics'
-
-const navLinkBase =
-  'relative px-3 py-2 text-sm font-medium text-foreground/60 hover:text-foreground transition-colors duration-200'
+import { cvaNavLink } from './NavLink'
 
 const popoverClasses = [
   'w-64',
@@ -54,7 +52,7 @@ export function NavDropdown() {
     <div class="relative">
       <button
         ref={triggerRef}
-        class={cx(navLinkBase, 'flex items-center gap-1')}
+        class={cx(cvaNavLink(), 'flex items-center gap-1')}
         style={{ 'anchor-name': anchorName }}
         aria-expanded={isOpen()}
         aria-haspopup="menu"
