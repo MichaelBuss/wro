@@ -15,30 +15,69 @@ TanStack Router uses file-based routing in `src/routes/`. Route types are auto-g
 
 Write TypeScript as if Matt Pocock is reviewing:
 
-- No type assertions (`as`, `!`) ever
-- Infer types from usage when possible
-- Prefer discriminated unions over optional props
-- Use generics meaningfully, not excessively
+- No type assertions (`as`, `!`) — ever. `as const` is the only exception.
+- No `any` — use the proper type, or `unknown` validated with Zod.
+- No `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`.
+- Infer types from usage when possible.
+- Prefer discriminated unions over optional props.
+- Use generics meaningfully, not excessively.
 
-## Validation
+See `.cursor/skills/typescript-style/SKILL.md` for the full style guide.
 
-After making changes, run:
+## Solid.js
 
-```bash
-npm run typecheck  # Type check (tsgo)
-npm run lint       # ESLint
-```
+This is Solid.js, not React. The mental model is fundamentally different.
 
-Fix all errors before considering work complete.
+- Use `createSignal` for reactive state, `createMemo` for derived values, `createEffect` for side effects only.
+- **Never destructure signals** — accessing `props.value` or `signal()` inside JSX is what creates the reactive subscription. Destructuring breaks reactivity.
+- Use `<Show>`, `<For>`, `<Switch>/<Match>` for conditional/list rendering — never `&&` (returns `0` when falsy, not nothing) or deeply nested ternaries.
+- Side effects belong in `createEffect`, not derived from signals or computed inline.
+- `<For>` over `array.map()` in JSX — it's keyed and optimised for Solid's fine-grained reactivity.
+
+See `.cursor/skills/solid-style/SKILL.md` for the full style guide.
+
+## Reuse First
+
+Before creating a new component, hook, or utility — search the codebase first.
+
+- Check `src/components/` for UI primitives before building a new one.
+- Check `src/lib/utils.ts` for utilities (`nonNullable`, `objectEntries`, `DistributiveOmit`, etc.).
+- Use Kobalte UI for accessible interactive primitives (dialogs, popovers, toggles) — don't rebuild from scratch.
+- Use CVA variants to extend existing component styles — don't write one-off CSS.
+
+## File & Naming Conventions
+
+- **kebab-case** for all file names (`my-component.tsx`, `use-auth.ts`).
+- **Named exports only** — no default exports, ever.
+- **One component per file** — co-locate its spec file alongside it (`my-component.spec.ts`).
+- `.tsx` extension for any file containing JSX.
 
 ## ESLint
 
-- Never use `eslint-disable` comments
-- Never silence warnings or errors
-- Fix the root cause instead
+- Never use `eslint-disable` comments.
+- Never silence warnings or errors.
+- Fix the root cause instead.
 
 ## Components
 
-- Extract reusable components, avoid one-off inline JSX
-- Use composition over prop soup (children, slots, render props)
-- Keep components focused and single-purpose
+- Extract reusable components, avoid one-off inline JSX.
+- Use composition over prop soup (children, slots, render props).
+- Keep components focused and single-purpose.
+- Use CVA + `twMerge` for variants; `class` props are only for positioning/layout — never appearance.
+
+## Validation
+
+After making changes, always run:
+
+```bash
+npm run typecheck  # Type check (tsgo)
+npm run lint       # ESLint + content validation
+```
+
+For changes to routes, loaders, or SSR config, also run:
+
+```bash
+npm run build
+```
+
+Fix all errors before considering work complete.

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/protect-branches.cjs",
+        "failClosed": true,
+        "matcher": "\\bgit\\b|\\bgh\\b"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "node .cursor/hooks/format-file.cjs"
+      }
+    ]
+  }
+}
