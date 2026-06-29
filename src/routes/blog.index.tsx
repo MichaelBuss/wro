@@ -3,14 +3,13 @@ import { createServerFn } from '@tanstack/solid-start'
 import { For } from 'solid-js'
 import { PageShell } from '~/components/layout'
 import { Heading } from '~/components/ui'
-import type { BlogPostMeta } from '~/server/content'
-import { getAllBlogPosts } from '~/server/content'
+import { getCollectionItems } from '~/server/content'
 
-const getBlogPosts = createServerFn({
-  method: 'GET',
-}).handler((): Array<BlogPostMeta> => {
-  return getAllBlogPosts()
-})
+const getBlogPosts = createServerFn({ method: 'GET' }).handler(() =>
+  getCollectionItems('blog').sort(
+    (a, b) => b.date.getTime() - a.date.getTime(),
+  ),
+)
 
 export const Route = createFileRoute('/blog/')({
   component: BlogIndex,

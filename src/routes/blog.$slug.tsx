@@ -3,22 +3,15 @@ import { createServerFn } from '@tanstack/solid-start'
 import { Show } from 'solid-js'
 import { PageShell } from '~/components/layout'
 import { Heading, Prose } from '~/components/ui'
-import type { BlogPost } from '~/server/content'
-import { getBlogPost, getBlogSlugs } from '~/server/content'
+import { getCollectionItem, getCollectionItems } from '~/server/content'
 
-const getPost = createServerFn({
-  method: 'GET',
-})
+const getPost = createServerFn({ method: 'GET' })
   .validator((slug: string) => slug)
-  .handler(({ data: slug }): BlogPost | null => {
-    return getBlogPost(slug)
-  })
+  .handler(({ data: slug }) => getCollectionItem('blog', slug))
 
-export const getBlogPostSlugs = createServerFn({
-  method: 'GET',
-}).handler((): Array<string> => {
-  return getBlogSlugs()
-})
+export const getBlogPostSlugs = createServerFn({ method: 'GET' }).handler(() =>
+  getCollectionItems('blog').map((item) => item.slug),
+)
 
 export const Route = createFileRoute('/blog/$slug')({
   component: BlogPostPage,
