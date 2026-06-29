@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { For } from 'solid-js'
-import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
+import { InfoPageLayout } from '~/components/layout'
 import { ContentCard, TipBox } from '~/components/ui'
 import { getInfoTopicByRoute } from '~/data/info-topics'
 import { getPageContent } from '~/server/content'
@@ -23,9 +23,7 @@ function PrizesPage() {
   const [first, ...rest] = data().prizes.prizes
 
   return (
-    <InfoPageLayout>
-      <BackLink />
-      <PageHeader icon={topic.icon} title={topic.title} />
+    <InfoPageLayout icon={topic.icon} title={topic.title}>
 
       <ContentCard>
         <p class="text-lead text-foreground/70 mb-8">{topic.description}</p>

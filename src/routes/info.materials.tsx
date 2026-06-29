@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { Check, ExternalLink } from 'lucide-solid'
 import { For } from 'solid-js'
-import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
+import { InfoPageLayout } from '~/components/layout'
 import { ContentCard } from '~/components/ui'
 import { getInfoTopicByRoute } from '~/data/info-topics'
 import { getPageContent } from '~/server/content'
@@ -21,9 +21,7 @@ function MaterialsPage() {
   const materials = Route.useLoaderData()
 
   return (
-    <InfoPageLayout>
-      <BackLink />
-      <PageHeader icon={topic.icon} title={topic.title} />
+    <InfoPageLayout icon={topic.icon} title={topic.title}>
 
       <ContentCard>
         <p class="text-lead text-foreground/70 mb-8">{materials().intro}</p>
