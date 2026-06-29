@@ -6,17 +6,21 @@
  * Output: public/images/
  */
 
-/** Available responsive image widths */
-export const IMAGE_WIDTHS = [640, 1024, 1280, 1920] as const
-export type ImageWidth = (typeof IMAGE_WIDTHS)[number]
-
-/** All image folders and their base filenames (without size suffix or extension) */
-export const IMAGE_FOLDERS = {
-  carousel: ['abu-dhabi-1', 'abu-dhabi-2'],
+/**
+ * Per-image actual output widths.
+ * Widths reflect the real pixel width of each generated file — sources narrower
+ * than a breakpoint produce a smaller file named after the target breakpoint but
+ * with the actual (not the target) width recorded here for correct srcset descriptors.
+ */
+export const IMAGE_MANIFEST = {
+  carousel: {
+    'abu-dhabi-1': [640, 1024, 1280, 1920],
+    'abu-dhabi-2': [640, 1024, 1280, 1920],
+  },
 } as const
 
 /** Available image folder names */
-export type ImageFolder = keyof typeof IMAGE_FOLDERS
+export type ImageFolder = keyof typeof IMAGE_MANIFEST
 
 /** Filename types for each folder */
-export type CarouselFilename = (typeof IMAGE_FOLDERS)['carousel'][number]
+export type CarouselFilename = keyof (typeof IMAGE_MANIFEST)['carousel']

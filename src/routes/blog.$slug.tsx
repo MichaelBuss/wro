@@ -4,7 +4,7 @@ import { Show } from 'solid-js'
 import { PageShell } from '~/components/layout'
 import { Heading, Prose } from '~/components/ui'
 import type { BlogPost } from '~/server/content'
-import { getBlogPost, getBlogSlugs } from '~/server/content'
+import { getBlogPost } from '~/server/content'
 
 const getPost = createServerFn({
   method: 'GET',
@@ -13,12 +13,6 @@ const getPost = createServerFn({
   .handler(({ data: slug }): BlogPost | null => {
     return getBlogPost(slug)
   })
-
-export const getBlogPostSlugs = createServerFn({
-  method: 'GET',
-}).handler((): Array<string> => {
-  return getBlogSlugs()
-})
 
 export const Route = createFileRoute('/blog/$slug')({
   component: BlogPostPage,
@@ -66,7 +60,10 @@ function BlogPostPage() {
                 </p>
               </Show>
 
-              <time class="text-caption text-muted-foreground">
+              <time
+                datetime={postData().date}
+                class="text-caption text-muted-foreground"
+              >
                 {new Date(postData().date).toLocaleDateString('da-DK', {
                   year: 'numeric',
                   month: 'long',

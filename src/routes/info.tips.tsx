@@ -28,21 +28,23 @@ function TipsPage() {
       <PageHeader icon={topic.icon} title={topic.title} />
 
       <ContentCard class="mb-8">
+        <p class="text-lead text-foreground/70 mb-8">{topic.description}</p>
+
         <h2 class="font-sans text-h3 font-semibold text-foreground mb-6">
           Hvad siger tidligere deltagere?
         </h2>
         <div class="divide-y divide-border">
           <For each={data().quotes}>
-            {(tip) => (
+            {(quote) => (
               <blockquote class="py-6 first:pt-0 last:pb-0">
                 <p class="font-serif text-h5 font-normal text-foreground/80 italic mb-3">
-                  "{tip.quote}"
+                  "{quote.quote}"
                 </p>
                 <footer class="text-caption text-muted-foreground">
                   <span class="font-sans not-italic font-medium text-foreground/70">
-                    {tip.author}
+                    {quote.author}
                   </span>
-                  <span class="ml-2">— {tip.team}</span>
+                  <span class="ml-2">— {quote.team}</span>
                 </footer>
               </blockquote>
             )}

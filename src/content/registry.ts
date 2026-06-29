@@ -31,13 +31,15 @@ export const pageSchemas = {
     world_final_location: z.string(),
   }),
   prizes: z.object({
-    prizes: z.array(
-      z.object({
-        label: z.string(),
-        title: z.string(),
-        description: z.string(),
-      }),
-    ),
+    prizes: z
+      .array(
+        z.object({
+          label: z.string(),
+          title: z.string(),
+          description: z.string(),
+        }),
+      )
+      .min(1),
     tip_heading: z.string(),
     tip_body: z.string(),
   }),

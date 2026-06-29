@@ -3,6 +3,7 @@ import '@fontsource-variable/fraunces/full.css'
 import '@fontsource-variable/fraunces/full-italic.css'
 import {
   HeadContent,
+  Link,
   Outlet,
   Scripts,
   createRootRouteWithContext,
@@ -35,12 +36,12 @@ function NotFound() {
           404
         </Heading>
         <Lead class="text-muted-foreground mb-8">Siden blev ikke fundet</Lead>
-        <a
-          href="/"
+        <Link
+          to="/"
           class="px-6 py-3 bg-primary hover:bg-wro-blue-600 text-primary-foreground font-semibold rounded-lg transition-colors"
         >
           Gå til forsiden
-        </a>
+        </Link>
       </div>
     </div>
   )
@@ -54,12 +55,12 @@ function RootComponent() {
         <HydrationScript />
       </head>
       <body>
-        <Suspense>
+        <Suspense fallback={null}>
           <TanStackQueryProvider>
             <Header />
             <Outlet />
             <SiteFooter />
-            <TanStackRouterDevtools />
+            {import.meta.env.DEV && <TanStackRouterDevtools />}
           </TanStackQueryProvider>
         </Suspense>
         <Scripts />

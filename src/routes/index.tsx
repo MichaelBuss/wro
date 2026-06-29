@@ -189,27 +189,29 @@ function PrizesSection() {
   const otherPrizes = () => data().prizes.prizes.slice(1)
 
   return (
+    <Show when={firstPrize()}>
+      {(prize) => (
     <section class="bg-wro-blue-950 py-16 px-6">
       <div class="max-w-5xl mx-auto text-center">
         <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-white/50 mb-6">
-          {firstPrize().label}
+          {prize().label}
         </p>
 
         <p class="font-serif text-h1 font-semibold text-white leading-tight mb-10 max-w-2xl mx-auto">
-          {firstPrize().title} — {data().eventInfo.world_final_location}
+          {prize().title} — {data().eventInfo.world_final_location}
         </p>
 
         <hr class="border-white/15 mb-8" />
 
         <div class="grid grid-cols-2 gap-6 max-w-sm mx-auto mb-10">
           <For each={otherPrizes()}>
-            {(prize) => (
+            {(otherPrize) => (
               <div class="text-left">
                 <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
-                  {prize.label}
+                  {otherPrize.label}
                 </p>
                 <p class="text-sm-copy font-medium text-white/80">
-                  {prize.title}
+                  {otherPrize.title}
                 </p>
               </div>
             )}
@@ -224,6 +226,8 @@ function PrizesSection() {
         </Link>
       </div>
     </section>
+      )}
+    </Show>
   )
 }
 
