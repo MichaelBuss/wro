@@ -3,12 +3,12 @@ import { createServerFn } from '@tanstack/solid-start'
 import { For, Show } from 'solid-js'
 import type { GalleryItem } from '~/components/ui'
 import { Gallery, Heading, Lead } from '~/components/ui'
-import { cx } from '~/cva.config'
-import { INFO_TOPICS, LOGO_PALETTE_CLASSES } from '~/data/info-topics'
+import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { getCollectionItems, getPageContent } from '~/server/content'
 
 const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
   const hero = getPageContent('homepage')
+  const eventInfo = getPageContent('event-info')
   const carouselItems = getCollectionItems('carousel')
 
   const galleryItems: Array<GalleryItem> = [...carouselItems]
@@ -22,7 +22,7 @@ const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
       objectPosition: item.position,
     }))
 
-  return { hero, galleryItems }
+  return { hero, galleryItems, eventInfo }
 })
 
 export const Route = createFileRoute('/')({
@@ -41,7 +41,11 @@ function HomePage() {
         <GallerySection />
       </Show>
 
-      <InfoIndex />
+      <DateSection />
+      <PrizesSection />
+      <CostSection />
+      <MaterialsSection />
+      <TipsSection />
     </div>
   )
 }
@@ -98,38 +102,264 @@ function GallerySection() {
   )
 }
 
-function InfoIndex() {
-  return (
-    <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
-      <Heading level="h2" class="mb-8">
-        Information
-      </Heading>
+function DateSection() {
+  const data = Route.useLoaderData()
 
-      <ul class="divide-y divide-border">
-        <For each={INFO_TOPICS}>
-          {(topic) => (
-            <li>
-              <Link
-                to={topic.route}
-                class="flex items-start gap-5 py-5 -mx-3 px-3 rounded hover:bg-secondary/60 transition-colors group"
-              >
-                <topic.icon class={cx('w-5 h-5 shrink-0 mt-0.5', LOGO_PALETTE_CLASSES[topic.color].icon)} />
-                <div class="min-w-0">
-                  <span class={cx('text-h5 font-medium text-foreground transition-colors block mb-1', LOGO_PALETTE_CLASSES[topic.color].hover)}>
-                    {topic.title}
+  const formattedDate = () =>
+    data().eventInfo.danish_final_date.toLocaleDateString('da-DK', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        <div>
+          <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-4">
+            Dato & Sted
+          </p>
+          <p class="font-serif text-h1 font-semibold text-foreground capitalize leading-tight mb-3">
+            {formattedDate()}
+          </p>
+          <p class="text-lead text-muted-foreground">
+            {data().eventInfo.danish_final_location}
+          </p>
+          <p class="text-h5 text-muted-foreground mt-1">
+            {data().eventInfo.danish_final_time}
+          </p>
+          <div class="mt-8">
+            <Link
+              to="/info/date"
+              class="text-sm-copy font-medium text-primary hover:underline"
+            >
+              Se fuldt program →
+            </Link>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-4">
+            Program
+          </p>
+          <div class="divide-y divide-border">
+            <For each={DANISH_FINAL_SCHEDULE}>
+              {(item) => (
+                <div class="flex gap-5 py-3 first:pt-0 last:pb-0">
+                  <span class="text-caption font-mono text-muted-foreground min-w-[52px] shrink-0 pt-0.5">
+                    {item.time}
                   </span>
-                  <p class="text-sm-copy text-muted-foreground leading-snug">
-                    {topic.description}
+                  <span class="text-sm-copy font-medium text-foreground">
+                    {item.title}
+                  </span>
+                </div>
+              )}
+            </For>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function PrizesSection() {
+  const data = Route.useLoaderData()
+
+  return (
+    <section class="bg-wro-blue-950 py-16 px-6">
+      <div class="max-w-5xl mx-auto text-center">
+        <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-white/50 mb-6">
+          1. plads — Vinderpræmie
+        </p>
+
+        <p class="font-serif text-h1 font-semibold text-white leading-tight mb-10 max-w-2xl mx-auto">
+          En fuldtbetalt rejse til WRO-verdensfinalen i{' '}
+          {data().eventInfo.world_final_location}
+        </p>
+
+        <hr class="border-white/15 mb-8" />
+
+        <div class="grid grid-cols-2 gap-6 max-w-sm mx-auto mb-10">
+          <div class="text-left">
+            <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
+              2. plads
+            </p>
+            <p class="text-sm-copy font-medium text-white/80">
+              Spændende præmier
+            </p>
+          </div>
+          <div class="text-left">
+            <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
+              3. plads
+            </p>
+            <p class="text-sm-copy font-medium text-white/80">
+              Præmier og diplom
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/info/prizes"
+          class="text-sm-copy font-medium text-white/60 hover:text-white transition-colors"
+        >
+          Se alle præmier →
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+function CostSection() {
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p
+          class="font-sans font-black text-foreground leading-none tracking-tight mb-4"
+          style={{ 'font-size': 'clamp(4rem,13vw,9rem)' }}
+        >
+          GRATIS
+        </p>
+        <p class="text-lead text-foreground/70 mb-6">
+          Du betaler kun for en øvebane
+        </p>
+        <div class="flex flex-wrap gap-2 mb-8">
+          <span class="text-caption font-sans font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+            Øvebane ~500–800 kr
+          </span>
+          <span class="text-caption font-sans font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+            Robotsæt varierer
+          </span>
+        </div>
+        <Link
+          to="/info/cost"
+          class="text-sm-copy font-medium text-primary hover:underline"
+        >
+          Se prisdetaljer →
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+function MaterialsSection() {
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        <div>
+          <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-4">
+            Materialer
+          </p>
+          <Heading level="h2" class="mb-4">
+            Hvad skal man bruge?
+          </Heading>
+          <p class="text-lead text-foreground/70">
+            Du skal bruge et godkendt robotsæt. De fleste bruger LEGO EV3 eller
+            Spike Prime.
+          </p>
+          <div class="mt-8">
+            <Link
+              to="/info/materials"
+              class="text-sm-copy font-medium text-primary hover:underline"
+            >
+              Se materialedetaljer →
+            </Link>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 justify-center">
+          <div class="flex items-center justify-between border border-border rounded-lg px-5 py-4">
+            <span class="text-h5 font-medium text-foreground">LEGO EV3</span>
+            <span class="text-caption font-medium text-wro-logo-green bg-wro-logo-green/10 px-2.5 py-0.5 rounded-full">
+              ✓ Godkendt
+            </span>
+          </div>
+          <div class="flex items-center justify-between border border-border rounded-lg px-5 py-4">
+            <span class="text-h5 font-medium text-foreground">
+              LEGO Spike Prime
+            </span>
+            <span class="text-caption font-medium text-wro-logo-green bg-wro-logo-green/10 px-2.5 py-0.5 rounded-full">
+              ✓ Godkendt
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TipsSection() {
+  const featuredQuote = {
+    quote:
+      'Start tidligt med at øve. Jo mere tid I bruger på banen, jo bedre bliver I til at forudse problemer.',
+    author: 'Marcus, 15 år',
+    team: 'Team RoboNinja, finalist 2024',
+  }
+
+  const practicalTips = [
+    {
+      title: 'Planlæg jeres tid',
+      description:
+        '2-3 timer om ugen i 2 måneder er bedre end en hel weekend lige før konkurrencen.',
+    },
+    {
+      title: 'Test, test, test',
+      description:
+        'Banen på konkurrencedagen er aldrig 100% som jeres øvebane.',
+    },
+    {
+      title: 'Pak en nødkasse',
+      description:
+        'Ekstra dele, værktøj, tape og batterier — I vil takke jer selv.',
+    },
+  ]
+
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-8">
+          Tips & Tricks
+        </p>
+
+        <blockquote class="border-l-2 border-wro-logo-orange pl-6 mb-10">
+          <p class="font-serif text-h2 font-normal italic text-foreground/80 mb-4">
+            "{featuredQuote.quote}"
+          </p>
+          <footer class="text-caption text-muted-foreground">
+            <span class="font-sans not-italic font-medium text-foreground/70">
+              {featuredQuote.author}
+            </span>
+            <span class="ml-2">— {featuredQuote.team}</span>
+          </footer>
+        </blockquote>
+
+        <div class="divide-y divide-border mb-8">
+          <For each={practicalTips}>
+            {(tip, index) => (
+              <div class="flex gap-5 py-4 first:pt-0 last:pb-0">
+                <span class="font-serif text-h4 text-muted-foreground/40 tabular-nums shrink-0 w-6 text-right">
+                  {index() + 1}
+                </span>
+                <div>
+                  <h3 class="font-sans text-sm-copy font-medium text-foreground mb-1">
+                    {tip.title}
+                  </h3>
+                  <p class="text-sm-copy text-muted-foreground">
+                    {tip.description}
                   </p>
                 </div>
-                <span class="text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0 mt-0.5">
-                  →
-                </span>
-              </Link>
-            </li>
-          )}
-        </For>
-      </ul>
+              </div>
+            )}
+          </For>
+        </div>
+
+        <Link
+          to="/info/tips"
+          class="text-sm-copy font-medium text-primary hover:underline"
+        >
+          Læs alle tips →
+        </Link>
+      </div>
     </section>
   )
 }
