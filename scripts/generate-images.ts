@@ -146,7 +146,7 @@ async function main() {
 
   if (totalGenerated > 0) {
     console.log(
-      '\n💡 If you added new images, update ALT_TEXTS in src/lib/images/alt-texts.ts',
+      '\n💡 If you added new images, add a matching entry to content/carousel/*.md with alt and position fields',
     )
   }
 }

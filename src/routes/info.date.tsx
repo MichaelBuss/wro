@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { Calendar, Clock, MapPin } from 'lucide-solid'
 import { For } from 'solid-js'
-import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
+import { InfoPageLayout } from '~/components/layout'
 import { ContentCard } from '~/components/ui'
 import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { getInfoTopicByRoute } from '~/data/info-topics'
@@ -30,9 +30,7 @@ function DatePage() {
     })
 
   return (
-    <InfoPageLayout>
-      <BackLink />
-      <PageHeader icon={topic.icon} title={topic.title} />
+    <InfoPageLayout icon={topic.icon} title={topic.title}>
 
       <ContentCard>
         <p class="text-lead text-foreground/70 mb-8">{topic.description}</p>

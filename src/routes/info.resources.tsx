@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { Book, Code, ExternalLink, Users, Video } from 'lucide-solid'
 import { For } from 'solid-js'
-import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
+import { InfoPageLayout } from '~/components/layout'
 import { ContentCard, TipBox } from '~/components/ui'
 import { getInfoTopicByRoute } from '~/data/info-topics'
 
@@ -102,9 +102,7 @@ function ResourcesPage() {
   ]
 
   return (
-    <InfoPageLayout>
-      <BackLink />
-      <PageHeader icon={topic.icon} title={topic.title} />
+    <InfoPageLayout icon={topic.icon} title={topic.title}>
 
       <p class="text-lead text-foreground/70 mb-10">{topic.description}</p>
 

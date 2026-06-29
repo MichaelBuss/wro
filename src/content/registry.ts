@@ -1,5 +1,22 @@
 import { z } from 'zod'
-import { OBJECT_POSITIONS } from '~/lib/images/alt-texts'
+
+export const OBJECT_POSITIONS = [
+  'center',
+  'top',
+  'bottom',
+  'left',
+  'right',
+  'top left',
+  'top center',
+  'top right',
+  'center left',
+  'center right',
+  'bottom left',
+  'bottom center',
+  'bottom right',
+] as const
+
+export type ObjectPosition = (typeof OBJECT_POSITIONS)[number]
 
 /**
  * Content registry — single source of truth for all CMS-managed content.
