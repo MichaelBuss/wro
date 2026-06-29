@@ -1,14 +1,24 @@
 import { createFileRoute } from '@tanstack/solid-router'
+import { createServerFn } from '@tanstack/solid-start'
 import { Check } from 'lucide-solid'
 import { For } from 'solid-js'
 import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
 import { ContentCard, TipBox } from '~/components/ui'
 import { getInfoTopicByRoute } from '~/data/info-topics'
+import { getPageContent } from '~/server/content'
 
-export const Route = createFileRoute('/info/cost')({ component: CostPage })
+const getCostData = createServerFn({ method: 'GET' }).handler(() =>
+  getPageContent('cost'),
+)
+
+export const Route = createFileRoute('/info/cost')({
+  component: CostPage,
+  loader: () => getCostData(),
+})
 
 function CostPage() {
   const topic = getInfoTopicByRoute('/info/cost')
+  const cost = Route.useLoaderData()
 
   return (
     <InfoPageLayout>
@@ -21,17 +31,10 @@ function CostPage() {
         <div class="divide-y divide-border mb-8">
           <div class="pb-8">
             <h3 class="font-sans text-h4 font-medium text-foreground mb-4">
-              Gratis
+              {cost().headline}
             </h3>
             <ul class="space-y-3">
-              <For
-                each={[
-                  'Tilmelding til konkurrencen',
-                  'Deltagelse i den danske finale',
-                  'Adgang til online ressourcer og vejledninger',
-                  'Diplom til alle deltagere',
-                ]}
-              >
+              <For each={cost().free_items}>
                 {(item) => (
                   <li class="flex items-start gap-3 text-sm-copy text-foreground/70">
                     <Check class="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -47,47 +50,29 @@ function CostPage() {
               Egne udgifter
             </h3>
             <div class="space-y-4">
-              <div class="flex gap-6 text-sm-copy">
-                <span class="text-muted-foreground tabular-nums min-w-[90px]">
-                  ~500–800 kr
-                </span>
-                <span class="text-foreground/70">
-                  Øvebane (kan også laves selv)
-                </span>
-              </div>
-              <div class="flex gap-6 text-sm-copy">
-                <span class="text-muted-foreground tabular-nums min-w-[90px]">
-                  Varierer
-                </span>
-                <span class="text-foreground/70">
-                  Robotsæt (hvis I ikke allerede har et)
-                </span>
-              </div>
-              <div class="flex gap-6 text-sm-copy">
-                <span class="text-muted-foreground tabular-nums min-w-[90px]">
-                  Varierer
-                </span>
-                <span class="text-foreground/70">Transport til finalen</span>
-              </div>
+              <For each={cost().expenses}>
+                {(expense) => (
+                  <div class="flex gap-6 text-sm-copy">
+                    <span class="text-muted-foreground tabular-nums min-w-[90px]">
+                      {expense.amount}
+                    </span>
+                    <span class="text-foreground/70">{expense.description}</span>
+                  </div>
+                )}
+              </For>
             </div>
           </div>
         </div>
 
-        <TipBox title="Lån eller del materialer" class="mb-8">
-          Mange skoler har allerede robotsæt I kan låne. Spørg jeres
-          naturfagslærer eller IT-ansvarlige. I kan også gå sammen med andre
-          hold om at dele en øvebane.
+        <TipBox title={cost().tip_heading} class="mb-8">
+          {cost().tip_body}
         </TipBox>
 
         <div class="border border-border rounded-lg p-6">
           <h3 class="font-sans text-h5 font-medium text-foreground mb-3">
-            Søg om støtte
+            {cost().support_heading}
           </h3>
-          <p class="text-sm-copy text-muted-foreground">
-            Nogle fonde og organisationer støtter STEM-aktiviteter for unge.
-            Kontakt jeres skole eller kommune for at høre om muligheder for
-            økonomisk støtte.
-          </p>
+          <p class="text-sm-copy text-muted-foreground">{cost().support_body}</p>
         </div>
       </ContentCard>
     </InfoPageLayout>

@@ -48,6 +48,9 @@ function listCollectionSlugs(collection: CollectionName): Array<string> {
  */
 export function getPageContent(key: 'homepage'): PageContent<'homepage'>
 export function getPageContent(key: 'event-info'): PageContent<'event-info'>
+export function getPageContent(key: 'prizes'): PageContent<'prizes'>
+export function getPageContent(key: 'cost'): PageContent<'cost'>
+export function getPageContent(key: 'materials'): PageContent<'materials'>
 export function getPageContent(key: PageKey) {
   const raw = readContent(`pages/${key}.md`)
 
@@ -66,6 +69,8 @@ export function getPageContent(key: PageKey) {
  */
 export function getCollectionItems(collection: 'blog'): Array<CollectionItem<'blog'>>
 export function getCollectionItems(collection: 'carousel'): Array<CollectionItem<'carousel'>>
+export function getCollectionItems(collection: 'quotes'): Array<CollectionItem<'quotes'>>
+export function getCollectionItems(collection: 'practical-tips'): Array<CollectionItem<'practical-tips'>>
 export function getCollectionItems(collection: CollectionName) {
   const slugs = listCollectionSlugs(collection)
 
@@ -95,6 +100,8 @@ export function getCollectionItems(collection: CollectionName) {
  */
 export function getCollectionItem(collection: 'blog', slug: string): (CollectionItem<'blog'> & { content: string }) | null
 export function getCollectionItem(collection: 'carousel', slug: string): (CollectionItem<'carousel'> & { content: string }) | null
+export function getCollectionItem(collection: 'quotes', slug: string): (CollectionItem<'quotes'> & { content: string }) | null
+export function getCollectionItem(collection: 'practical-tips', slug: string): (CollectionItem<'practical-tips'> & { content: string }) | null
 export function getCollectionItem(collection: CollectionName, slug: string) {
   const raw = readContent(`${collection}/${slug}.md`)
 

@@ -1,42 +1,24 @@
 import { createFileRoute } from '@tanstack/solid-router'
+import { createServerFn } from '@tanstack/solid-start'
 import { Check, ExternalLink } from 'lucide-solid'
 import { For } from 'solid-js'
 import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
 import { ContentCard } from '~/components/ui'
 import { getInfoTopicByRoute } from '~/data/info-topics'
+import { getPageContent } from '~/server/content'
+
+const getMaterialsData = createServerFn({ method: 'GET' }).handler(() =>
+  getPageContent('materials'),
+)
 
 export const Route = createFileRoute('/info/materials')({
   component: MaterialsPage,
+  loader: () => getMaterialsData(),
 })
 
 function MaterialsPage() {
   const topic = getInfoTopicByRoute('/info/materials')
-
-  const robotKits = [
-    {
-      name: 'LEGO SPIKE Prime',
-      description:
-        'Det nyeste LEGO Education robotsæt med kraftfuld hub og intuitivt programmeringsmiljø.',
-      recommended: true,
-    },
-    {
-      name: 'LEGO Mindstorms EV3',
-      description:
-        'Klassisk og velafprøvet robotsæt med stort community og mange ressourcer.',
-      recommended: true,
-    },
-    {
-      name: 'LEGO SPIKE Essential',
-      description: 'Velegnet til yngre deltagere og mindre komplekse opgaver.',
-      recommended: false,
-    },
-    {
-      name: 'Andre godkendte systemer',
-      description:
-        "Se WRO's officielle liste for alle godkendte robotsystemer.",
-      recommended: false,
-    },
-  ]
+  const materials = Route.useLoaderData()
 
   return (
     <InfoPageLayout>
@@ -44,14 +26,14 @@ function MaterialsPage() {
       <PageHeader icon={topic.icon} title={topic.title} />
 
       <ContentCard>
-        <p class="text-lead text-foreground/70 mb-8">{topic.description}</p>
+        <p class="text-lead text-foreground/70 mb-8">{materials().intro}</p>
 
         <h2 class="font-sans text-h3 font-semibold text-foreground mb-6">
           Godkendte robotsæt
         </h2>
 
         <div class="divide-y divide-border mb-8">
-          <For each={robotKits}>
+          <For each={materials().kits}>
             {(kit) => (
               <div class="py-5 first:pt-0 last:pb-0">
                 <div class="flex items-start justify-between gap-4">
@@ -79,14 +61,7 @@ function MaterialsPage() {
         </h2>
 
         <div class="space-y-3 mb-8">
-          <For
-            each={[
-              'Øvebane til træning (kan købes eller laves selv)',
-              'Computer til programmering',
-              'Ekstra LEGO-klodser til at bygge robotten',
-              'Tid og tålmodighed til at øve!',
-            ]}
-          >
+          <For each={materials().other_items}>
             {(item) => (
               <div class="flex items-center gap-3 text-sm-copy text-foreground/70">
                 <Check class="w-4 h-4 text-primary shrink-0" />
@@ -105,7 +80,7 @@ function MaterialsPage() {
             officielle hjemmeside.
           </p>
           <a
-            href="https://wro-association.org/competition/2025-season/"
+            href={materials().rules_url}
             target="_blank"
             rel="noopener noreferrer"
             class="inline-flex items-center gap-2 text-sm-copy text-primary hover:underline underline-offset-4 transition-colors"

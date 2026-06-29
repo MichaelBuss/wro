@@ -1,22 +1,26 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
+import { For } from 'solid-js'
 import { BackLink, InfoPageLayout, PageHeader } from '~/components/layout'
 import { ContentCard, TipBox } from '~/components/ui'
 import { getInfoTopicByRoute } from '~/data/info-topics'
 import { getPageContent } from '~/server/content'
 
-const getEventInfo = createServerFn({ method: 'GET' }).handler(() =>
-  getPageContent('event-info'),
-)
+const getPrizesData = createServerFn({ method: 'GET' }).handler(() => ({
+  prizes: getPageContent('prizes'),
+  eventInfo: getPageContent('event-info'),
+}))
 
 export const Route = createFileRoute('/info/prizes')({
   component: PrizesPage,
-  loader: () => getEventInfo(),
+  loader: () => getPrizesData(),
 })
 
 function PrizesPage() {
   const topic = getInfoTopicByRoute('/info/prizes')
-  const eventInfo = Route.useLoaderData()
+  const data = Route.useLoaderData()
+
+  const [first, ...rest] = data().prizes.prizes
 
   return (
     <InfoPageLayout>
@@ -33,46 +37,33 @@ function PrizesPage() {
         <div class="divide-y divide-border">
           <div class="py-6">
             <p class="text-caption text-muted-foreground uppercase tracking-wider mb-2">
-              1. plads — Hovedpræmien
+              {first.label}
             </p>
             <p class="text-h5 font-medium text-foreground mb-2">
-              Fuldtbetalt rejse til verdensfinalen
+              {first.title}
             </p>
             <p class="text-sm-copy text-foreground/70">
-              Fuldtbetalt rejse til WRO-verdensfinalen i{' '}
-              {eventInfo().world_final_location}. Inkluderer fly, overnatning og
-              deltagelse.
+              {first.description} I {data().eventInfo.world_final_location}.
             </p>
           </div>
 
-          <div class="py-6">
-            <p class="text-caption text-muted-foreground uppercase tracking-wider mb-2">
-              2. plads
-            </p>
-            <p class="text-h5 font-medium text-foreground mb-2">
-              Spændende præmier
-            </p>
-            <p class="text-sm-copy text-foreground/70">
-              Anerkendelse og præmier for en fantastisk indsats.
-            </p>
-          </div>
-
-          <div class="py-6">
-            <p class="text-caption text-muted-foreground uppercase tracking-wider mb-2">
-              3. plads
-            </p>
-            <p class="text-h5 font-medium text-foreground mb-2">
-              Præmier og diplom
-            </p>
-            <p class="text-sm-copy text-foreground/70">
-              Præmier og diplom for en flot præstation.
-            </p>
-          </div>
+          <For each={rest}>
+            {(prize) => (
+              <div class="py-6">
+                <p class="text-caption text-muted-foreground uppercase tracking-wider mb-2">
+                  {prize.label}
+                </p>
+                <p class="text-h5 font-medium text-foreground mb-2">
+                  {prize.title}
+                </p>
+                <p class="text-sm-copy text-foreground/70">{prize.description}</p>
+              </div>
+            )}
+          </For>
         </div>
 
-        <TipBox title="Vidste du?" class="mt-8">
-          Alle deltagere får et diplom og mulighed for at netværke med andre
-          robotentusiaster fra hele Danmark!
+        <TipBox title={data().prizes.tip_heading} class="mt-8">
+          {data().prizes.tip_body}
         </TipBox>
       </ContentCard>
     </InfoPageLayout>

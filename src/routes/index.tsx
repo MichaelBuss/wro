@@ -9,6 +9,9 @@ import { getCollectionItems, getPageContent } from '~/server/content'
 const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
   const hero = getPageContent('homepage')
   const eventInfo = getPageContent('event-info')
+  const prizes = getPageContent('prizes')
+  const cost = getPageContent('cost')
+  const materials = getPageContent('materials')
   const carouselItems = getCollectionItems('carousel')
 
   const galleryItems: Array<GalleryItem> = [...carouselItems]
@@ -22,7 +25,23 @@ const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
       objectPosition: item.position,
     }))
 
-  return { hero, galleryItems, eventInfo }
+  const allQuotes = getCollectionItems('quotes').sort(
+    (a, b) => a.order - b.order,
+  )
+  const allPracticalTips = getCollectionItems('practical-tips').sort(
+    (a, b) => a.order - b.order,
+  )
+
+  return {
+    hero,
+    galleryItems,
+    eventInfo,
+    prizes,
+    cost,
+    materials,
+    featuredQuote: allQuotes[0],
+    practicalTips: allPracticalTips.slice(0, 3),
+  }
 })
 
 export const Route = createFileRoute('/')({
@@ -166,37 +185,35 @@ function DateSection() {
 function PrizesSection() {
   const data = Route.useLoaderData()
 
+  const firstPrize = () => data().prizes.prizes[0]
+  const otherPrizes = () => data().prizes.prizes.slice(1)
+
   return (
     <section class="bg-wro-blue-950 py-16 px-6">
       <div class="max-w-5xl mx-auto text-center">
         <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-white/50 mb-6">
-          1. plads — Vinderpræmie
+          {firstPrize().label}
         </p>
 
         <p class="font-serif text-h1 font-semibold text-white leading-tight mb-10 max-w-2xl mx-auto">
-          En fuldtbetalt rejse til WRO-verdensfinalen i{' '}
-          {data().eventInfo.world_final_location}
+          {firstPrize().title} — {data().eventInfo.world_final_location}
         </p>
 
         <hr class="border-white/15 mb-8" />
 
         <div class="grid grid-cols-2 gap-6 max-w-sm mx-auto mb-10">
-          <div class="text-left">
-            <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
-              2. plads
-            </p>
-            <p class="text-sm-copy font-medium text-white/80">
-              Spændende præmier
-            </p>
-          </div>
-          <div class="text-left">
-            <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
-              3. plads
-            </p>
-            <p class="text-sm-copy font-medium text-white/80">
-              Præmier og diplom
-            </p>
-          </div>
+          <For each={otherPrizes()}>
+            {(prize) => (
+              <div class="text-left">
+                <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
+                  {prize.label}
+                </p>
+                <p class="text-sm-copy font-medium text-white/80">
+                  {prize.title}
+                </p>
+              </div>
+            )}
+          </For>
         </div>
 
         <Link
@@ -211,6 +228,8 @@ function PrizesSection() {
 }
 
 function CostSection() {
+  const data = Route.useLoaderData()
+
   return (
     <section class="border-t border-border py-16 px-6">
       <div class="max-w-5xl mx-auto">
@@ -218,18 +237,17 @@ function CostSection() {
           class="font-sans font-black text-foreground leading-none tracking-tight mb-4"
           style={{ 'font-size': 'clamp(4rem,13vw,9rem)' }}
         >
-          GRATIS
+          {data().cost.headline}
         </p>
-        <p class="text-lead text-foreground/70 mb-6">
-          Du betaler kun for en øvebane
-        </p>
+        <p class="text-lead text-foreground/70 mb-6">{data().cost.tagline}</p>
         <div class="flex flex-wrap gap-2 mb-8">
-          <span class="text-caption font-sans font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Øvebane ~500–800 kr
-          </span>
-          <span class="text-caption font-sans font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Robotsæt varierer
-          </span>
+          <For each={data().cost.homepage_tags}>
+            {(tag) => (
+              <span class="text-caption font-sans font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+                {tag}
+              </span>
+            )}
+          </For>
         </div>
         <Link
           to="/info/cost"
@@ -243,6 +261,11 @@ function CostSection() {
 }
 
 function MaterialsSection() {
+  const data = Route.useLoaderData()
+
+  const recommendedKits = () =>
+    data().materials.kits.filter((kit) => kit.recommended)
+
   return (
     <section class="border-t border-border py-16 px-6">
       <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
@@ -253,10 +276,7 @@ function MaterialsSection() {
           <Heading level="h2" class="mb-4">
             Hvad skal man bruge?
           </Heading>
-          <p class="text-lead text-foreground/70">
-            Du skal bruge et godkendt robotsæt. De fleste bruger LEGO EV3 eller
-            Spike Prime.
-          </p>
+          <p class="text-lead text-foreground/70">{data().materials.intro}</p>
           <div class="mt-8">
             <Link
               to="/info/materials"
@@ -268,20 +288,18 @@ function MaterialsSection() {
         </div>
 
         <div class="flex flex-col gap-4 justify-center">
-          <div class="flex items-center justify-between border border-border rounded-lg px-5 py-4">
-            <span class="text-h5 font-medium text-foreground">LEGO EV3</span>
-            <span class="text-caption font-medium text-wro-logo-green bg-wro-logo-green/10 px-2.5 py-0.5 rounded-full">
-              ✓ Godkendt
-            </span>
-          </div>
-          <div class="flex items-center justify-between border border-border rounded-lg px-5 py-4">
-            <span class="text-h5 font-medium text-foreground">
-              LEGO Spike Prime
-            </span>
-            <span class="text-caption font-medium text-wro-logo-green bg-wro-logo-green/10 px-2.5 py-0.5 rounded-full">
-              ✓ Godkendt
-            </span>
-          </div>
+          <For each={recommendedKits()}>
+            {(kit) => (
+              <div class="flex items-center justify-between border border-border rounded-lg px-5 py-4">
+                <span class="text-h5 font-medium text-foreground">
+                  {kit.name}
+                </span>
+                <span class="text-caption font-medium text-wro-logo-green bg-wro-logo-green/10 px-2.5 py-0.5 rounded-full">
+                  ✓ Godkendt
+                </span>
+              </div>
+            )}
+          </For>
         </div>
       </div>
     </section>
@@ -289,30 +307,7 @@ function MaterialsSection() {
 }
 
 function TipsSection() {
-  const featuredQuote = {
-    quote:
-      'Start tidligt med at øve. Jo mere tid I bruger på banen, jo bedre bliver I til at forudse problemer.',
-    author: 'Marcus, 15 år',
-    team: 'Team RoboNinja, finalist 2024',
-  }
-
-  const practicalTips = [
-    {
-      title: 'Planlæg jeres tid',
-      description:
-        '2-3 timer om ugen i 2 måneder er bedre end en hel weekend lige før konkurrencen.',
-    },
-    {
-      title: 'Test, test, test',
-      description:
-        'Banen på konkurrencedagen er aldrig 100% som jeres øvebane.',
-    },
-    {
-      title: 'Pak en nødkasse',
-      description:
-        'Ekstra dele, værktøj, tape og batterier — I vil takke jer selv.',
-    },
-  ]
+  const data = Route.useLoaderData()
 
   return (
     <section class="border-t border-border py-16 px-6">
@@ -321,20 +316,24 @@ function TipsSection() {
           Tips & Tricks
         </p>
 
-        <blockquote class="border-l-2 border-wro-logo-orange pl-6 mb-10">
-          <p class="font-serif text-h2 font-normal italic text-foreground/80 mb-4">
-            "{featuredQuote.quote}"
-          </p>
-          <footer class="text-caption text-muted-foreground">
-            <span class="font-sans not-italic font-medium text-foreground/70">
-              {featuredQuote.author}
-            </span>
-            <span class="ml-2">— {featuredQuote.team}</span>
-          </footer>
-        </blockquote>
+        <Show when={data().featuredQuote}>
+          {(quote) => (
+            <blockquote class="border-l-2 border-wro-logo-orange pl-6 mb-10">
+              <p class="font-serif text-h2 font-normal italic text-foreground/80 mb-4">
+                "{quote().quote}"
+              </p>
+              <footer class="text-caption text-muted-foreground">
+                <span class="font-sans not-italic font-medium text-foreground/70">
+                  {quote().author}
+                </span>
+                <span class="ml-2">— {quote().team}</span>
+              </footer>
+            </blockquote>
+          )}
+        </Show>
 
         <div class="divide-y divide-border mb-8">
-          <For each={practicalTips}>
+          <For each={data().practicalTips}>
             {(tip, index) => (
               <div class="flex gap-5 py-4 first:pt-0 last:pb-0">
                 <span class="font-serif text-h4 text-muted-foreground/40 tabular-nums shrink-0 w-6 text-right">
