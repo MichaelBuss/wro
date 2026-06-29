@@ -1,4 +1,5 @@
 import { For, createEffect, onCleanup, onMount } from 'solid-js'
+import type { LogoAnimation } from './animations'
 import { ANIMATION_POOL } from './animations'
 import { createLogoAnimation } from './createLogoAnimation'
 import { FIGURES, WRO_TEXT_D } from './figures'
@@ -26,7 +27,7 @@ interface WroLogoMarkProps {
   /** Wire cursor-follow + load/refocus movies. Defaults to static. */
   interactive?: boolean
   /** Force a specific named clip (controlled). */
-  animation?: string
+  animation?: LogoAnimation['name']
 }
 
 /** Min gap between auto-played movies so rapid alt-tabbing doesn't spam them. */
@@ -39,9 +40,8 @@ export function WroLogoMark(props: WroLogoMarkProps) {
 
   createEffect(() => {
     const name = props.animation
-    if (name === undefined) return
     anim.stop()
-    anim.play(name)
+    if (name !== undefined) anim.play(name)
   })
 
   // Tracked on the window (not the SVG) so the red girl can greet a cursor that
@@ -70,9 +70,15 @@ export function WroLogoMark(props: WroLogoMarkProps) {
     if (!props.interactive) return
 
     // Greet once per session on first load.
-    const greeted = sessionStorage.getItem(SESSION_KEY)
+    // sessionStorage can throw in Safari private mode — treat failure as ungreeted.
+    let greeted: string | null = null
+    try {
+      greeted = sessionStorage.getItem(SESSION_KEY)
+      if (greeted === null) sessionStorage.setItem(SESSION_KEY, '1')
+    } catch {
+      // private mode or storage unavailable
+    }
     if (greeted === null) {
-      sessionStorage.setItem(SESSION_KEY, '1')
       lastMovie = Date.now()
       setTimeout(() => anim.play(), 600)
     }

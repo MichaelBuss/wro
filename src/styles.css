@@ -46,7 +46,7 @@
   --accent: oklch(0.955 0.008 85);
   --accent-foreground: oklch(0.18 0.012 290);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.88 0.008 85);
   --input: oklch(0.88 0.008 85);
   --ring: var(--wro-blue-600);
@@ -402,4 +402,17 @@ dialog {
     color: theme('colors.slate.100');
     border-color: transparent;
   }
+}
+
+/* CSS Anchor Positioning for the nav info dropdown.
+   Extracted from NavDropdown.tsx to avoid Solid style-prop lint restriction. */
+.nav-info-trigger {
+  anchor-name: --nav-info;
+}
+.nav-info-popover {
+  position-anchor: --nav-info;
+  inset: unset;
+  top: anchor(bottom);
+  left: anchor(center);
+  translate: -50% 0.5rem;
 }

@@ -99,43 +99,6 @@ export function getCollectionItems(collection: CollectionName) {
   })
 }
 
-/**
- * Load a single item from a folder collection by slug.
- * Returns null if the file doesn't exist.
- */
-export function getCollectionItem(
-  collection: 'blog',
-  slug: string,
-): (CollectionItem<'blog'> & { content: string }) | null
-export function getCollectionItem(
-  collection: 'carousel',
-  slug: string,
-): (CollectionItem<'carousel'> & { content: string }) | null
-export function getCollectionItem(
-  collection: 'quotes',
-  slug: string,
-): (CollectionItem<'quotes'> & { content: string }) | null
-export function getCollectionItem(
-  collection: 'practical-tips',
-  slug: string,
-): (CollectionItem<'practical-tips'> & { content: string }) | null
-export function getCollectionItem(collection: CollectionName, slug: string) {
-  const raw = readContent(`${collection}/${slug}.md`)
-
-  if (!raw) {
-    return null
-  }
-
-  const { data, content } = matter(raw)
-  const parsed = collectionSchemas[collection].parse(data)
-
-  return {
-    ...parsed,
-    slug,
-    content: marked(content, { async: false }),
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Blog-specific accessors (preserved for backwards compatibility)
 // ---------------------------------------------------------------------------

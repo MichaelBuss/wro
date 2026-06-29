@@ -64,7 +64,7 @@ function MaterialsPage() {
           <For each={materials().other_items}>
             {(item) => (
               <div class="flex items-center gap-3 text-sm-copy text-foreground/70">
-                <Check class="w-4 h-4 text-primary shrink-0" />
+                <Check class="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
                 <span>{item}</span>
               </div>
             )}

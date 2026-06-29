@@ -46,16 +46,17 @@ export function NavDropdown() {
     setIsOpen(e.newState === 'open')
   }
 
-  const anchorName = '--nav-info'
+  const popoverId = 'nav-info-popover'
 
   return (
     <div class="relative">
       <button
         ref={triggerRef}
-        class={cx(cvaNavLink(), 'flex items-center gap-1')}
-        style={{ 'anchor-name': anchorName }}
+        type="button"
+        class={cx(cvaNavLink(), 'flex items-center gap-1 nav-info-trigger')}
         aria-expanded={isOpen()}
-        aria-haspopup="menu"
+        aria-haspopup="true"
+        aria-controls={popoverId}
       >
         Information
         <ChevronDown
@@ -68,18 +69,10 @@ export function NavDropdown() {
       </button>
 
       <div
+        id={popoverId}
         ref={popoverRef}
         onToggle={handleToggle}
-        role="menu"
-        class={cx(popoverClasses)}
-        style={{
-          // eslint-disable-next-line solid/style-prop
-          'position-anchor': anchorName,
-          inset: 'unset',
-          top: 'anchor(bottom)',
-          left: 'anchor(center)',
-          translate: '-50% 0.5rem',
-        }}
+        class={cx(popoverClasses, 'nav-info-popover')}
       >
         <For each={INFO_TOPICS}>
           {(topic) => (
@@ -91,7 +84,6 @@ export function NavDropdown() {
                 class:
                   'flex items-center gap-3 px-4 py-2.5 text-sm text-foreground bg-accent',
               }}
-              role="menuitem"
             >
               <topic.icon class="w-4 h-4 text-primary/60" />
               <span>{topic.shortTitle}</span>

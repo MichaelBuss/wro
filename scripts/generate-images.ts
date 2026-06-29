@@ -248,8 +248,10 @@ async function processImage(
         .webp(WEBP_OPTIONS)
         .toFile(outputPath)
 
+      // Use finalWidth as the descriptor so the browser is never told a file
+      // is wider than it actually is (matters when source < targetWidth).
       generatedImages.push({
-        width: targetWidth,
+        width: finalWidth,
         filename: outputFilename,
         size,
       })
@@ -277,11 +279,16 @@ function generateManifest(results: Array<FolderResult>): string {
   // Sort results by folder name
   results.sort((a, b) => a.name.localeCompare(b.name))
 
-  // Build IMAGE_FOLDERS object with filenames
-  const foldersEntries = results
+  // Build IMAGE_MANIFEST — per-image actual widths so buildSrcset uses correct
+  // descriptors (no advertising a width wider than the actual output).
+  const folderEntries = results
     .map((r) => {
-      const filenames = r.images.map((img) => `'${img.name}'`).join(', ')
-      return `  ${r.name}: [${filenames}]`
+      const imageEntries = r.images
+        .map((img) => {
+          return `    '${img.name}': [${img.images.map((v) => v.width).join(', ')}]`
+        })
+        .join(',\n')
+      return `  ${r.name}: {\n${imageEntries}\n  }`
     })
     .join(',\n')
 
@@ -289,12 +296,9 @@ function generateManifest(results: Array<FolderResult>): string {
   const typeExports = results
     .map((r) => {
       const typeName = `${toPascalCase(r.name)}Filename`
-      return `export type ${typeName} = (typeof IMAGE_FOLDERS)['${r.name}'][number]`
+      return `export type ${typeName} = keyof (typeof IMAGE_MANIFEST)['${r.name}']`
     })
     .join('\n')
-
-  // Export the widths array
-  const widthsArray = IMAGE_WIDTHS.join(', ')
 
   return `/**
  * AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
@@ -304,17 +308,18 @@ function generateManifest(results: Array<FolderResult>): string {
  * Output: ${OUTPUT_DIR}/
  */
 
-/** Available responsive image widths */
-export const IMAGE_WIDTHS = [${widthsArray}] as const
-export type ImageWidth = (typeof IMAGE_WIDTHS)[number]
-
-/** All image folders and their base filenames (without size suffix or extension) */
-export const IMAGE_FOLDERS = {
-${foldersEntries},
+/**
+ * Per-image actual output widths.
+ * Widths reflect the real pixel width of each generated file — sources narrower
+ * than a breakpoint produce a smaller file named after the target breakpoint but
+ * with the actual (not the target) width recorded here for correct srcset descriptors.
+ */
+export const IMAGE_MANIFEST = {
+${folderEntries},
 } as const
 
 /** Available image folder names */
-export type ImageFolder = keyof typeof IMAGE_FOLDERS
+export type ImageFolder = keyof typeof IMAGE_MANIFEST
 
 /** Filename types for each folder */
 ${typeExports}

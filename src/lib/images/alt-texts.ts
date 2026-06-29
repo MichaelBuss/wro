@@ -56,9 +56,3 @@ export const IMAGE_META = {
   // } satisfies Record<GalleryFilename, ImageMeta>,
 }
 
-/** @deprecated Use IMAGE_META instead */
-export const ALT_TEXTS = {
-  carousel: Object.fromEntries(
-    Object.entries(IMAGE_META.carousel).map(([k, v]) => [k, v.alt]),
-  ) as Record<CarouselFilename, string>,
-}

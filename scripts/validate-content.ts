@@ -15,6 +15,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import matter from 'gray-matter'
 import { collectionSchemas, pageSchemas } from '../src/content/registry'
+import { objectKeys } from '../src/lib/utils'
 
 const CONTENT_DIR = join(process.cwd(), 'content')
 const PAGES_DIR = join(CONTENT_DIR, 'pages')
@@ -42,9 +43,7 @@ function error(type: ValidationError['type'], message: string) {
 
 console.log('Validating singleton pages...')
 
-const registeredPages = Object.keys(pageSchemas) as Array<
-  keyof typeof pageSchemas
->
+const registeredPages = objectKeys(pageSchemas)
 const pageFilesOnDisk = existsSync(PAGES_DIR)
   ? readdirSync(PAGES_DIR)
       .filter((f) => f.endsWith('.md'))
@@ -76,7 +75,7 @@ for (const key of registeredPages) {
 }
 
 for (const file of pageFilesOnDisk) {
-  if (!registeredPages.includes(file as keyof typeof pageSchemas)) {
+  if (!Object.hasOwn(pageSchemas, file)) {
     error(
       'orphaned-file',
       `content/pages/${file}.md exists but "${file}" is not defined in pageSchemas`,
@@ -90,9 +89,7 @@ for (const file of pageFilesOnDisk) {
 
 console.log('Validating folder collections...')
 
-const registeredCollections = Object.keys(collectionSchemas) as Array<
-  keyof typeof collectionSchemas
->
+const registeredCollections = objectKeys(collectionSchemas)
 
 const contentDirs = existsSync(CONTENT_DIR)
   ? readdirSync(CONTENT_DIR).filter((entry) => {
@@ -131,7 +128,7 @@ for (const collection of registeredCollections) {
 }
 
 for (const dir of contentDirs) {
-  if (!registeredCollections.includes(dir as keyof typeof collectionSchemas)) {
+  if (!Object.hasOwn(collectionSchemas, dir)) {
     error(
       'orphaned-dir',
       `content/${dir}/ exists but "${dir}" is not defined in collectionSchemas`,

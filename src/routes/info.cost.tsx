@@ -37,7 +37,7 @@ function CostPage() {
               <For each={cost().free_items}>
                 {(item) => (
                   <li class="flex items-start gap-3 text-sm-copy text-foreground/70">
-                    <Check class="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <Check class="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 )}
