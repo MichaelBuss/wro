@@ -7,18 +7,6 @@ import solidPlugin from 'vite-plugin-solid'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-  optimizeDeps: {
-    // These packages rely on virtual modules (e.g. "#nitro-internal-virtual/storage",
-    // "#tanstack-router-entry") that only exist at runtime via their Vite plugins.
-    // Excluding them stops esbuild's dep pre-bundling from trying (and failing) to
-    // resolve those virtual imports.
-    exclude: [
-      'nitro',
-      '@tanstack/solid-start',
-      '@tanstack/start-server-core',
-      '@tanstack/start-client-core',
-    ],
-  },
   plugins: [
     devtools(),
     // Official Netlify adapter for TanStack Start: configures the build for
