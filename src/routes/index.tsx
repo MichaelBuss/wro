@@ -2,7 +2,7 @@ import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { For, Show } from 'solid-js'
 import type { GalleryItem } from '~/components/ui'
-import { Gallery, Heading, Lead } from '~/components/ui'
+import { Gallery, Heading, Lead, TipsList } from '~/components/ui'
 import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { getCollectionItems, getPageContent } from '~/server/content'
 
@@ -332,24 +332,8 @@ function TipsSection() {
           )}
         </Show>
 
-        <div class="divide-y divide-border mb-8">
-          <For each={data().practicalTips}>
-            {(tip, index) => (
-              <div class="flex gap-5 py-4 first:pt-0 last:pb-0">
-                <span class="font-serif text-h4 text-muted-foreground/40 tabular-nums shrink-0 w-6 text-right">
-                  {index() + 1}
-                </span>
-                <div>
-                  <h3 class="font-sans text-sm-copy font-medium text-foreground mb-1">
-                    {tip.title}
-                  </h3>
-                  <p class="text-sm-copy text-muted-foreground">
-                    {tip.description}
-                  </p>
-                </div>
-              </div>
-            )}
-          </For>
+        <div class="mb-8">
+          <TipsList tips={data().practicalTips} />
         </div>
 
         <Link
