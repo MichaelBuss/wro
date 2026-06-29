@@ -1,6 +1,11 @@
 import { createSignal, onCleanup } from 'solid-js'
 import type { LogoAnimation } from './animations'
-import { DEFAULT_INTERACTIVE, interactiveAmounts, interactiveMode, samplePointer } from './interactive'
+import {
+  DEFAULT_INTERACTIVE,
+  interactiveAmounts,
+  interactiveMode,
+  samplePointer,
+} from './interactive'
 import type { Field, InteractiveConfig, MarkRect } from './interactive'
 
 export interface LogoAnimationController {
@@ -88,7 +93,8 @@ export function createLogoAnimation(
   const spring = () => {
     const cfg = getConfig()
 
-    const rate = presenceTarget > influence() ? cfg.influenceIn : cfg.influenceOut
+    const rate =
+      presenceTarget > influence() ? cfg.influenceIn : cfg.influenceOut
     setInfluence(influence() + (presenceTarget - influence()) * rate)
 
     setFieldX(fieldX() + (targetX - fieldX()) * cfg.springLag)
@@ -150,7 +156,8 @@ export function createLogoAnimation(
   }
 
   const pick = (name?: string): LogoAnimation | null => {
-    if (name !== undefined) return pool.find((anim) => anim.name === name) ?? null
+    if (name !== undefined)
+      return pool.find((anim) => anim.name === name) ?? null
     const candidates = pool.filter((anim) => anim.name !== lastName)
     const choices = candidates.length > 0 ? candidates : pool
     if (choices.length === 0) return null
@@ -204,7 +211,8 @@ export function createLogoAnimation(
   }
 
   const armAmounts = (figureIndex: number): Array<number> => {
-    if (interacting()) return interactiveAmounts(getConfig(), field(), figureIndex)
+    if (interacting())
+      return interactiveAmounts(getConfig(), field(), figureIndex)
     const anim = current()
     if (anim === null || anim.kind !== 'rig') return [0, 0]
     const t = progress()

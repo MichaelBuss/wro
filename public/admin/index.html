@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
     <script>
-      window.CMS_MANUAL_INIT = true;
+      window.CMS_MANUAL_INIT = true
     </script>
   </head>
   <body>
@@ -31,8 +31,18 @@
               fields: [
                 { label: 'Title', name: 'title', widget: 'string' },
                 { label: 'Publish Date', name: 'date', widget: 'datetime' },
-                { label: 'Description', name: 'description', widget: 'text', required: false },
-                { label: 'Featured Image', name: 'image', widget: 'image', required: false },
+                {
+                  label: 'Description',
+                  name: 'description',
+                  widget: 'text',
+                  required: false,
+                },
+                {
+                  label: 'Featured Image',
+                  name: 'image',
+                  widget: 'image',
+                  required: false,
+                },
                 { label: 'Body', name: 'body', widget: 'markdown' },
               ],
             },
@@ -45,9 +55,26 @@
               fields: [
                 { label: 'Image', name: 'image', widget: 'image' },
                 { label: 'Alt Text', name: 'alt', widget: 'string' },
-                { label: 'Description', name: 'description', widget: 'text', required: false },
-                { label: 'Focal Point', name: 'position', widget: 'string', required: false, hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"' },
-                { label: 'Sort Order', name: 'order', widget: 'number', required: false, hint: 'Lower numbers appear first' },
+                {
+                  label: 'Description',
+                  name: 'description',
+                  widget: 'text',
+                  required: false,
+                },
+                {
+                  label: 'Focal Point',
+                  name: 'position',
+                  widget: 'string',
+                  required: false,
+                  hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"',
+                },
+                {
+                  label: 'Sort Order',
+                  name: 'order',
+                  widget: 'number',
+                  required: false,
+                  hint: 'Lower numbers appear first',
+                },
               ],
             },
             {
@@ -59,9 +86,24 @@
               hint: 'Testimonials from past participants. The quote with the lowest order number appears featured on the homepage.',
               fields: [
                 { label: 'Quote', name: 'quote', widget: 'text' },
-                { label: 'Author', name: 'author', widget: 'string', hint: 'e.g. "Marcus, 15 år"' },
-                { label: 'Team', name: 'team', widget: 'string', hint: 'e.g. "Team RoboNinja, finalist 2024"' },
-                { label: 'Sort Order', name: 'order', widget: 'number', hint: 'Lower numbers appear first. Order 1 is featured on the homepage.' },
+                {
+                  label: 'Author',
+                  name: 'author',
+                  widget: 'string',
+                  hint: 'e.g. "Marcus, 15 år"',
+                },
+                {
+                  label: 'Team',
+                  name: 'team',
+                  widget: 'string',
+                  hint: 'e.g. "Team RoboNinja, finalist 2024"',
+                },
+                {
+                  label: 'Sort Order',
+                  name: 'order',
+                  widget: 'number',
+                  hint: 'Lower numbers appear first. Order 1 is featured on the homepage.',
+                },
               ],
             },
             {
@@ -74,7 +116,12 @@
               fields: [
                 { label: 'Title', name: 'title', widget: 'string' },
                 { label: 'Description', name: 'description', widget: 'text' },
-                { label: 'Sort Order', name: 'order', widget: 'number', hint: 'Lower numbers appear first. Orders 1–3 appear on the homepage.' },
+                {
+                  label: 'Sort Order',
+                  name: 'order',
+                  widget: 'number',
+                  hint: 'Lower numbers appear first. Orders 1–3 appear on the homepage.',
+                },
               ],
             },
             {
@@ -86,12 +133,36 @@
                   label: 'Homepage',
                   file: 'content/pages/homepage.md',
                   fields: [
-                    { label: 'Hero Heading', name: 'hero_heading', widget: 'string' },
-                    { label: 'Hero Heading Accent', name: 'hero_heading_accent', widget: 'string' },
-                    { label: 'Hero Subheading', name: 'hero_subheading', widget: 'string' },
-                    { label: 'Hero Description', name: 'hero_description', widget: 'text' },
-                    { label: 'CTA Button Text', name: 'cta_text', widget: 'string' },
-                    { label: 'CTA Subtext', name: 'cta_subtext', widget: 'string' },
+                    {
+                      label: 'Hero Heading',
+                      name: 'hero_heading',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Hero Heading Accent',
+                      name: 'hero_heading_accent',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Hero Subheading',
+                      name: 'hero_subheading',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Hero Description',
+                      name: 'hero_description',
+                      widget: 'text',
+                    },
+                    {
+                      label: 'CTA Button Text',
+                      name: 'cta_text',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'CTA Subtext',
+                      name: 'cta_subtext',
+                      widget: 'string',
+                    },
                   ],
                 },
                 {
@@ -99,10 +170,28 @@
                   label: 'Event Info',
                   file: 'content/pages/event-info.md',
                   fields: [
-                    { label: 'Danish Final Date', name: 'danish_final_date', widget: 'datetime', date_format: 'YYYY-MM-DD', time_format: false },
-                    { label: 'Danish Final Location', name: 'danish_final_location', widget: 'string' },
-                    { label: 'Danish Final Time', name: 'danish_final_time', widget: 'string' },
-                    { label: 'World Final Location', name: 'world_final_location', widget: 'string' },
+                    {
+                      label: 'Danish Final Date',
+                      name: 'danish_final_date',
+                      widget: 'datetime',
+                      date_format: 'YYYY-MM-DD',
+                      time_format: false,
+                    },
+                    {
+                      label: 'Danish Final Location',
+                      name: 'danish_final_location',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Danish Final Time',
+                      name: 'danish_final_time',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'World Final Location',
+                      name: 'world_final_location',
+                      widget: 'string',
+                    },
                   ],
                 },
                 {
@@ -116,12 +205,25 @@
                       name: 'prizes',
                       widget: 'list',
                       fields: [
-                        { label: 'Label', name: 'label', widget: 'string', hint: 'e.g. "1. plads — Hovedpræmien"' },
+                        {
+                          label: 'Label',
+                          name: 'label',
+                          widget: 'string',
+                          hint: 'e.g. "1. plads — Hovedpræmien"',
+                        },
                         { label: 'Title', name: 'title', widget: 'string' },
-                        { label: 'Description', name: 'description', widget: 'text' },
+                        {
+                          label: 'Description',
+                          name: 'description',
+                          widget: 'text',
+                        },
                       ],
                     },
-                    { label: 'Tip Box Heading', name: 'tip_heading', widget: 'string' },
+                    {
+                      label: 'Tip Box Heading',
+                      name: 'tip_heading',
+                      widget: 'string',
+                    },
                     { label: 'Tip Box Body', name: 'tip_body', widget: 'text' },
                   ],
                 },
@@ -130,8 +232,18 @@
                   label: 'Cost',
                   file: 'content/pages/cost.md',
                   fields: [
-                    { label: 'Headline', name: 'headline', widget: 'string', hint: 'The large typographic statement, e.g. "GRATIS"' },
-                    { label: 'Tagline', name: 'tagline', widget: 'string', hint: 'One-liner below the headline' },
+                    {
+                      label: 'Headline',
+                      name: 'headline',
+                      widget: 'string',
+                      hint: 'The large typographic statement, e.g. "GRATIS"',
+                    },
+                    {
+                      label: 'Tagline',
+                      name: 'tagline',
+                      widget: 'string',
+                      hint: 'One-liner below the headline',
+                    },
                     {
                       label: 'Homepage Tag Pills',
                       name: 'homepage_tags',
@@ -150,14 +262,35 @@
                       name: 'expenses',
                       widget: 'list',
                       fields: [
-                        { label: 'Amount', name: 'amount', widget: 'string', hint: 'e.g. "~500–800 kr" or "Varierer"' },
-                        { label: 'Description', name: 'description', widget: 'string' },
+                        {
+                          label: 'Amount',
+                          name: 'amount',
+                          widget: 'string',
+                          hint: 'e.g. "~500–800 kr" or "Varierer"',
+                        },
+                        {
+                          label: 'Description',
+                          name: 'description',
+                          widget: 'string',
+                        },
                       ],
                     },
-                    { label: 'Tip Box Heading', name: 'tip_heading', widget: 'string' },
+                    {
+                      label: 'Tip Box Heading',
+                      name: 'tip_heading',
+                      widget: 'string',
+                    },
                     { label: 'Tip Box Body', name: 'tip_body', widget: 'text' },
-                    { label: 'Support Section Heading', name: 'support_heading', widget: 'string' },
-                    { label: 'Support Section Body', name: 'support_body', widget: 'text' },
+                    {
+                      label: 'Support Section Heading',
+                      name: 'support_heading',
+                      widget: 'string',
+                    },
+                    {
+                      label: 'Support Section Body',
+                      name: 'support_body',
+                      widget: 'text',
+                    },
                   ],
                 },
                 {
@@ -173,8 +306,17 @@
                       hint: 'Kits marked as "recommended" appear on the homepage.',
                       fields: [
                         { label: 'Name', name: 'name', widget: 'string' },
-                        { label: 'Description', name: 'description', widget: 'text' },
-                        { label: 'Recommended', name: 'recommended', widget: 'boolean', default: false },
+                        {
+                          label: 'Description',
+                          name: 'description',
+                          widget: 'text',
+                        },
+                        {
+                          label: 'Recommended',
+                          name: 'recommended',
+                          widget: 'boolean',
+                          default: false,
+                        },
                       ],
                     },
                     {
@@ -183,14 +325,18 @@
                       widget: 'list',
                       field: { label: 'Item', name: 'item', widget: 'string' },
                     },
-                    { label: 'Official Rules URL', name: 'rules_url', widget: 'string' },
+                    {
+                      label: 'Official Rules URL',
+                      name: 'rules_url',
+                      widget: 'string',
+                    },
                   ],
                 },
               ],
             },
           ],
         },
-      });
+      })
     </script>
   </body>
 </html>

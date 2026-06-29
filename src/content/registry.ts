@@ -72,7 +72,9 @@ export const pageSchemas = {
 } as const
 
 export type PageKey = keyof typeof pageSchemas
-export type PageContent<TKey extends PageKey> = z.infer<(typeof pageSchemas)[TKey]>
+export type PageContent<TKey extends PageKey> = z.infer<
+  (typeof pageSchemas)[TKey]
+>
 
 // ---------------------------------------------------------------------------
 // Folder collections — each key maps to content/{key}/*.md

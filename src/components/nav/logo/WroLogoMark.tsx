@@ -119,7 +119,12 @@ export function WroLogoMark(props: WroLogoMarkProps) {
         </For>
       </g>
 
-      <path class="wro-wordmark" d={WRO_TEXT_D} fill="currentColor" fill-rule="evenodd" />
+      <path
+        class="wro-wordmark"
+        d={WRO_TEXT_D}
+        fill="currentColor"
+        fill-rule="evenodd"
+      />
     </svg>
   )
 }

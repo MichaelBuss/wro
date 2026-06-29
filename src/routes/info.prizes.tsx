@@ -56,7 +56,9 @@ function PrizesPage() {
                 <p class="text-h5 font-medium text-foreground mb-2">
                   {prize.title}
                 </p>
-                <p class="text-sm-copy text-foreground/70">{prize.description}</p>
+                <p class="text-sm-copy text-foreground/70">
+                  {prize.description}
+                </p>
               </div>
             )}
           </For>

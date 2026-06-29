@@ -17,7 +17,9 @@ export function InfoTopicCard(props: InfoTopicCardProps) {
       <h3 class="text-xl font-semibold text-foreground mb-3 group-hover:text-wro-blue-600 transition-colors">
         {props.topic.title}
       </h3>
-      <p class="text-muted-foreground leading-relaxed">{props.topic.description}</p>
+      <p class="text-muted-foreground leading-relaxed">
+        {props.topic.description}
+      </p>
     </Link>
   )
 }

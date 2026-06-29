@@ -27,10 +27,7 @@ export function Figure(props: FigureProps) {
   return (
     <figure class={cx('group', props.class)}>
       <div
-        class={cx(
-          'overflow-hidden',
-          aspectClasses[props.aspectRatio ?? '4/3'],
-        )}
+        class={cx('overflow-hidden', aspectClasses[props.aspectRatio ?? '4/3'])}
       >
         <img
           src={props.src}

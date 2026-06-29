@@ -1,5 +1,5 @@
-import {  armRegion } from './pathRig'
-import type {Joint} from './pathRig';
+import { armRegion } from './pathRig'
+import type { Joint } from './pathRig'
 
 /**
  * The eight WRO figure silhouettes, vectorised from the original `wro-logo.webp`
@@ -41,7 +41,10 @@ const ARM_MAX_Y = 108
 const ARM_REACH = 20
 
 /** Build a chain figure's two arm joints from its shoulder x-positions. */
-function chainArms(leftShoulderX: number, rightShoulderX: number): Array<Joint> {
+function chainArms(
+  leftShoulderX: number,
+  rightShoulderX: number,
+): Array<Joint> {
   return [
     {
       pivot: [leftShoulderX, SHOULDER_Y],

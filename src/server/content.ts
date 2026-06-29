@@ -1,9 +1,6 @@
 import matter from 'gray-matter'
 import { marked } from 'marked'
-import {
-  collectionSchemas,
-  pageSchemas,
-} from '~/content/registry'
+import { collectionSchemas, pageSchemas } from '~/content/registry'
 import type {
   CollectionItem,
   CollectionName,
@@ -67,10 +64,18 @@ export function getPageContent(key: PageKey) {
  * Load all items in a folder collection. Validates each against its registry schema.
  * Returns items sorted by slug unless the schema includes an `order` field.
  */
-export function getCollectionItems(collection: 'blog'): Array<CollectionItem<'blog'>>
-export function getCollectionItems(collection: 'carousel'): Array<CollectionItem<'carousel'>>
-export function getCollectionItems(collection: 'quotes'): Array<CollectionItem<'quotes'>>
-export function getCollectionItems(collection: 'practical-tips'): Array<CollectionItem<'practical-tips'>>
+export function getCollectionItems(
+  collection: 'blog',
+): Array<CollectionItem<'blog'>>
+export function getCollectionItems(
+  collection: 'carousel',
+): Array<CollectionItem<'carousel'>>
+export function getCollectionItems(
+  collection: 'quotes',
+): Array<CollectionItem<'quotes'>>
+export function getCollectionItems(
+  collection: 'practical-tips',
+): Array<CollectionItem<'practical-tips'>>
 export function getCollectionItems(collection: CollectionName) {
   const slugs = listCollectionSlugs(collection)
 
@@ -98,10 +103,22 @@ export function getCollectionItems(collection: CollectionName) {
  * Load a single item from a folder collection by slug.
  * Returns null if the file doesn't exist.
  */
-export function getCollectionItem(collection: 'blog', slug: string): (CollectionItem<'blog'> & { content: string }) | null
-export function getCollectionItem(collection: 'carousel', slug: string): (CollectionItem<'carousel'> & { content: string }) | null
-export function getCollectionItem(collection: 'quotes', slug: string): (CollectionItem<'quotes'> & { content: string }) | null
-export function getCollectionItem(collection: 'practical-tips', slug: string): (CollectionItem<'practical-tips'> & { content: string }) | null
+export function getCollectionItem(
+  collection: 'blog',
+  slug: string,
+): (CollectionItem<'blog'> & { content: string }) | null
+export function getCollectionItem(
+  collection: 'carousel',
+  slug: string,
+): (CollectionItem<'carousel'> & { content: string }) | null
+export function getCollectionItem(
+  collection: 'quotes',
+  slug: string,
+): (CollectionItem<'quotes'> & { content: string }) | null
+export function getCollectionItem(
+  collection: 'practical-tips',
+  slug: string,
+): (CollectionItem<'practical-tips'> & { content: string }) | null
 export function getCollectionItem(collection: CollectionName, slug: string) {
   const raw = readContent(`${collection}/${slug}.md`)
 
@@ -165,7 +182,9 @@ export function getAllBlogPosts(): Array<BlogPostMeta> {
     ]
   })
 
-  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  return posts.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  )
 }
 
 export function getBlogPost(slug: string): BlogPost | null {

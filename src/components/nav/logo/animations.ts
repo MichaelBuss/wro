@@ -34,7 +34,12 @@ export interface RigAnimation {
    * Arm amount for a given normalised progress `t` (0→1), figure index, arm
    * index (0 = left, 1 = right), and total figure count. Units follow `mode`.
    */
-  amount: (t: number, figureIndex: number, armIndex: number, figureCount: number) => number
+  amount: (
+    t: number,
+    figureIndex: number,
+    armIndex: number,
+    figureCount: number,
+  ) => number
 }
 
 export type LogoAnimation = ClassAnimation | RigAnimation
@@ -106,4 +111,8 @@ const chainwave: RigAnimation = {
 }
 
 /** The animation pool hover/focus randomly picks from. */
-export const ANIMATION_POOL: ReadonlyArray<LogoAnimation> = [shuffle, wave, chainwave]
+export const ANIMATION_POOL: ReadonlyArray<LogoAnimation> = [
+  shuffle,
+  wave,
+  chainwave,
+]

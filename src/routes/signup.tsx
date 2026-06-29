@@ -7,7 +7,9 @@ function SignupPage() {
   return (
     <div class="min-h-screen bg-background py-16 px-6">
       <div class="max-w-2xl mx-auto text-center">
-        <Heading level="h1" class="mb-6">Tilmelding kommer snart</Heading>
+        <Heading level="h1" class="mb-6">
+          Tilmelding kommer snart
+        </Heading>
         <Lead class="text-muted-foreground mb-8">
           Vi arbejder på tilmeldingssiden. Hold øje med denne side for
           opdateringer!

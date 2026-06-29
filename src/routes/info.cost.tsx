@@ -56,7 +56,9 @@ function CostPage() {
                     <span class="text-muted-foreground tabular-nums min-w-[90px]">
                       {expense.amount}
                     </span>
-                    <span class="text-foreground/70">{expense.description}</span>
+                    <span class="text-foreground/70">
+                      {expense.description}
+                    </span>
                   </div>
                 )}
               </For>
@@ -72,7 +74,9 @@ function CostPage() {
           <h3 class="font-sans text-h5 font-medium text-foreground mb-3">
             {cost().support_heading}
           </h3>
-          <p class="text-sm-copy text-muted-foreground">{cost().support_body}</p>
+          <p class="text-sm-copy text-muted-foreground">
+            {cost().support_body}
+          </p>
         </div>
       </ContentCard>
     </InfoPageLayout>

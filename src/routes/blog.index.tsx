@@ -40,7 +40,11 @@ function BlogIndex() {
         >
           {(post) => (
             <article class="py-8 first:pt-0">
-              <Link to="/blog/$slug" params={{ slug: post.slug }} class="group block">
+              <Link
+                to="/blog/$slug"
+                params={{ slug: post.slug }}
+                class="group block"
+              >
                 <time class="text-caption text-muted-foreground block mb-2">
                   {new Date(post.date).toLocaleDateString('da-DK', {
                     year: 'numeric',

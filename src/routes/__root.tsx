@@ -31,7 +31,9 @@ function NotFound() {
   return (
     <div class="min-h-screen bg-background flex items-center justify-center">
       <div class="text-center">
-        <Heading level="display" class="mb-4">404</Heading>
+        <Heading level="display" class="mb-4">
+          404
+        </Heading>
         <Lead class="text-muted-foreground mb-8">Siden blev ikke fundet</Lead>
         <a
           href="/"

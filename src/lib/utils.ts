@@ -33,9 +33,11 @@ export type DistributiveOmit<
 /* -------------------------------------------------------------------------- */
 /* Typed Object constructor alternatives */
 /* -------------------------------------------------------------------------- */
-export type Entries<TObject> = Array<{
+export type Entries<TObject> = Array<
+  {
     [Key in keyof TObject]: [Key, TObject[Key]]
-  }[keyof TObject]>
+  }[keyof TObject]
+>
 
 type KeyValueTupleToObject<
   TEntries extends ReadonlyArray<readonly [PropertyKey, unknown]>,

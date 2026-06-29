@@ -16,7 +16,12 @@ export function Lead(props: TextProps) {
 
 export function Caption(props: TextProps) {
   return (
-    <span class={cx('text-caption text-muted-foreground font-serif italic', props.class)}>
+    <span
+      class={cx(
+        'text-caption text-muted-foreground font-serif italic',
+        props.class,
+      )}
+    >
       {props.children}
     </span>
   )

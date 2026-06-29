@@ -12,7 +12,7 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "lint": "eslint . && tsx scripts/validate-content.ts",
     "lint:fix": "eslint . --fix",
-    "format": "prettier",
+    "format": "prettier --write .",
     "check": "prettier --write . && eslint --fix",
     "images:generate": "tsx scripts/generate-images.ts"
   },

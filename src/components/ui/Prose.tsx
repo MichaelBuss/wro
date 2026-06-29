@@ -24,9 +24,7 @@ export function Prose(props: ProseProps) {
   return (
     <Show
       when={props.html !== undefined}
-      fallback={
-        <div class={cx(proseBase, props.class)}>{props.children}</div>
-      }
+      fallback={<div class={cx(proseBase, props.class)}>{props.children}</div>}
     >
       <div
         class={cx(proseBase, props.class)}

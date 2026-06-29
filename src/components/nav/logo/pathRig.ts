@@ -8,7 +8,10 @@
 
 export type Vec2 = readonly [number, number]
 
-export interface PathCmd { type: 'M' | 'L' | 'C'; pts: Array<Vec2> }
+export interface PathCmd {
+  type: 'M' | 'L' | 'C'
+  pts: Array<Vec2>
+}
 
 /** Predicate selecting which points belong to a joint's movable region. */
 export type Region = (p: Vec2) => boolean

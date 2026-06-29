@@ -10,7 +10,10 @@ interface TipBoxProps {
 export function TipBox(props: TipBoxProps) {
   return (
     <div
-      class={cx('p-6 bg-secondary border border-border rounded-lg', props.class)}
+      class={cx(
+        'p-6 bg-secondary border border-border rounded-lg',
+        props.class,
+      )}
     >
       <h3 class="font-sans text-h5 font-medium text-foreground mb-3">
         {props.title}

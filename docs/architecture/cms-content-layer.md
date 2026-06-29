@@ -60,7 +60,7 @@ This mirrors Decap CMS's own `files` vs `folder` collection distinction, keeping
 `src/content/registry.ts` exports `pageSchemas` and `collectionSchemas` — plain objects mapping keys to Zod schemas. TypeScript derives the `PageKey` and `CollectionName` union types from these objects, so the accessor functions only accept keys that actually exist in the registry.
 
 ```typescript
-const hero = getPageContent('homepage')    // typed as { hero_heading: string, ... }
+const hero = getPageContent('homepage') // typed as { hero_heading: string, ... }
 const items = getCollectionItems('carousel') // typed as Array<{ image: string, alt: string, ... }>
 ```
 

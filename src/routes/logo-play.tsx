@@ -24,15 +24,47 @@ interface SliderSpec {
 
 const SLIDERS: ReadonlyArray<SliderSpec> = [
   { key: 'liftPx', label: 'crest · lift (px)', min: 0, max: 60, step: 1 },
-  { key: 'bumpWidth', label: 'crest · bump width', min: 0.02, max: 0.25, step: 0.005 },
-  { key: 'springLag', label: 'crest · spring lag', min: 0.03, max: 0.6, step: 0.01 },
-  { key: 'influenceIn', label: 'crest · fade in', min: 0.02, max: 0.4, step: 0.01 },
-  { key: 'influenceOut', label: 'crest · fade out', min: 0.02, max: 0.4, step: 0.01 },
-  { key: 'reachPx', label: 'red girl · reach off edge (px)', min: 0, max: 400, step: 10 },
+  {
+    key: 'bumpWidth',
+    label: 'crest · bump width',
+    min: 0.02,
+    max: 0.25,
+    step: 0.005,
+  },
+  {
+    key: 'springLag',
+    label: 'crest · spring lag',
+    min: 0.03,
+    max: 0.6,
+    step: 0.01,
+  },
+  {
+    key: 'influenceIn',
+    label: 'crest · fade in',
+    min: 0.02,
+    max: 0.4,
+    step: 0.01,
+  },
+  {
+    key: 'influenceOut',
+    label: 'crest · fade out',
+    min: 0.02,
+    max: 0.4,
+    step: 0.01,
+  },
+  {
+    key: 'reachPx',
+    label: 'red girl · reach off edge (px)',
+    min: 0,
+    max: 400,
+    step: 10,
+  },
 ]
 
 function LogoPlay() {
-  const [config, setConfig] = createSignal<InteractiveConfig>({ ...DEFAULT_INTERACTIVE })
+  const [config, setConfig] = createSignal<InteractiveConfig>({
+    ...DEFAULT_INTERACTIVE,
+  })
   const anim = createLogoAnimation(ANIMATION_POOL, FIGURES.length, config)
   let svgEl: SVGSVGElement | undefined
 
@@ -54,15 +86,38 @@ function LogoPlay() {
     setConfig((prev) => ({ ...prev, [key]: value }))
 
   return (
-    <div style={{ padding: '24px', 'font-family': 'system-ui, sans-serif', display: 'flex', gap: '32px', 'flex-wrap': 'wrap' }}>
+    <div
+      style={{
+        padding: '24px',
+        'font-family': 'system-ui, sans-serif',
+        display: 'flex',
+        gap: '32px',
+        'flex-wrap': 'wrap',
+      }}
+    >
       <div style={{ flex: '1 1 560px', 'min-width': '320px' }}>
-        <h1 style={{ 'font-size': '20px', 'margin-bottom': '4px' }}>Interactive logo playground</h1>
-        <p style={{ 'font-size': '13px', color: '#666', 'margin-bottom': '16px' }}>
-          Move your cursor across the mark below. Hover is motion-only; tune the feel with the panel.
+        <h1 style={{ 'font-size': '20px', 'margin-bottom': '4px' }}>
+          Interactive logo playground
+        </h1>
+        <p
+          style={{
+            'font-size': '13px',
+            color: '#666',
+            'margin-bottom': '16px',
+          }}
+        >
+          Move your cursor across the mark below. Hover is motion-only; tune the
+          feel with the panel.
         </p>
 
         <div
-          style={{ border: '1px solid #ddd', 'border-radius': '8px', background: '#fff', padding: '24px', cursor: 'crosshair' }}
+          style={{
+            border: '1px solid #ddd',
+            'border-radius': '8px',
+            background: '#fff',
+            padding: '24px',
+            cursor: 'crosshair',
+          }}
         >
           <svg
             ref={svgEl}
@@ -82,7 +137,12 @@ function LogoPlay() {
                 )}
               </For>
             </g>
-            <path class="wro-wordmark" d={WRO_TEXT_D} fill="currentColor" fill-rule="evenodd" />
+            <path
+              class="wro-wordmark"
+              d={WRO_TEXT_D}
+              fill="currentColor"
+              fill-rule="evenodd"
+            />
           </svg>
         </div>
 
@@ -90,7 +150,11 @@ function LogoPlay() {
           <button type="button" onClick={() => anim.play()} style={btn}>
             Play random movie
           </button>
-          <button type="button" onClick={() => setConfig({ ...DEFAULT_INTERACTIVE })} style={btn}>
+          <button
+            type="button"
+            onClick={() => setConfig({ ...DEFAULT_INTERACTIVE })}
+            style={btn}
+          >
             Reset defaults
           </button>
         </div>
@@ -100,9 +164,20 @@ function LogoPlay() {
         <For each={SLIDERS}>
           {(spec) => (
             <label style={{ display: 'block', 'margin-bottom': '12px' }}>
-              <div style={{ display: 'flex', 'justify-content': 'space-between', color: '#444' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  'justify-content': 'space-between',
+                  color: '#444',
+                }}
+              >
                 <span>{spec.label}</span>
-                <span style={{ 'font-variant-numeric': 'tabular-nums', color: '#999' }}>
+                <span
+                  style={{
+                    'font-variant-numeric': 'tabular-nums',
+                    color: '#999',
+                  }}
+                >
                   {config()[spec.key]}
                 </span>
               </div>
@@ -119,7 +194,16 @@ function LogoPlay() {
           )}
         </For>
 
-        <pre style={{ 'margin-top': '16px', padding: '12px', background: '#f7f7f7', 'border-radius': '6px', 'font-size': '11px', 'white-space': 'pre-wrap' }}>
+        <pre
+          style={{
+            'margin-top': '16px',
+            padding: '12px',
+            background: '#f7f7f7',
+            'border-radius': '6px',
+            'font-size': '11px',
+            'white-space': 'pre-wrap',
+          }}
+        >
           {JSON.stringify(config(), null, 2)}
         </pre>
       </div>
