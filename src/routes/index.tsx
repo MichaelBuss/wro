@@ -1,27 +1,47 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
-import { For } from 'solid-js'
-import { Carousel } from '~/components/carousel'
-import type { CarouselImage } from '~/components/carousel'
-import { InfoTopicCard } from '~/components/InfoTopicCard'
-import { INFO_TOPICS } from '~/data/info-topics'
+import { For, Show } from 'solid-js'
+import type { GalleryItem } from '~/components/ui'
+import { Gallery, Heading, Lead } from '~/components/ui'
+import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { getCollectionItems, getPageContent } from '~/server/content'
 
 const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
   const hero = getPageContent('homepage')
+  const eventInfo = getPageContent('event-info')
+  const prizes = getPageContent('prizes')
+  const cost = getPageContent('cost')
+  const materials = getPageContent('materials')
   const carouselItems = getCollectionItems('carousel')
 
-  const sortedItems = [...carouselItems].sort(
-    (a, b) => (a.order ?? 999) - (b.order ?? 999),
+  const galleryItems: Array<GalleryItem> = [...carouselItems]
+    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
+    .slice(0, 5)
+    .map((item) => ({
+      src: item.image,
+      alt: item.alt,
+      caption: item.description,
+      year: item.year,
+      objectPosition: item.position,
+    }))
+
+  const allQuotes = getCollectionItems('quotes').sort(
+    (a, b) => a.order - b.order,
+  )
+  const allPracticalTips = getCollectionItems('practical-tips').sort(
+    (a, b) => a.order - b.order,
   )
 
-  const images: Array<CarouselImage> = sortedItems.map((item) => ({
-    src: item.image,
-    alt: item.alt,
-    objectPosition: item.position ?? 'center',
-  }))
-
-  return { hero, images }
+  return {
+    hero,
+    galleryItems,
+    eventInfo,
+    prizes,
+    cost,
+    materials,
+    featuredQuote: allQuotes[0],
+    practicalTips: allPracticalTips.slice(0, 3),
+  }
 })
 
 export const Route = createFileRoute('/')({
@@ -33,53 +53,312 @@ function HomePage() {
   const data = Route.useLoaderData()
 
   return (
-    <div class="min-h-screen bg-gray-50">
-      <Carousel tint="cool" images={data().images}>
-        <HeroContent />
-      </Carousel>
+    <div>
+      <HeroSection />
 
-      <section class="py-16 px-6 max-w-7xl mx-auto bg-gray-50">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <For each={INFO_TOPICS}>
-            {(topic) => <InfoTopicCard topic={topic} />}
-          </For>
-        </div>
-      </section>
+      <Show when={data().galleryItems.length > 0}>
+        <GallerySection />
+      </Show>
+
+      <DateSection />
+      <PrizesSection />
+      <CostSection />
+      <MaterialsSection />
+      <TipsSection />
     </div>
   )
 }
 
-function HeroContent() {
+function HeroSection() {
   const data = Route.useLoaderData()
 
   return (
-    <>
-      <h1 class="text-6xl md:text-8xl font-black text-white tracking-[-0.04em] drop-shadow-2xl">
-        <span class="text-gray-100">{data().hero.hero_heading}</span>{' '}
-        <span class="bg-linear-to-r from-wro-blue-300 to-wro-blue-400 bg-clip-text text-transparent">
-          {data().hero.hero_heading_accent}
-        </span>
-      </h1>
+    <section class="pt-14 pb-16 md:pt-18 md:pb-24 px-6 max-w-5xl mx-auto">
+      <div class="max-w-3xl">
+        <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-5">
+          {data().hero.hero_subheading}
+        </p>
 
-      <p class="text-2xl md:text-3xl text-gray-200 mb-4 font-light drop-shadow-lg">
-        {data().hero.hero_subheading}
-      </p>
+        <Heading level="display" class="mb-7">
+          {data().hero.hero_heading}{' '}
+          <span class="text-primary">{data().hero.hero_heading_accent}</span>
+        </Heading>
 
-      <p class="text-lg text-gray-300 max-w-3xl mx-auto mb-8 drop-shadow-md">
-        {data().hero.hero_description}
-      </p>
+        <Lead class="max-w-xl mb-10">{data().hero.hero_description}</Lead>
 
-      <div class="flex flex-col items-center gap-4">
-        <Link
-          to="/signup"
-          class="px-8 py-3 bg-wro-blue-500 hover:bg-wro-blue-400 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-wro-blue-500/50"
-        >
-          {data().hero.cta_text}
-        </Link>
-        <p class="text-gray-300 text-sm mt-2 drop-shadow">
-          {data().hero.cta_subtext}
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+          <Link
+            to="/signup"
+            class="cta-rainbow text-sm font-medium text-foreground border border-foreground/25 px-5 py-2.5 rounded-md transition-colors"
+          >
+            {data().hero.cta_text}
+          </Link>
+          <p class="text-sm-copy text-muted-foreground">
+            {data().hero.cta_subtext}
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function GallerySection() {
+  const data = Route.useLoaderData()
+
+  return (
+    <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
+      <div class="mb-8">
+        <Heading level="h2" class="mb-1">
+          Glimt fra tidligere år
+        </Heading>
+        <p class="text-sm-copy text-muted-foreground">
+          Øjeblikke fra danske WRO-finaler
         </p>
       </div>
-    </>
+
+      <Gallery items={data().galleryItems} />
+    </section>
+  )
+}
+
+function DateSection() {
+  const data = Route.useLoaderData()
+
+  const formattedDate = () =>
+    data().eventInfo.danish_final_date.toLocaleDateString('da-DK', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        <div>
+          <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-4">
+            Dato & Sted
+          </p>
+          <p class="font-serif text-h1 font-semibold text-foreground capitalize leading-tight mb-3">
+            {formattedDate()}
+          </p>
+          <p class="text-lead text-muted-foreground">
+            {data().eventInfo.danish_final_location}
+          </p>
+          <p class="text-h5 text-muted-foreground mt-1">
+            {data().eventInfo.danish_final_time}
+          </p>
+          <div class="mt-8">
+            <Link
+              to="/info/date"
+              class="text-sm-copy font-medium text-primary hover:underline"
+            >
+              Se fuldt program →
+            </Link>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-4">
+            Program
+          </p>
+          <div class="divide-y divide-border">
+            <For each={DANISH_FINAL_SCHEDULE}>
+              {(item) => (
+                <div class="flex gap-5 py-3 first:pt-0 last:pb-0">
+                  <span class="text-caption font-mono text-muted-foreground min-w-[52px] shrink-0 pt-0.5">
+                    {item.time}
+                  </span>
+                  <span class="text-sm-copy font-medium text-foreground">
+                    {item.title}
+                  </span>
+                </div>
+              )}
+            </For>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function PrizesSection() {
+  const data = Route.useLoaderData()
+
+  const firstPrize = () => data().prizes.prizes[0]
+  const otherPrizes = () => data().prizes.prizes.slice(1)
+
+  return (
+    <section class="bg-wro-blue-950 py-16 px-6">
+      <div class="max-w-5xl mx-auto text-center">
+        <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-white/50 mb-6">
+          {firstPrize().label}
+        </p>
+
+        <p class="font-serif text-h1 font-semibold text-white leading-tight mb-10 max-w-2xl mx-auto">
+          {firstPrize().title} — {data().eventInfo.world_final_location}
+        </p>
+
+        <hr class="border-white/15 mb-8" />
+
+        <div class="grid grid-cols-2 gap-6 max-w-sm mx-auto mb-10">
+          <For each={otherPrizes()}>
+            {(prize) => (
+              <div class="text-left">
+                <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
+                  {prize.label}
+                </p>
+                <p class="text-sm-copy font-medium text-white/80">
+                  {prize.title}
+                </p>
+              </div>
+            )}
+          </For>
+        </div>
+
+        <Link
+          to="/info/prizes"
+          class="text-sm-copy font-medium text-white/60 hover:text-white transition-colors"
+        >
+          Se alle præmier →
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+function CostSection() {
+  const data = Route.useLoaderData()
+
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p
+          class="font-sans font-black text-foreground leading-none tracking-tight mb-4"
+          style={{ 'font-size': 'clamp(4rem,13vw,9rem)' }}
+        >
+          {data().cost.headline}
+        </p>
+        <p class="text-lead text-foreground/70 mb-6">{data().cost.tagline}</p>
+        <div class="flex flex-wrap gap-2 mb-8">
+          <For each={data().cost.homepage_tags}>
+            {(tag) => (
+              <span class="text-caption font-sans font-medium text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+                {tag}
+              </span>
+            )}
+          </For>
+        </div>
+        <Link
+          to="/info/cost"
+          class="text-sm-copy font-medium text-primary hover:underline"
+        >
+          Se prisdetaljer →
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+function MaterialsSection() {
+  const data = Route.useLoaderData()
+
+  const recommendedKits = () =>
+    data().materials.kits.filter((kit) => kit.recommended)
+
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        <div>
+          <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-4">
+            Materialer
+          </p>
+          <Heading level="h2" class="mb-4">
+            Hvad skal man bruge?
+          </Heading>
+          <p class="text-lead text-foreground/70">{data().materials.intro}</p>
+          <div class="mt-8">
+            <Link
+              to="/info/materials"
+              class="text-sm-copy font-medium text-primary hover:underline"
+            >
+              Se materialedetaljer →
+            </Link>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 justify-center">
+          <For each={recommendedKits()}>
+            {(kit) => (
+              <div class="flex items-center justify-between border border-border rounded-lg px-5 py-4">
+                <span class="text-h5 font-medium text-foreground">
+                  {kit.name}
+                </span>
+                <span class="text-caption font-medium text-wro-logo-green bg-wro-logo-green/10 px-2.5 py-0.5 rounded-full">
+                  ✓ Godkendt
+                </span>
+              </div>
+            )}
+          </For>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TipsSection() {
+  const data = Route.useLoaderData()
+
+  return (
+    <section class="border-t border-border py-16 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-muted-foreground mb-8">
+          Tips & Tricks
+        </p>
+
+        <Show when={data().featuredQuote}>
+          {(quote) => (
+            <blockquote class="border-l-2 border-wro-logo-orange pl-6 mb-10">
+              <p class="font-serif text-h2 font-normal italic text-foreground/80 mb-4">
+                "{quote().quote}"
+              </p>
+              <footer class="text-caption text-muted-foreground">
+                <span class="font-sans not-italic font-medium text-foreground/70">
+                  {quote().author}
+                </span>
+                <span class="ml-2">— {quote().team}</span>
+              </footer>
+            </blockquote>
+          )}
+        </Show>
+
+        <div class="divide-y divide-border mb-8">
+          <For each={data().practicalTips}>
+            {(tip, index) => (
+              <div class="flex gap-5 py-4 first:pt-0 last:pb-0">
+                <span class="font-serif text-h4 text-muted-foreground/40 tabular-nums shrink-0 w-6 text-right">
+                  {index() + 1}
+                </span>
+                <div>
+                  <h3 class="font-sans text-sm-copy font-medium text-foreground mb-1">
+                    {tip.title}
+                  </h3>
+                  <p class="text-sm-copy text-muted-foreground">
+                    {tip.description}
+                  </p>
+                </div>
+              </div>
+            )}
+          </For>
+        </div>
+
+        <Link
+          to="/info/tips"
+          class="text-sm-copy font-medium text-primary hover:underline"
+        >
+          Læs alle tips →
+        </Link>
+      </div>
+    </section>
   )
 }

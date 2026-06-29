@@ -3,11 +3,11 @@ import type { JSX } from 'solid-js'
 import { cva, cx } from '~/cva.config'
 import type { FileRoutesByTo } from '~/routeTree.gen'
 
-const cvaNavLink = cva({
-  base: 'relative px-3 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200',
+export const cvaNavLink = cva({
+  base: 'relative px-3 py-2 text-sm font-medium text-foreground/60 hover:text-foreground transition-colors duration-200',
   variants: {
     active: {
-      true: 'text-white',
+      true: 'text-foreground',
     },
   },
 })
@@ -44,7 +44,7 @@ export function ExternalLink(props: ExternalLinkProps) {
       target="_blank"
       rel="noopener noreferrer"
       class={cx(
-        'text-sm text-white/60 hover:text-white/90 transition-colors',
+        'text-sm text-muted-foreground hover:text-foreground transition-colors',
         props.class,
       )}
     >

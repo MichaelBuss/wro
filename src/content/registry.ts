@@ -30,10 +30,51 @@ export const pageSchemas = {
     danish_final_time: z.string(),
     world_final_location: z.string(),
   }),
+  prizes: z.object({
+    prizes: z.array(
+      z.object({
+        label: z.string(),
+        title: z.string(),
+        description: z.string(),
+      }),
+    ),
+    tip_heading: z.string(),
+    tip_body: z.string(),
+  }),
+  cost: z.object({
+    headline: z.string(),
+    tagline: z.string(),
+    homepage_tags: z.array(z.string()),
+    free_items: z.array(z.string()),
+    expenses: z.array(
+      z.object({
+        amount: z.string(),
+        description: z.string(),
+      }),
+    ),
+    tip_heading: z.string(),
+    tip_body: z.string(),
+    support_heading: z.string(),
+    support_body: z.string(),
+  }),
+  materials: z.object({
+    intro: z.string(),
+    kits: z.array(
+      z.object({
+        name: z.string(),
+        description: z.string(),
+        recommended: z.boolean(),
+      }),
+    ),
+    other_items: z.array(z.string()),
+    rules_url: z.string(),
+  }),
 } as const
 
 export type PageKey = keyof typeof pageSchemas
-export type PageContent<TKey extends PageKey> = z.infer<(typeof pageSchemas)[TKey]>
+export type PageContent<TKey extends PageKey> = z.infer<
+  (typeof pageSchemas)[TKey]
+>
 
 // ---------------------------------------------------------------------------
 // Folder collections — each key maps to content/{key}/*.md
@@ -52,6 +93,18 @@ export const collectionSchemas = {
     description: z.string().optional(),
     position: z.enum(OBJECT_POSITIONS).optional(),
     order: z.number().optional(),
+    year: z.number().optional(),
+  }),
+  quotes: z.object({
+    quote: z.string(),
+    author: z.string(),
+    team: z.string(),
+    order: z.number(),
+  }),
+  'practical-tips': z.object({
+    title: z.string(),
+    description: z.string(),
+    order: z.number(),
   }),
 } as const
 

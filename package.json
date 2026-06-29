@@ -12,14 +12,17 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "lint": "eslint . && tsx scripts/validate-content.ts",
     "lint:fix": "eslint . --fix",
-    "format": "prettier",
+    "format": "prettier --write .",
     "check": "prettier --write . && eslint --fix",
     "images:generate": "tsx scripts/generate-images.ts"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource/fraunces": "^5.2.9",
     "@fontsource/inter": "^5.2.8",
     "@kobalte/core": "^0.13.11",
     "@t3-oss/env-core": "^0.13.11",
+    "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.1",
     "@tanstack/router-plugin": "^1.168.18",
     "@tanstack/solid-form": "^1.33.0",

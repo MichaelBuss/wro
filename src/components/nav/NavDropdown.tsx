@@ -3,26 +3,23 @@ import { ChevronDown } from 'lucide-solid'
 import { For, createSignal, onMount } from 'solid-js'
 import { cx } from '~/cva.config'
 import { INFO_TOPICS } from '~/data/info-topics'
+import { cvaNavLink } from './NavLink'
 
-const navLinkBase =
-  'relative px-3 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200'
-
-// Popover classes as array for readability
 const popoverClasses = [
   'w-64',
   'py-2',
-  'bg-wro-blue-950',
+  'bg-card',
   'rounded-xl',
   'border',
-  'border-white/10',
-  'shadow-2xl',
+  'border-border',
+  'shadow-lg',
+  'shadow-foreground/5',
   // Animation
   'origin-top',
   'transition-all',
   'duration-200',
   'opacity-100',
   'scale-100',
-  // Entry animation using Tailwind's starting: variant
   'starting:opacity-0',
   'starting:scale-95',
 ]
@@ -32,9 +29,6 @@ const popoverClasses = [
  * - Popover API (popover="auto", popoverTargetElement)
  * - CSS Anchor Positioning (anchor-name, position-anchor, anchor())
  * - Tailwind starting: variant for entry animations
- *
- * All positioning is inline so multiple dropdowns can coexist,
- * each with their own anchor name.
  */
 export function NavDropdown() {
   const [isOpen, setIsOpen] = createSignal(false)
@@ -52,14 +46,13 @@ export function NavDropdown() {
     setIsOpen(e.newState === 'open')
   }
 
-  // Unique anchor name for this dropdown instance
   const anchorName = '--nav-info'
 
   return (
     <div class="relative">
       <button
         ref={triggerRef}
-        class={cx(navLinkBase, 'flex items-center gap-1')}
+        class={cx(cvaNavLink(), 'flex items-center gap-1')}
         style={{ 'anchor-name': anchorName }}
         aria-expanded={isOpen()}
         aria-haspopup="menu"
@@ -93,14 +86,14 @@ export function NavDropdown() {
             <Link
               to={topic.route}
               onClick={() => popoverRef?.hidePopover()}
-              class="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+              class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/60 hover:text-foreground hover:bg-accent transition-colors"
               activeProps={{
                 class:
-                  'flex items-center gap-3 px-4 py-2.5 text-sm text-white bg-white/10',
+                  'flex items-center gap-3 px-4 py-2.5 text-sm text-foreground bg-accent',
               }}
               role="menuitem"
             >
-              <topic.icon class="w-4 h-4 text-cyan-400/70" />
+              <topic.icon class="w-4 h-4 text-primary/60" />
               <span>{topic.shortTitle}</span>
             </Link>
           )}

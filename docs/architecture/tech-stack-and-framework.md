@@ -41,17 +41,17 @@ Rather than reaching for the most popular option, this was an opportunity to exp
 
 Build with **Solid.js** and go all-in on the **TanStack ecosystem**:
 
-| Layer | Choice |
-|-------|--------|
-| UI framework | Solid.js |
-| Meta-framework | TanStack Start (Vite) |
-| Routing | TanStack Solid Router (file-based) |
-| Server data | TanStack Start `createServerFn` |
-| Async state | TanStack Solid Query (available, not primary yet) |
-| Forms | TanStack Solid Form |
-| Styling | Tailwind CSS v4, Kobalte, CVA |
-| Validation | Zod |
-| Language | TypeScript (strict) |
+| Layer          | Choice                                            |
+| -------------- | ------------------------------------------------- |
+| UI framework   | Solid.js                                          |
+| Meta-framework | TanStack Start (Vite)                             |
+| Routing        | TanStack Solid Router (file-based)                |
+| Server data    | TanStack Start `createServerFn`                   |
+| Async state    | TanStack Solid Query (available, not primary yet) |
+| Forms          | TanStack Solid Form                               |
+| Styling        | Tailwind CSS v4, Kobalte, CVA                     |
+| Validation     | Zod                                               |
+| Language       | TypeScript (strict)                               |
 
 ## Why This Combination
 

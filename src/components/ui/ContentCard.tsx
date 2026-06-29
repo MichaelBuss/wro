@@ -1,5 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
+import { cx } from '~/cva.config'
+import { Heading } from './Heading'
 
 interface ContentCardProps {
   title?: string
@@ -9,13 +11,11 @@ interface ContentCardProps {
 
 export function ContentCard(props: ContentCardProps) {
   return (
-    <div
-      class={`bg-white border border-gray-200 rounded-xl p-8 shadow-sm ${props.class ?? ''}`}
-    >
+    <div class={cx('border border-border rounded-lg p-8', props.class)}>
       <Show when={props.title}>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-6">
+        <Heading level="h3" class="mb-6">
           {props.title}
-        </h2>
+        </Heading>
       </Show>
       {props.children}
     </div>

@@ -29,6 +29,7 @@ The site displays images in carousels and content pages. These need to be respon
 **Build-time generation** — `scripts/generate-images.ts` uses Sharp to convert source images from `assets/images/{folder}/` into optimized WebP at four responsive widths (640, 1024, 1280, 1920px). Output goes to `public/images/{folder}/`. This avoids runtime image transformation services and their associated costs.
 
 **Type-safe manifest** — the script generates `src/lib/images/manifest.generated.ts`, which exports:
+
 - `IMAGE_FOLDERS` — a const object mapping folder names to filename arrays
 - `IMAGE_WIDTHS` — the available width breakpoints
 - Per-folder filename union types (e.g., `CarouselFilename`)

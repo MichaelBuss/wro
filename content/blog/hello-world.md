@@ -3,6 +3,7 @@ title: Velkommen til WRO Denmark
 date: 2025-11-30T12:00:00.000Z
 description: Din første blog post om World Robot Olympiad™ i Danmark
 ---
+
 # Velkommen til WRO Denmark
 
 Dette er et eksempel på en blog post, der administreres gennem Decap CMS.

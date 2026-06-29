@@ -1,22 +1,9 @@
 @import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
-
-body {
-  @apply m-0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family:
-    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
 
 :root {
   /* wro-blue color scale - hue 294.52 (violet-blue) */
@@ -32,39 +19,51 @@ code {
   --wro-blue-900: oklch(0.22 0.055 294.52);
   --wro-blue-950: oklch(0.1934 0.0437 294.52);
 
-  --background: var(--wro-blue-950);
-  --foreground: oklch(0.141 0.005 285.823);
+  /* WRO people-chain logo palette — sampled from the original mark.
+   * Left-to-right rainbow chain plus the lone red figure on the right. */
+  --wro-logo-blue: #006090;
+  --wro-logo-cyan: #00a8d8;
+  --wro-logo-green: #009030;
+  --wro-logo-lime: #90c018;
+  --wro-logo-yellow: #ffd800;
+  --wro-logo-orange: #f09000;
+  --wro-logo-magenta: #f00078;
+  --wro-logo-red: #d80018;
+
+  /* Light editorial palette — warm paper-like surface */
+  --background: oklch(0.985 0.007 85);
+  --foreground: oklch(0.18 0.012 290);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
+  --card-foreground: oklch(0.18 0.012 290);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.18 0.012 290);
+  --primary: var(--wro-blue-700);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.955 0.008 85);
+  --secondary-foreground: oklch(0.18 0.012 290);
+  --muted: oklch(0.955 0.008 85);
+  --muted-foreground: oklch(0.52 0.015 285);
+  --accent: oklch(0.955 0.008 85);
+  --accent-foreground: oklch(0.18 0.012 290);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.871 0.006 286.286);
+  --border: oklch(0.88 0.008 85);
+  --input: oklch(0.88 0.008 85);
+  --ring: var(--wro-blue-600);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.97 0.006 85);
+  --sidebar-foreground: oklch(0.18 0.012 290);
+  --sidebar-primary: var(--wro-blue-700);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.871 0.006 286.286);
+  --sidebar-accent: oklch(0.955 0.008 85);
+  --sidebar-accent-foreground: oklch(0.18 0.012 290);
+  --sidebar-border: oklch(0.88 0.008 85);
+  --sidebar-ring: var(--wro-blue-600);
 }
 
 .dark {
@@ -102,6 +101,71 @@ code {
   --sidebar-ring: oklch(0.442 0.017 285.786);
 }
 
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Fraunces Variable', Georgia, ui-serif, serif;
+  --font-mono:
+    'Source Code Pro', ui-monospace, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+
+  /* Modular type scale — base 1rem (16px), ratio ~1.25 (major third)
+   * Each size ships with a default line-height and optional letter-spacing
+   * consumed automatically by Tailwind's text-{size} utilities.
+   *
+   * Semantic names pair with the Heading/Text/Lead/Caption primitive layer:
+   *   text-display  — hero / section openers (serif)
+   *   text-h1–h5    — heading hierarchy
+   *   text-lead     — article introductions, subheadings
+   *   text-body     — default prose
+   *   text-caption  — labels, timestamps, metadata
+   */
+
+  /* Display — reserved for hero statements; always serif.
+   * Fluid so the hero scales gracefully from phone to desktop instead of
+   * forcing a fixed 72px that crowds small screens. */
+  --text-display: clamp(2.75rem, 6vw + 1rem, 4.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.035em;
+
+  /* Heading scale */
+  --text-h1: clamp(2.25rem, 3vw + 1.25rem, 3rem);
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.025em;
+
+  --text-h2: clamp(1.75rem, 1.5vw + 1.25rem, 2.25rem);
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.02em;
+
+  --text-h3: 1.875rem;
+  --text-h3--line-height: 1.25;
+  --text-h3--letter-spacing: -0.015em;
+
+  --text-h4: 1.5rem;
+  --text-h4--line-height: 1.35;
+  --text-h4--letter-spacing: -0.01em;
+
+  --text-h5: 1.25rem;
+  --text-h5--line-height: 1.45;
+
+  /* Body variants */
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.65;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+
+  /* Supporting text */
+  --text-sm-copy: 0.875rem;
+  --text-sm-copy--line-height: 1.55;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0.01em;
+
+  /* Eyebrow label tracking — tight uppercase captions above hero headings */
+  --tracking-eyebrow: 0.22em;
+}
+
 @theme inline {
   /* wro-blue palette */
   --color-wro-blue-50: var(--wro-blue-50);
@@ -115,6 +179,16 @@ code {
   --color-wro-blue-800: var(--wro-blue-800);
   --color-wro-blue-900: var(--wro-blue-900);
   --color-wro-blue-950: var(--wro-blue-950);
+
+  /* Logo rainbow palette */
+  --color-wro-logo-blue: var(--wro-logo-blue);
+  --color-wro-logo-cyan: var(--wro-logo-cyan);
+  --color-wro-logo-green: var(--wro-logo-green);
+  --color-wro-logo-lime: var(--wro-logo-lime);
+  --color-wro-logo-yellow: var(--wro-logo-yellow);
+  --color-wro-logo-orange: var(--wro-logo-orange);
+  --color-wro-logo-magenta: var(--wro-logo-magenta);
+  --color-wro-logo-red: var(--wro-logo-red);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -159,30 +233,54 @@ code {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+  }
+  /* Let Fraunces lean into its high optical contrast at display sizes and
+   * keep kerning tight on the serif headings. */
+  .font-serif {
+    font-optical-sizing: auto;
+    font-kerning: normal;
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    @apply font-mono;
+  }
+}
+
+/* Header underline reveal — the sticky header's bottom border stays hidden
+ * until the header sticks to the top of the viewport, then fades in. Uses a
+ * scroll-state container query (`stuck`), the web-platform feature built for
+ * exactly this. No JS.
+ *
+ * In browsers that don't support scroll-state queries the @supports guard is
+ * skipped, so the always-visible border declared in the markup simply stays —
+ * a perfectly acceptable default, no fallback machinery required. */
+@supports (container-type: scroll-state) {
+  .header-sticky {
+    container-type: scroll-state;
+  }
+  .header-surface {
+    border-bottom-color: transparent;
+    transition: border-bottom-color 0.2s ease;
+  }
+  @container scroll-state(stuck: top) {
+    .header-surface {
+      border-bottom-color: var(--border);
+    }
   }
 }
 
 /* Hide scrollbar for carousel - cross-browser */
-.scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
-}
-
-/* Grid row utilities for common layout patterns */
-@utility grid-rows-min-fr {
-  grid-template-rows: min-content minmax(0, 1fr);
-}
-
-@utility grid-rows-min-fr-min {
-  grid-template-rows: min-content minmax(0, 1fr) min-content;
-}
-
-@utility grid-rows-fr-min {
-  grid-template-rows: minmax(0, 1fr) min-content;
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Popover reset - minimal, let Tailwind handle the rest */
@@ -201,4 +299,107 @@ dialog {
   max-height: none;
   background: transparent;
   color: inherit;
+}
+
+/* WRO logo mark — base figure colouring.
+ * Each figure exposes its palette colour via --wro-fig-color so the shuffle
+ * animation can settle back onto it. Arm motion (wave/chainwave) is a JS path
+ * morph (see poseFigure), not a CSS transform, so there are no transform-origin
+ * pivots here — only the colour-cycle `shuffle` is CSS. */
+.wro-fig {
+  fill: var(--wro-fig-color);
+}
+
+/* All logo motion is opt-out via prefers-reduced-motion (belt-and-suspenders
+ * with the JS guard in createLogoAnimation). */
+@media (prefers-reduced-motion: no-preference) {
+  /* shuffle — each figure flicks through the palette (steppy middle) then
+   * settles, with a slight overshoot, back onto its own colour. */
+  .anim-shuffle .wro-fig {
+    animation: wro-shuffle 0.9s steps(1, end);
+  }
+  @keyframes wro-shuffle {
+    0% {
+      fill: var(--wro-logo-blue);
+    }
+    14% {
+      fill: var(--wro-logo-cyan);
+    }
+    28% {
+      fill: var(--wro-logo-green);
+    }
+    42% {
+      fill: var(--wro-logo-lime);
+    }
+    56% {
+      fill: var(--wro-logo-yellow);
+    }
+    70% {
+      fill: var(--wro-logo-orange);
+    }
+    84% {
+      fill: var(--wro-logo-magenta);
+    }
+    100% {
+      fill: var(--wro-fig-color);
+    }
+  }
+
+  /* Per-figure stagger so the shuffle cycles left to right rather than in
+   * unison. Each .wro-fig is a direct child of .wro-figs. */
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(5) {
+    animation-delay: 240ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(6) {
+    animation-delay: 300ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(7) {
+    animation-delay: 360ms;
+  }
+  .anim-shuffle .wro-figs > .wro-fig:nth-child(8) {
+    animation-delay: 420ms;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes cta-rainbow {
+    to {
+      background-position: 100% 50%;
+    }
+  }
+
+  .cta-rainbow:hover {
+    background-image: linear-gradient(
+      90deg,
+      var(--wro-logo-blue) 0% 6.25%,
+      var(--wro-logo-cyan) 6.25% 12.5%,
+      var(--wro-logo-green) 12.5% 18.75%,
+      var(--wro-logo-lime) 18.75% 25%,
+      var(--wro-logo-yellow) 25% 31.25%,
+      var(--wro-logo-orange) 31.25% 37.5%,
+      var(--wro-logo-magenta) 37.5% 43.75%,
+      var(--wro-logo-red) 43.75% 50%,
+      var(--wro-logo-blue) 50% 56.25%,
+      var(--wro-logo-cyan) 56.25% 62.5%,
+      var(--wro-logo-green) 62.5% 68.75%,
+      var(--wro-logo-lime) 68.75% 75%,
+      var(--wro-logo-yellow) 75% 81.25%,
+      var(--wro-logo-orange) 81.25% 87.5%,
+      var(--wro-logo-magenta) 87.5% 93.75%,
+      var(--wro-logo-red) 93.75% 100%
+    );
+    background-size: 200% 100%;
+    animation: cta-rainbow 0.8s linear infinite;
+    color: theme('colors.slate.100');
+    border-color: transparent;
+  }
 }

@@ -1,4 +1,6 @@
 import '@fontsource/inter'
+import '@fontsource-variable/fraunces/full.css'
+import '@fontsource-variable/fraunces/full-italic.css'
 import {
   HeadContent,
   Outlet,
@@ -9,6 +11,8 @@ import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
 import { Suspense } from 'solid-js'
 import { HydrationScript } from 'solid-js/web'
 import Header from '../components/Header'
+import { SiteFooter } from '../components/layout'
+import { Heading, Lead } from '../components/ui'
 import TanStackQueryProvider from '../integrations/tanstack-query/provider.tsx'
 import styleCss from '../styles.css?url'
 
@@ -25,13 +29,15 @@ export const Route = createRootRouteWithContext()({
 
 function NotFound() {
   return (
-    <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div class="min-h-screen bg-background flex items-center justify-center">
       <div class="text-center">
-        <h1 class="text-6xl font-bold text-slate-800 mb-4">404</h1>
-        <p class="text-xl text-slate-500 mb-8">Siden blev ikke fundet</p>
+        <Heading level="display" class="mb-4">
+          404
+        </Heading>
+        <Lead class="text-muted-foreground mb-8">Siden blev ikke fundet</Lead>
         <a
           href="/"
-          class="px-6 py-3 bg-wro-blue-600 hover:bg-wro-blue-500 text-white font-semibold rounded-lg transition-colors"
+          class="px-6 py-3 bg-primary hover:bg-wro-blue-600 text-primary-foreground font-semibold rounded-lg transition-colors"
         >
           Gå til forsiden
         </a>
@@ -52,6 +58,7 @@ function RootComponent() {
           <TanStackQueryProvider>
             <Header />
             <Outlet />
+            <SiteFooter />
             <TanStackRouterDevtools />
           </TanStackQueryProvider>
         </Suspense>

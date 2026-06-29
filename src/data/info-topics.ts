@@ -16,6 +16,17 @@ export type InfoRoute = Extract<AllRoutes, `/info/${string}`>
 // Icon component type (Lucide icons accept class prop)
 export type IconComponent = Component<{ class?: string }>
 
+// One of the 8 WRO logo palette hues (left-to-right rainbow + red)
+export type LogoPaletteColor =
+  | 'blue'
+  | 'cyan'
+  | 'green'
+  | 'lime'
+  | 'yellow'
+  | 'orange'
+  | 'magenta'
+  | 'red'
+
 // Info topic definition type
 export interface InfoTopic {
   route: InfoRoute
@@ -23,6 +34,7 @@ export interface InfoTopic {
   title: string
   description: string
   shortTitle: string
+  color: LogoPaletteColor
 }
 
 // Info topics array - stores component references, not JSX
@@ -30,6 +42,7 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   {
     route: '/info/prizes',
     icon: Trophy,
+    color: 'blue',
     title: 'Hvad kan man vinde?',
     shortTitle: 'Præmier',
     description:
@@ -38,14 +51,15 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   {
     route: '/info/date',
     icon: MapPin,
+    color: 'cyan',
     title: 'Hvor og hvornår afholdes den danske finale?',
     shortTitle: 'Dato & Sted',
-    description:
-      'Find dato, sted og program for den danske finale.',
+    description: 'Find dato, sted og program for den danske finale.',
   },
   {
     route: '/info/materials',
     icon: Bot,
+    color: 'green',
     title: 'Hvad skal man bruge for at deltage?',
     shortTitle: 'Materialer',
     description:
@@ -54,6 +68,7 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   {
     route: '/info/cost',
     icon: PiggyBank,
+    color: 'lime',
     title: 'Hvad koster det at deltage?',
     shortTitle: 'Pris',
     description: 'Man skal kun betale for en øve-bane',
@@ -61,6 +76,7 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   {
     route: '/info/tips',
     icon: HeartHandshake,
+    color: 'orange',
     title: 'Gode råd fra tidligere deltagere',
     shortTitle: 'Tips & Tricks',
     description: 'Hør hvad andre deltagere har at sige om at deltage i WRO.',
@@ -68,12 +84,38 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
   {
     route: '/info/resources',
     icon: BookText,
+    color: 'magenta',
     title: 'Andre online ressourcer',
     shortTitle: 'Ressourcer',
     description:
       'Find links til andre ressourcer om WRO, robot-byggeri, programmering og mere.',
   },
 ]
+
+// Full Tailwind class strings per palette colour — literal so the JIT scanner
+// picks them up at build time. Keeps colour application in the template layer.
+export const LOGO_PALETTE_CLASSES = {
+  blue: { icon: 'text-wro-logo-blue', hover: 'group-hover:text-wro-logo-blue' },
+  cyan: { icon: 'text-wro-logo-cyan', hover: 'group-hover:text-wro-logo-cyan' },
+  green: {
+    icon: 'text-wro-logo-green',
+    hover: 'group-hover:text-wro-logo-green',
+  },
+  lime: { icon: 'text-wro-logo-lime', hover: 'group-hover:text-wro-logo-lime' },
+  yellow: {
+    icon: 'text-wro-logo-yellow',
+    hover: 'group-hover:text-wro-logo-yellow',
+  },
+  orange: {
+    icon: 'text-wro-logo-orange',
+    hover: 'group-hover:text-wro-logo-orange',
+  },
+  magenta: {
+    icon: 'text-wro-logo-magenta',
+    hover: 'group-hover:text-wro-logo-magenta',
+  },
+  red: { icon: 'text-wro-logo-red', hover: 'group-hover:text-wro-logo-red' },
+} as const satisfies Record<LogoPaletteColor, { icon: string; hover: string }>
 
 // Helper to get an info topic by route
 export function getInfoTopicByRoute(route: InfoRoute): InfoTopic {

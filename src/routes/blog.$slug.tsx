@@ -1,6 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { Show } from 'solid-js'
+import { PageShell } from '~/components/layout'
+import { Heading, Prose } from '~/components/ui'
 import type { BlogPost } from '~/server/content'
 import { getBlogPost, getBlogSlugs } from '~/server/content'
 
@@ -12,7 +14,6 @@ const getPost = createServerFn({
     return getBlogPost(slug)
   })
 
-// Export slugs for static prerendering
 export const getBlogPostSlugs = createServerFn({
   method: 'GET',
 }).handler((): Array<string> => {
@@ -28,17 +29,17 @@ function BlogPostPage() {
   const post = Route.useLoaderData()
 
   return (
-    <div class="min-h-screen bg-gray-50">
+    <PageShell size="sm">
       <Show
         when={post()}
         fallback={
-          <div class="py-16 px-6 max-w-4xl mx-auto text-center">
-            <h1 class="text-4xl font-bold text-slate-800 mb-4">
+          <div class="text-center py-16">
+            <Heading level="h1" class="mb-6">
               Post ikke fundet
-            </h1>
+            </Heading>
             <Link
               to="/blog"
-              class="text-wro-blue-600 hover:text-wro-blue-500 transition-colors"
+              class="text-sm text-primary hover:underline underline-offset-4 transition-colors"
             >
               ← Tilbage til blog
             </Link>
@@ -46,24 +47,26 @@ function BlogPostPage() {
         }
       >
         {(postData) => (
-          <article class="py-16 px-6 max-w-4xl mx-auto">
+          <article>
             <Link
               to="/blog"
-              class="inline-block mb-8 text-wro-blue-600 hover:text-wro-blue-500 transition-colors"
+              class="inline-block mb-10 text-caption text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors"
             >
-              ← Tilbage til blog
+              ← Blog
             </Link>
 
-            <header class="mb-8">
-              <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+            <header class="mb-10 border-b border-border pb-10">
+              <Heading level="h1" class="mb-4">
                 {postData().title}
-              </h1>
-              {postData().description && (
-                <p class="text-xl text-slate-500 mb-4">
+              </Heading>
+
+              <Show when={postData().description}>
+                <p class="text-lead text-foreground/70 mb-4">
                   {postData().description}
                 </p>
-              )}
-              <time class="text-slate-400">
+              </Show>
+
+              <time class="text-caption text-muted-foreground">
                 {new Date(postData().date).toLocaleDateString('da-DK', {
                   year: 'numeric',
                   month: 'long',
@@ -72,30 +75,20 @@ function BlogPostPage() {
               </time>
             </header>
 
-            {postData().image && (
-              <img
-                src={postData().image}
-                alt={postData().title}
-                class="w-full rounded-xl mb-8 border border-gray-200"
-              />
-            )}
+            <Show when={postData().image}>
+              {(src) => (
+                <img
+                  src={src()}
+                  alt={postData().title}
+                  class="w-full rounded mb-10 border border-border"
+                />
+              )}
+            </Show>
 
-            <div
-              class="prose prose-lg max-w-none
-                prose-headings:text-slate-800 prose-headings:font-semibold
-                prose-p:text-slate-600 prose-p:leading-relaxed
-                prose-a:text-wro-blue-600 prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-slate-800
-                prose-ul:text-slate-600 prose-ol:text-slate-600
-                prose-li:marker:text-wro-blue-500
-                prose-code:text-wro-blue-700 prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded
-                prose-pre:bg-gray-100 prose-pre:border prose-pre:border-gray-200"
-              // eslint-disable-next-line solid/no-innerhtml -- Markdown content is sanitized server-side
-              innerHTML={postData().content}
-            />
+            <Prose html={postData().content} />
           </article>
         )}
       </Show>
-    </div>
+    </PageShell>
   )
 }
