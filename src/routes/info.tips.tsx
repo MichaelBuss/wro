@@ -25,6 +25,8 @@ function TipsPage() {
     <InfoPageLayout icon={topic.icon} title={topic.title}>
 
       <ContentCard class="mb-8">
+        <p class="text-lead text-foreground/70 mb-8">{topic.description}</p>
+
         <h2 class="font-sans text-h3 font-semibold text-foreground mb-6">
           Hvad siger tidligere deltagere?
         </h2>

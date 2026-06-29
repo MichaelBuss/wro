@@ -10,7 +10,6 @@
   "framework": "solid",
   "chosenAddOns": [
     "eslint",
-    "nitro",
     "start",
     "form",
     "solid-ui",

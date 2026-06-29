@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.9",
-    "@fontsource/fraunces": "^5.2.9",
     "@fontsource/inter": "^5.2.8",
     "@kobalte/core": "^0.13.11",
     "@t3-oss/env-core": "^0.13.11",
@@ -49,6 +48,7 @@
     "@types/node": "^26.0.0",
     "@typescript/native-preview": "^7.0.0-dev.20260623.1",
     "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import-x": "^4.17.0",
     "eslint-plugin-solid": "^0.14.5",
     "prettier": "^3.8.4",

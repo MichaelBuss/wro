@@ -13,7 +13,7 @@ export function SiteFooter() {
           </p>
         </div>
 
-        <nav class="flex flex-wrap gap-x-8 gap-y-3 text-caption text-muted-foreground">
+        <nav aria-label="Footer navigation" class="flex flex-wrap gap-x-8 gap-y-3 text-caption text-muted-foreground">
           <Link to="/" class="hover:text-foreground transition-colors">
             Forside
           </Link>

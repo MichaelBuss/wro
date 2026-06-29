@@ -28,7 +28,8 @@ export function Prose(props: ProseProps) {
     >
       <div
         class={cx(proseBase, props.class)}
-        // eslint-disable-next-line solid/no-innerhtml -- content is sanitized server-side
+        // Content is repo-managed markdown (committed files, not user input).
+        // Rule suppressed via eslint.config.js file-level override.
         innerHTML={props.html}
       />
     </Show>

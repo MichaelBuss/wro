@@ -59,8 +59,11 @@ function BlogPostPage() {
                 </p>
               </Show>
 
-              <time class="text-caption text-muted-foreground">
-                {new Date(postData().date).toLocaleDateString('da-DK', {
+              <time
+                datetime={postData().date.toISOString()}
+                class="text-caption text-muted-foreground"
+              >
+                {postData().date.toLocaleDateString('da-DK', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',

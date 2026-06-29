@@ -33,6 +33,8 @@ function DatePage() {
     <InfoPageLayout icon={topic.icon} title={topic.title}>
 
       <ContentCard>
+        <p class="text-lead text-foreground/70 mb-8">{topic.description}</p>
+
         <div class="divide-y divide-border mb-8">
           <div class="flex items-start gap-4 py-5 first:pt-0">
             <Calendar class="w-5 h-5 text-primary/60 shrink-0 mt-0.5" />

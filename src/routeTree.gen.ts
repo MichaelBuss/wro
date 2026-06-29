@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
-import { Route as LogoPlayRouteImport } from './routes/logo-play'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
@@ -27,11 +26,6 @@ import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.se
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogoPlayRoute = LogoPlayRouteImport.update({
-  id: '/logo-play',
-  path: '/logo-play',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -97,7 +91,6 @@ const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/logo-play': typeof LogoPlayRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
@@ -113,7 +106,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/logo-play': typeof LogoPlayRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
@@ -130,7 +122,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/logo-play': typeof LogoPlayRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
@@ -148,7 +139,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/logo-play'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
@@ -164,7 +154,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/logo-play'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
@@ -180,7 +169,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/logo-play'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
@@ -197,7 +185,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LogoPlayRoute: typeof LogoPlayRoute
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DemoFormRoute: typeof DemoFormRoute
@@ -219,13 +206,6 @@ declare module '@tanstack/solid-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logo-play': {
-      id: '/logo-play'
-      path: '/logo-play'
-      fullPath: '/logo-play'
-      preLoaderRoute: typeof LogoPlayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -317,7 +297,6 @@ declare module '@tanstack/solid-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LogoPlayRoute: LogoPlayRoute,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DemoFormRoute: DemoFormRoute,

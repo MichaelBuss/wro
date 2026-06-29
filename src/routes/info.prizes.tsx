@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
-import { For } from 'solid-js'
+import { For, Show, createMemo } from 'solid-js'
 import { InfoPageLayout } from '~/components/layout'
 import { ContentCard, TipBox } from '~/components/ui'
 import { getInfoTopicByRoute } from '~/data/info-topics'
@@ -20,7 +20,8 @@ function PrizesPage() {
   const topic = getInfoTopicByRoute('/info/prizes')
   const data = Route.useLoaderData()
 
-  const [first, ...rest] = data().prizes.prizes
+  const firstPrize = createMemo(() => data().prizes.prizes[0])
+  const restPrizes = createMemo(() => data().prizes.prizes.slice(1))
 
   return (
     <InfoPageLayout icon={topic.icon} title={topic.title}>
@@ -33,19 +34,24 @@ function PrizesPage() {
         </h2>
 
         <div class="divide-y divide-border">
-          <div class="py-6">
-            <p class="text-caption text-muted-foreground uppercase tracking-wider mb-2">
-              {first.label}
-            </p>
-            <p class="text-h5 font-medium text-foreground mb-2">
-              {first.title}
-            </p>
-            <p class="text-sm-copy text-foreground/70">
-              {first.description} I {data().eventInfo.world_final_location}.
-            </p>
-          </div>
+          <Show when={firstPrize()}>
+            {(prize) => (
+              <div class="py-6">
+                <p class="text-caption text-muted-foreground uppercase tracking-wider mb-2">
+                  {prize().label}
+                </p>
+                <p class="text-h5 font-medium text-foreground mb-2">
+                  {prize().title}
+                </p>
+                <p class="text-sm-copy text-foreground/70">
+                  {prize().description} I{' '}
+                  {data().eventInfo.world_final_location}.
+                </p>
+              </div>
+            )}
+          </Show>
 
-          <For each={rest}>
+          <For each={restPrizes()}>
             {(prize) => (
               <div class="py-6">
                 <p class="text-caption text-muted-foreground uppercase tracking-wider mb-2">

@@ -134,4 +134,3 @@ export function getCollectionItem(
 export function getCollectionItem(collection: CollectionName, slug: string) {
   return prodAccessors.getCollectionItem(collection, slug)
 }
-
