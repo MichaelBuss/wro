@@ -104,7 +104,9 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Fraunces Variable', Georgia, ui-serif, serif;
-  --font-mono: 'Source Code Pro', ui-monospace, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  --font-mono:
+    'Source Code Pro', ui-monospace, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 
   /* Modular type scale — base 1rem (16px), ratio ~1.25 (major third)
    * Each size ships with a default line-height and optional letter-spacing
@@ -179,14 +181,14 @@
   --color-wro-blue-950: var(--wro-blue-950);
 
   /* Logo rainbow palette */
-  --color-wro-logo-blue:    var(--wro-logo-blue);
-  --color-wro-logo-cyan:    var(--wro-logo-cyan);
-  --color-wro-logo-green:   var(--wro-logo-green);
-  --color-wro-logo-lime:    var(--wro-logo-lime);
-  --color-wro-logo-yellow:  var(--wro-logo-yellow);
-  --color-wro-logo-orange:  var(--wro-logo-orange);
+  --color-wro-logo-blue: var(--wro-logo-blue);
+  --color-wro-logo-cyan: var(--wro-logo-cyan);
+  --color-wro-logo-green: var(--wro-logo-green);
+  --color-wro-logo-lime: var(--wro-logo-lime);
+  --color-wro-logo-yellow: var(--wro-logo-yellow);
+  --color-wro-logo-orange: var(--wro-logo-orange);
   --color-wro-logo-magenta: var(--wro-logo-magenta);
-  --color-wro-logo-red:     var(--wro-logo-red);
+  --color-wro-logo-red: var(--wro-logo-red);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -241,7 +243,10 @@
     font-optical-sizing: auto;
     font-kerning: normal;
   }
-  code, kbd, samp, pre {
+  code,
+  kbd,
+  samp,
+  pre {
     @apply font-mono;
   }
 }
@@ -375,27 +380,26 @@ dialog {
   .cta-rainbow:hover {
     background-image: linear-gradient(
       90deg,
-      var(--wro-logo-blue)    0%      6.25%,
-      var(--wro-logo-cyan)    6.25%   12.5%,
-      var(--wro-logo-green)   12.5%   18.75%,
-      var(--wro-logo-lime)    18.75%  25%,
-      var(--wro-logo-yellow)  25%     31.25%,
-      var(--wro-logo-orange)  31.25%  37.5%,
-      var(--wro-logo-magenta) 37.5%   43.75%,
-      var(--wro-logo-red)     43.75%  50%,
-      var(--wro-logo-blue)    50%     56.25%,
-      var(--wro-logo-cyan)    56.25%  62.5%,
-      var(--wro-logo-green)   62.5%   68.75%,
-      var(--wro-logo-lime)    68.75%  75%,
-      var(--wro-logo-yellow)  75%     81.25%,
-      var(--wro-logo-orange)  81.25%  87.5%,
-      var(--wro-logo-magenta) 87.5%   93.75%,
-      var(--wro-logo-red)     93.75%  100%
+      var(--wro-logo-blue) 0% 6.25%,
+      var(--wro-logo-cyan) 6.25% 12.5%,
+      var(--wro-logo-green) 12.5% 18.75%,
+      var(--wro-logo-lime) 18.75% 25%,
+      var(--wro-logo-yellow) 25% 31.25%,
+      var(--wro-logo-orange) 31.25% 37.5%,
+      var(--wro-logo-magenta) 37.5% 43.75%,
+      var(--wro-logo-red) 43.75% 50%,
+      var(--wro-logo-blue) 50% 56.25%,
+      var(--wro-logo-cyan) 56.25% 62.5%,
+      var(--wro-logo-green) 62.5% 68.75%,
+      var(--wro-logo-lime) 68.75% 75%,
+      var(--wro-logo-yellow) 75% 81.25%,
+      var(--wro-logo-orange) 81.25% 87.5%,
+      var(--wro-logo-magenta) 87.5% 93.75%,
+      var(--wro-logo-red) 93.75% 100%
     );
     background-size: 200% 100%;
-    animation: cta-rainbow 1.6s linear infinite;
-    color: white;
+    animation: cta-rainbow 0.8s linear infinite;
+    color: theme('colors.slate.100');
     border-color: transparent;
   }
 }
-
