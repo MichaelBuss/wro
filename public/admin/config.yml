@@ -6,6 +6,20 @@ backend:
 media_folder: public/uploads
 public_folder: /uploads
 
+# Image settings — keep in sync with scripts/image-settings.ts
+media_libraries:
+  all:
+    slugify_filename: true
+    max_file_size: 10485760 # 10 MB source limit before optimization
+    transformations:
+      raster_image:
+        format: webp # IMAGE_FORMAT
+        quality: 85 # IMAGE_QUALITY
+        width: 2048 # IMAGE_MAX_PX
+        height: 2048 # IMAGE_MAX_PX
+      svg:
+        optimize: true
+
 collections:
   - name: blog
     label: Blog Posts
