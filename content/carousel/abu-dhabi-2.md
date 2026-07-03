@@ -1,5 +1,5 @@
 ---
-image: /images/carousel/abu-dhabi-2-1280.webp
+image: /uploads/abu-dhabi-2.webp
 alt: Robotbyggeri og programmering
 description: Jubel blandt holdene, da resultaterne blev annonceret
 position: top center
