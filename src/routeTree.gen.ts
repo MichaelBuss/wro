@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as GalleriRouteImport } from './routes/galleri'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
@@ -18,6 +19,7 @@ import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
 import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
 import { Route as InfoDateRouteImport } from './routes/info.date'
 import { Route as InfoCostRouteImport } from './routes/info.cost'
+import { Route as GalleriYearRouteImport } from './routes/galleri.$year'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as DemoFormRouteImport } from './routes/demo.form'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -26,6 +28,11 @@ import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.se
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleriRoute = GalleriRouteImport.update({
+  id: '/galleri',
+  path: '/galleri',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -68,6 +75,11 @@ const InfoCostRoute = InfoCostRouteImport.update({
   path: '/info/cost',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleriYearRoute = GalleriYearRouteImport.update({
+  id: '/$year',
+  path: '/$year',
+  getParentRoute: () => GalleriRoute,
+} as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   id: '/demo/tanstack-query',
   path: '/demo/tanstack-query',
@@ -91,10 +103,12 @@ const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/galleri': typeof GalleriRouteWithChildren
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/galleri/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -106,10 +120,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/galleri': typeof GalleriRouteWithChildren
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/galleri/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -122,10 +138,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/galleri': typeof GalleriRouteWithChildren
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/galleri/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -139,10 +157,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/galleri'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/galleri/$year'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -154,10 +174,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/galleri'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/galleri/$year'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -169,10 +191,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/galleri'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
     | '/demo/tanstack-query'
+    | '/galleri/$year'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -185,6 +209,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GalleriRoute: typeof GalleriRouteWithChildren
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DemoFormRoute: typeof DemoFormRoute
@@ -206,6 +231,13 @@ declare module '@tanstack/solid-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/galleri': {
+      id: '/galleri'
+      path: '/galleri'
+      fullPath: '/galleri'
+      preLoaderRoute: typeof GalleriRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -264,6 +296,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof InfoCostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galleri/$year': {
+      id: '/galleri/$year'
+      path: '/$year'
+      fullPath: '/galleri/$year'
+      preLoaderRoute: typeof GalleriYearRouteImport
+      parentRoute: typeof GalleriRoute
+    }
     '/demo/tanstack-query': {
       id: '/demo/tanstack-query'
       path: '/demo/tanstack-query'
@@ -295,8 +334,20 @@ declare module '@tanstack/solid-router' {
   }
 }
 
+interface GalleriRouteChildren {
+  GalleriYearRoute: typeof GalleriYearRoute
+}
+
+const GalleriRouteChildren: GalleriRouteChildren = {
+  GalleriYearRoute: GalleriYearRoute,
+}
+
+const GalleriRouteWithChildren =
+  GalleriRoute._addFileChildren(GalleriRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GalleriRoute: GalleriRouteWithChildren,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DemoFormRoute: DemoFormRoute,

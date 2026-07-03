@@ -404,6 +404,52 @@ dialog {
   }
 }
 
+/* Gallery photo grid — uniform CSS Grid fallback, upgraded to a true
+ * masonry waterfall via CSS Grid Lanes where supported (Safari 26.4+, see
+ * https://webkit.org/blog/17660/introducing-css-grid-lanes/). Grid Lanes
+ * lets photos keep their natural aspect ratio and pack tightly; the
+ * fallback crops every tile to a fixed ratio since plain CSS Grid can't
+ * pack variable-height items without JS. No fallback machinery needed —
+ * browsers without support simply keep the uniform grid declared below. */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (min-width: 640px) {
+  .photo-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+@media (min-width: 1024px) {
+  .photo-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.photo-grid-item {
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+.photo-grid-image {
+  height: 100%;
+  object-fit: cover;
+}
+
+@supports (display: grid-lanes) {
+  .photo-grid {
+    display: grid-lanes;
+    flow-tolerance: 1lh;
+  }
+  .photo-grid-item {
+    aspect-ratio: auto;
+  }
+  .photo-grid-image {
+    height: auto;
+    object-fit: initial;
+  }
+}
+
 /* CSS Anchor Positioning for the nav info dropdown.
    Extracted from NavDropdown.tsx to avoid Solid style-prop lint restriction. */
 .nav-info-trigger {

@@ -33,7 +33,7 @@ overview: >
 
 ## The Problem
 
-Editable site content — hero text, event dates, carousel images — was scattered across TypeScript constants (`CONSTANTS`, `CAROUSEL_IMAGES`) and inline JSX strings. Changing a date or a heading required a code change, a rebuild, and a deploy. Non-developers couldn't contribute at all.
+Editable site content — hero text, event dates, gallery images — was scattered across TypeScript constants (`CONSTANTS`, `CAROUSEL_IMAGES`) and inline JSX strings. Changing a date or a heading required a code change, a rebuild, and a deploy. Non-developers couldn't contribute at all.
 
 We needed content to be editable through a CMS while keeping full type safety and build-time validation so that broken content never reaches production.
 
@@ -51,7 +51,7 @@ The system distinguishes two kinds of content:
 
 **Singleton pages** — one file per logical page (e.g. `content/pages/homepage.md`). Used for structured page-level copy that doesn't repeat. Accessed by key via `getPageContent('homepage')`.
 
-**Folder collections** — a directory of files where each file is an item (e.g. `content/carousel/*.md`). Used for repeating content like carousel images or blog posts. Accessed via `getCollectionItems('carousel')`.
+**Folder collections** — a directory of files where each file is an item (e.g. `content/gallery/*.md`). Used for repeating content like gallery images or blog posts. Accessed via `getCollectionItems('gallery')`.
 
 This mirrors Decap CMS's own `files` vs `folder` collection distinction, keeping the CMS config and the server layer conceptually aligned.
 
@@ -61,7 +61,7 @@ This mirrors Decap CMS's own `files` vs `folder` collection distinction, keeping
 
 ```typescript
 const hero = getPageContent('homepage') // typed as { hero_heading: string, ... }
-const items = getCollectionItems('carousel') // typed as Array<{ image: string, alt: string, ... }>
+const items = getCollectionItems('gallery') // typed as Array<{ image: string, alt: string, ... }>
 ```
 
 Adding a new content type means adding a key + schema to the registry. The type system immediately surfaces any accessor that passes an invalid key, and the validation script catches missing files on disk.

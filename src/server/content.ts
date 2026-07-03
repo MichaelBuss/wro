@@ -103,8 +103,8 @@ export function getCollectionItems(
   collection: 'blog',
 ): Array<CollectionItem<'blog'>>
 export function getCollectionItems(
-  collection: 'carousel',
-): Array<CollectionItem<'carousel'>>
+  collection: 'gallery',
+): Array<CollectionItem<'gallery'>>
 export function getCollectionItems(
   collection: 'quotes',
 ): Array<CollectionItem<'quotes'>>
@@ -120,9 +120,9 @@ export function getCollectionItem(
   slug: string,
 ): (CollectionItem<'blog'> & { content: string }) | null
 export function getCollectionItem(
-  collection: 'carousel',
+  collection: 'gallery',
   slug: string,
-): (CollectionItem<'carousel'> & { content: string }) | null
+): (CollectionItem<'gallery'> & { content: string }) | null
 export function getCollectionItem(
   collection: 'quotes',
   slug: string,

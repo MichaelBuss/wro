@@ -106,13 +106,14 @@ export const collectionSchemas = {
     description: z.string().optional(),
     image: z.string().optional(),
   }),
-  carousel: z.object({
+  gallery: z.object({
     image: z.string(),
     alt: z.string(),
     description: z.string().optional(),
     position: z.enum(OBJECT_POSITIONS).optional(),
     order: z.number().optional(),
     year: z.number().optional(),
+    favorite: z.boolean().optional(),
   }),
   quotes: z.object({
     quote: z.string(),

@@ -43,11 +43,12 @@ collections:
         }
       - { label: Body, name: body, widget: markdown }
 
-  - name: carousel
-    label: Carousel Images
-    folder: content/carousel
+  - name: gallery
+    label: Galleri
+    folder: content/gallery
     create: true
     slug: '{{slug}}'
+    hint: Photos are grouped by year on the /galleri page. Favorited photos appear in the homepage preview and as the highlight teaser for their year.
     fields:
       - { label: Image, name: image, widget: image }
       - { label: Alt Text, name: alt, widget: string }
@@ -56,6 +57,20 @@ collections:
           name: description,
           widget: text,
           required: false,
+        }
+      - {
+          label: Year,
+          name: year,
+          widget: number,
+          required: false,
+          hint: Groups the photo under this year on the /galleri page. Left blank, it appears under "Andre billeder".,
+        }
+      - {
+          label: Favorite,
+          name: favorite,
+          widget: boolean,
+          default: false,
+          hint: Favorited photos are prioritized on the homepage and as the year's highlight teaser,
         }
       - {
           label: Focal Point,

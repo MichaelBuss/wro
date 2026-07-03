@@ -1,10 +1,12 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { For, Show } from 'solid-js'
-import type { GalleryItem } from '~/components/ui'
 import { Gallery, Heading, Lead, TipsList } from '~/components/ui'
 import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
+import { pickGalleryHighlights, toGalleryDisplayItem } from '~/lib/gallery'
 import { getCollectionItems, getPageContent } from '~/server/content'
+
+const HOMEPAGE_GALLERY_LIMIT = 5
 
 const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
   const hero = getPageContent('homepage')
@@ -12,18 +14,12 @@ const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
   const prizes = getPageContent('prizes')
   const cost = getPageContent('cost')
   const materials = getPageContent('materials')
-  const carouselItems = getCollectionItems('carousel')
+  const galleryPhotos = getCollectionItems('gallery')
 
-  const galleryItems: Array<GalleryItem> = [...carouselItems]
-    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
-    .slice(0, 5)
-    .map((item) => ({
-      src: item.image,
-      alt: item.alt,
-      caption: item.description,
-      year: item.year,
-      objectPosition: item.position,
-    }))
+  const galleryItems = pickGalleryHighlights(
+    galleryPhotos,
+    HOMEPAGE_GALLERY_LIMIT,
+  ).map(toGalleryDisplayItem)
 
   const allQuotes = getCollectionItems('quotes').sort(
     (a, b) => a.order - b.order,
@@ -117,6 +113,15 @@ function GallerySection() {
       </div>
 
       <Gallery items={data().galleryItems} />
+
+      <div class="mt-8">
+        <Link
+          to="/galleri"
+          class="text-sm-copy font-medium text-primary hover:underline"
+        >
+          Se alle billeder →
+        </Link>
+      </div>
     </section>
   )
 }
@@ -191,41 +196,41 @@ function PrizesSection() {
   return (
     <Show when={firstPrize()}>
       {(prize) => (
-    <section class="bg-wro-blue-950 py-16 px-6">
-      <div class="max-w-5xl mx-auto text-center">
-        <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-white/50 mb-6">
-          {prize().label}
-        </p>
+        <section class="bg-wro-blue-950 py-16 px-6">
+          <div class="max-w-5xl mx-auto text-center">
+            <p class="text-caption font-sans font-medium uppercase tracking-eyebrow text-white/50 mb-6">
+              {prize().label}
+            </p>
 
-        <p class="font-serif text-h1 font-semibold text-white leading-tight mb-10 max-w-2xl mx-auto">
-          {prize().title} — {data().eventInfo.world_final_location}
-        </p>
+            <p class="font-serif text-h1 font-semibold text-white leading-tight mb-10 max-w-2xl mx-auto">
+              {prize().title} — {data().eventInfo.world_final_location}
+            </p>
 
-        <hr class="border-white/15 mb-8" />
+            <hr class="border-white/15 mb-8" />
 
-        <div class="grid grid-cols-2 gap-6 max-w-sm mx-auto mb-10">
-          <For each={otherPrizes()}>
-            {(otherPrize) => (
-              <div class="text-left">
-                <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
-                  {otherPrize.label}
-                </p>
-                <p class="text-sm-copy font-medium text-white/80">
-                  {otherPrize.title}
-                </p>
-              </div>
-            )}
-          </For>
-        </div>
+            <div class="grid grid-cols-2 gap-6 max-w-sm mx-auto mb-10">
+              <For each={otherPrizes()}>
+                {(otherPrize) => (
+                  <div class="text-left">
+                    <p class="text-caption font-sans uppercase tracking-eyebrow text-white/40 mb-1">
+                      {otherPrize.label}
+                    </p>
+                    <p class="text-sm-copy font-medium text-white/80">
+                      {otherPrize.title}
+                    </p>
+                  </div>
+                )}
+              </For>
+            </div>
 
-        <Link
-          to="/info/prizes"
-          class="text-sm-copy font-medium text-white/60 hover:text-white transition-colors"
-        >
-          Se alle præmier →
-        </Link>
-      </div>
-    </section>
+            <Link
+              to="/info/prizes"
+              class="text-sm-copy font-medium text-white/60 hover:text-white transition-colors"
+            >
+              Se alle præmier →
+            </Link>
+          </div>
+        </section>
       )}
     </Show>
   )
