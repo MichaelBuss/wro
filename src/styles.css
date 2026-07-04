@@ -283,22 +283,60 @@
   }
 }
 
-/* Popover reset - minimal, let Tailwind handle the rest */
-[popover] {
-  border: none;
-  padding: 0;
-  margin: 0;
-  color: inherit;
+/* Enter/exit animations for Kobalte overlays.
+ * Kobalte's presence keys on `animation-name`, so these must be keyframe
+ * animations (not transitions) for exit animations to run before unmount. */
+@keyframes kb-popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
-
-/* Dialog reset - styles handled via Tailwind's backdrop: variant */
-dialog {
-  border: none;
-  padding: 0;
-  max-width: none;
-  max-height: none;
-  background: transparent;
-  color: inherit;
+@keyframes kb-popover-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+@keyframes kb-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes kb-drawer-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes kb-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes kb-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 /* WRO logo mark — base figure colouring.
@@ -448,17 +486,4 @@ dialog {
     height: auto;
     object-fit: initial;
   }
-}
-
-/* CSS Anchor Positioning for the nav info dropdown.
-   Extracted from NavDropdown.tsx to avoid Solid style-prop lint restriction. */
-.nav-info-trigger {
-  anchor-name: --nav-info;
-}
-.nav-info-popover {
-  position-anchor: --nav-info;
-  inset: unset;
-  top: anchor(bottom);
-  left: anchor(center);
-  translate: -50% 0.5rem;
 }
