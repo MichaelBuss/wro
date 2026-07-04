@@ -1,6 +1,6 @@
 ---
 name: Authentication (Passkeys-Only)
-status: proposed
+status: implemented
 authors:
   - Michael
 created: 2026-07-04
@@ -17,7 +17,7 @@ overview: >
 
 # Authentication (Passkeys-Only)
 
-> **Status**: Proposed (July 2026). Not yet implemented.
+> **Status**: Implemented (July 2026).
 
 ## Table of Contents
 

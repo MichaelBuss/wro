@@ -1,6 +1,6 @@
 ---
 name: Data Persistence (Postgres + Drizzle)
-status: proposed
+status: implemented
 authors:
   - Michael
 created: 2026-07-04
@@ -19,7 +19,7 @@ overview: >
 
 # Data Persistence (Postgres + Drizzle)
 
-> **Status**: Proposed (July 2026). Not yet implemented.
+> **Status**: Implemented (July 2026).
 
 ## Table of Contents
 

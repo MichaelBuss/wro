@@ -1,157 +1,100 @@
-# Getting Started
+# WRO Denmark
 
-To run this application:
+Website for WRO Denmark — team registrations, competition management, and public content.
+
+Built with Solid.js, TanStack Start, Tailwind CSS v4, Better Auth (passkeys), Drizzle ORM, and Postgres.
+
+## Prerequisites
+
+- **Node.js** (see `.nvmrc` or `engines` in `package.json`)
+- **Docker** (for local Postgres)
+
+## Local Setup
 
 ```bash
+# 1. Install dependencies
 npm install
-npm run start
+
+# 2. Create your local env file
+cp .env.example .env
 ```
 
-# Building For Production
-
-To build this application for production:
+Open `.env` and set `ORGANIZER_EMAIL_ALLOWLIST` to your email address **before** you
+sign up — this is how you get the organizer role (see [Bootstrapping an organizer](#bootstrapping-an-organizer)).
 
 ```bash
-npm run build
+# 3. Start local Postgres
+docker compose up -d
+
+# 4. Run database migrations
+npm run db:migrate
+
+# 5. Start the dev server
+npm run dev
 ```
 
-## Styling
+The app runs at <http://localhost:3000>.
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+## Environment Variables
 
-## Solid-UI
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | Postgres connection string |
+| `BETTER_AUTH_SECRET` | Yes (prod) | Secret used by Better Auth to sign sessions. Generate with `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | No | Public origin the app runs on (default: `http://localhost:3000`) |
+| `PASSKEY_RP_ID` | No | WebAuthn relying-party id — host only, no protocol or port (default: `localhost`) |
+| `ORGANIZER_EMAIL_ALLOWLIST` | No | Comma-separated emails auto-granted the organizer role on first signup |
 
-This installation of Solid-UI follows the manual instructions but was modified to work with Tailwind V4.
+## Bootstrapping an Organizer
 
-To install the components, run the following command (this install button):
+The first organizer account is bootstrapped via `ORGANIZER_EMAIL_ALLOWLIST`. When an
+account signs up with an allowlisted email, it is automatically granted the organizer role.
 
-```bash
-npx solidui-cli@latest add button
+**Before you sign up**, add your email to `.env`:
+
+```
+ORGANIZER_EMAIL_ALLOWLIST=you@example.com
 ```
 
-## T3Env
+Then sign up at `/signup` using that email. If you already have an account and need to
+grant it the organizer role retroactively, update the database directly:
 
-- You can use T3Env to add type safety to your environment variables.
-- Add Environment variables to the `src/env.mjs` file.
-- Use the environment variables in your code.
-
-### Usage
-
-```ts
-import { env } from '@/env'
-
-console.log(env.VITE_APP_TITLE)
+```sql
+UPDATE "user" SET role = 'organizer' WHERE email = 'you@example.com';
 ```
 
-## Routing
+See [`docs/architecture/authentication.md`](docs/architecture/authentication.md) for the full
+rationale behind the passkey-only auth and env-allowlist approach.
 
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+## Scripts
 
-### Adding A Route
+| Script | Description |
+|---|---|
+| `npm run dev` | Start dev server on port 3000 |
+| `npm run build` | Production build |
+| `npm run typecheck` | Type-check with tsgo |
+| `npm run lint` | ESLint + content validation |
+| `npm run format` | Prettier |
+| `npm test` | Run Vitest test suite |
+| `npm run db:generate` | Generate Drizzle migration files from schema changes |
+| `npm run db:migrate` | Apply pending migrations |
+| `npm run db:push` | Push schema directly (dev only) |
+| `npm run images:optimize` | Optimise images to WebP for `public/uploads/` |
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+## Architecture
 
-TanStack will automatically generate the content of the route file for you.
+The `docs/architecture/` directory has decision records for each major design area:
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+- [`authentication.md`](docs/architecture/authentication.md) — passkeys-only via Better Auth, organizer bootstrapping
+- [`data-persistence.md`](docs/architecture/data-persistence.md) — Postgres + Drizzle, local-first build order
+- [`team-registration.md`](docs/architecture/team-registration.md) — domain model, registration lifecycle, GDPR
+- [`routing-and-data-loading.md`](docs/architecture/routing-and-data-loading.md) — TanStack Router, SSR, prerender exclusions
+- [`tech-stack-and-framework.md`](docs/architecture/tech-stack-and-framework.md) — why Solid.js / TanStack Start
+- [`styling-and-theming.md`](docs/architecture/styling-and-theming.md) — Tailwind v4, CVA, Kobalte
+- [`cms-content-layer.md`](docs/architecture/cms-content-layer.md) — Markdown + Sveltia CMS at `/admin`
+- [`image-pipeline.md`](docs/architecture/image-pipeline.md) — WebP optimisation, single source of truth
+- [`component-and-ui-system.md`](docs/architecture/component-and-ui-system.md) — component conventions
+- [`build-and-deployment.md`](docs/architecture/build-and-deployment.md) — Netlify, environment setup
+- [`developer-experience-and-tooling.md`](docs/architecture/developer-experience-and-tooling.md) — tooling choices
 
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/solid-router`.
-
-```tsx
-import { Link } from '@tanstack/solid-router'
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/solid/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/solid-router'
-import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
-
-import { Link } from '@tanstack/solid-router'
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/solid/guide/routing-concepts#layouts).
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/people',
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json() as Promise<{
-      results: {
-        name: string
-      }[]
-    }>
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData()
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    )
-  },
-})
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/solid/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-## Linting & Formatting
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
-npm run lint
-npm run format
-npm run check
-```
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+The canonical domain vocabulary (Account, Team, Event, Category, etc.) is in [`CONTEXT.md`](CONTEXT.md).

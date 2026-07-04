@@ -1,6 +1,6 @@
 ---
 name: Team Registration & Accounts
-status: proposed
+status: implemented
 authors:
   - Michael
 created: 2026-07-04
@@ -18,7 +18,7 @@ overview: >
 
 # Team Registration & Accounts
 
-> **Status**: Proposed (July 2026). Nothing built yet; this captures the agreed shape before implementation.
+> **Status**: Implemented (July 2026).
 
 ## Table of Contents
 
