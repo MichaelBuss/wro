@@ -23,15 +23,32 @@ Open `.env` and set `ORGANIZER_EMAIL_ALLOWLIST` to your email address **before**
 sign up — this is how you get the organizer role (see [Bootstrapping an organizer](#bootstrapping-an-organizer)).
 
 ```bash
-# 3. Start local Postgres
-docker compose up -d
+# 3. Start Postgres and run migrations (steps 3–4 in one go)
+npm run setup
 
-# 4. Run database migrations
-npm run db:migrate
-
-# 5. Start the dev server
+# 4. Start the dev server
 npm run dev
 ```
+
+`npm run setup` is idempotent — safe to re-run at any time. It copies `.env.example` if
+`.env` doesn't exist yet, starts the Docker Postgres container, waits for it to be healthy,
+then applies any pending migrations.
+
+<details>
+<summary>Manual equivalent (if you prefer step-by-step)</summary>
+
+```bash
+docker compose up -d
+npm run db:migrate
+```
+
+> **OrbStack users:** OrbStack injects its own `DATABASE_URL` into your shell environment, which drizzle-kit will pick up when run directly. Prefix the command with the correct URL to override it:
+>
+> ```bash
+> DATABASE_URL=postgres://wro:wro@localhost:5432/wro npm run db:migrate
+> ```
+
+</details>
 
 The app runs at <http://localhost:3000>.
 
@@ -70,6 +87,7 @@ rationale behind the passkey-only auth and env-allowlist approach.
 
 | Script | Description |
 |---|---|
+| `npm run setup` | First-time setup: start Postgres + run migrations |
 | `npm run dev` | Start dev server on port 3000 |
 | `npm run build` | Production build |
 | `npm run typecheck` | Type-check with tsgo |
