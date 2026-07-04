@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 import type { Database } from './client'
 import { passkey, session, user } from './schema'
-import type { UserRow } from './schema'
+import type { UserRole, UserRow } from './schema'
 
 /**
  * Data-layer accessors for Accounts, their passkeys, and their sessions.
@@ -14,6 +14,7 @@ import type { UserRow } from './schema'
 export interface NewAccount {
   email: string
   name: string
+  role?: UserRole
 }
 
 export async function createAccount(db: Database, input: NewAccount) {
@@ -25,6 +26,7 @@ export async function createAccount(db: Database, input: NewAccount) {
       email: input.email,
       name: input.name,
       emailVerified: false,
+      role: input.role ?? 'coach',
       createdAt: now,
       updatedAt: now,
     })

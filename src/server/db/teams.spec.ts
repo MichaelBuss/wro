@@ -5,17 +5,23 @@ import { category, event, team, teamMembership } from './schema'
 import { seedBaselineEvent } from './seed'
 import {
   addParticipant,
+  confirmTeam,
   createTeam,
   getTeamWithDetails,
   listAllCategories,
+  listAllTeamsForOrganizer,
   listTeamsByAccount,
   removeParticipant,
   renameTeam,
+  returnTeamToDraft,
+  setPaymentStatus,
   setTeamCategory,
   submitTeam,
   updateParticipant,
   updateTeamDetails,
+  waitlistTeam,
   withdrawTeam,
+  withdrawTeamAsOrganizer,
 } from './teams'
 import { createTestDb } from './testing'
 
@@ -621,6 +627,281 @@ describe('teams data layer', () => {
       expect(events).toHaveLength(1)
       // The seed inserts 6 categories; running twice should not double them.
       expect(categories).toHaveLength(6)
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // Issue 005 — Organizer review actions + payment status
+  // ---------------------------------------------------------------------------
+
+  describe('organizer status transitions', () => {
+    it('organizer can confirm a Submitted team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+
+      // Act
+      const confirmed = await confirmTeam(db, t.id)
+
+      // Assert
+      expect(confirmed.status).toBe('confirmed')
+    })
+
+    it('organizer can confirm a Waitlisted team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await waitlistTeam(db, t.id)
+
+      // Act
+      const confirmed = await confirmTeam(db, t.id)
+
+      // Assert
+      expect(confirmed.status).toBe('confirmed')
+    })
+
+    it('rejects confirm on a Draft team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { team: t } = await setupCoachAndTeam(db)
+
+      // Act / Assert
+      await expect(confirmTeam(db, t.id)).rejects.toThrow(
+        'cannot confirm a team in status "draft"',
+      )
+    })
+
+    it('organizer can waitlist a Submitted team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+
+      // Act
+      const waitlisted = await waitlistTeam(db, t.id)
+
+      // Assert
+      expect(waitlisted.status).toBe('waitlisted')
+    })
+
+    it('organizer can waitlist a Confirmed team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await confirmTeam(db, t.id)
+
+      // Act
+      const waitlisted = await waitlistTeam(db, t.id)
+
+      // Assert
+      expect(waitlisted.status).toBe('waitlisted')
+    })
+
+    it('rejects waitlist on a Draft team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { team: t } = await setupCoachAndTeam(db)
+
+      // Act / Assert
+      await expect(waitlistTeam(db, t.id)).rejects.toThrow(
+        'cannot waitlist a team in status "draft"',
+      )
+    })
+
+    it('organizer can return a Submitted team to Draft', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+
+      // Act
+      const returned = await returnTeamToDraft(db, t.id)
+
+      // Assert
+      expect(returned.status).toBe('draft')
+    })
+
+    it('organizer can return a Confirmed team to Draft', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await confirmTeam(db, t.id)
+
+      // Act
+      const returned = await returnTeamToDraft(db, t.id)
+
+      // Assert
+      expect(returned.status).toBe('draft')
+    })
+
+    it('organizer can return a Waitlisted team to Draft', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await waitlistTeam(db, t.id)
+
+      // Act
+      const returned = await returnTeamToDraft(db, t.id)
+
+      // Assert
+      expect(returned.status).toBe('draft')
+    })
+
+    it('rejects return-to-draft on a Draft team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { team: t } = await setupCoachAndTeam(db)
+
+      // Act / Assert
+      await expect(returnTeamToDraft(db, t.id)).rejects.toThrow(
+        'cannot return a team in status "draft" to draft',
+      )
+    })
+
+    it('organizer can withdraw any non-withdrawn team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await confirmTeam(db, t.id)
+
+      // Act
+      const withdrawn = await withdrawTeamAsOrganizer(db, t.id)
+
+      // Assert
+      expect(withdrawn.status).toBe('withdrawn')
+    })
+
+    it('rejects organizer withdraw on an already-withdrawn team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await withdrawTeam(db, t.id, coach.id)
+
+      // Act / Assert
+      await expect(withdrawTeamAsOrganizer(db, t.id)).rejects.toThrow(
+        'cannot withdraw a team in status "withdrawn"',
+      )
+    })
+
+    it('organizer status changes are visible to the coach via listTeamsByAccount', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+
+      // Act — organizer confirms
+      await confirmTeam(db, t.id)
+
+      // Assert — coach can see the updated status
+      const coachTeams = await listTeamsByAccount(db, coach.id)
+      expect(coachTeams[0]?.status).toBe('confirmed')
+    })
+  })
+
+  describe('payment status', () => {
+    it('new team defaults to unpaid payment status', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { team: t } = await setupCoachAndTeam(db)
+
+      // Assert
+      expect(t.paymentStatus).toBe('unpaid')
+    })
+
+    it('organizer can set payment status to paid independently of registration status', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { team: t } = await setupCoachAndTeam(db)
+
+      // Act — set paid while still in draft
+      const updated = await setPaymentStatus(db, t.id, 'paid')
+
+      // Assert — payment updated, registration status unchanged
+      expect(updated.paymentStatus).toBe('paid')
+      expect(updated.status).toBe('draft')
+    })
+
+    it('organizer can set payment status to waived', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await confirmTeam(db, t.id)
+
+      // Act
+      const updated = await setPaymentStatus(db, t.id, 'waived')
+
+      // Assert — payment waived, registration still confirmed
+      expect(updated.paymentStatus).toBe('waived')
+      expect(updated.status).toBe('confirmed')
+    })
+
+    it('payment status changes are independent of registration status changes', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await setPaymentStatus(db, t.id, 'paid')
+
+      // Act — registration status changes should not reset payment
+      const confirmed = await confirmTeam(db, t.id)
+
+      // Assert
+      expect(confirmed.paymentStatus).toBe('paid')
+      expect(confirmed.status).toBe('confirmed')
+    })
+  })
+
+  describe('listAllTeamsForOrganizer', () => {
+    it('returns all teams regardless of owning account', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const coachA = await createAccount(db, {
+        email: 'coach-a@example.com',
+        name: 'Coach A',
+      })
+      const coachB = await createAccount(db, {
+        email: 'coach-b@example.com',
+        name: 'Coach B',
+      })
+      await createTeam(db, { name: "Coach A's Team", userId: coachA.id })
+      await createTeam(db, { name: "Coach B's Team", userId: coachB.id })
+
+      // Act
+      const all = await listAllTeamsForOrganizer(db)
+
+      // Assert — organizer sees both teams
+      expect(all).toHaveLength(2)
+      const names = all.map((e) => e.team.name).sort()
+      expect(names).toEqual(["Coach A's Team", "Coach B's Team"])
+    })
+
+    it('includes category and participants for each team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      const { categories } = await seedBaselineEvent(db)
+      await setTeamCategory(db, t.id, coach.id, categories[0].id)
+      await addParticipant(db, t.id, coach.id, {
+        name: 'Alice',
+        birthYear: 2013,
+      })
+
+      // Act
+      const all = await listAllTeamsForOrganizer(db)
+
+      // Assert
+      expect(all).toHaveLength(1)
+      const entry = all[0]
+      expect(entry.category?.id).toBe(categories[0]?.id)
+      expect(entry.participants).toHaveLength(1)
     })
   })
 })

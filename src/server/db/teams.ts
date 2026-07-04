@@ -5,6 +5,7 @@ import type {
   CategoryRow,
   EventRow,
   ParticipantRow,
+  PaymentStatus,
   RegistrationStatus,
   TeamRow,
 } from './schema'
@@ -450,4 +451,167 @@ export async function listAllCategories(
     .innerJoin(event, eq(category.eventId, event.id))
 
   return rows
+}
+
+// ---------------------------------------------------------------------------
+// Organizer actions — no membership check; role enforcement is at the server
+// function layer (see lib/organizer-functions.ts).
+// ---------------------------------------------------------------------------
+
+export interface TeamForOrganizer {
+  team: TeamRow
+  category: CategoryRow | null
+  participants: Array<ParticipantRow>
+}
+
+export async function listAllTeamsForOrganizer(
+  db: Database,
+): Promise<Array<TeamForOrganizer>> {
+  const teams = await db.select().from(team)
+  const result: Array<TeamForOrganizer> = []
+
+  for (const t of teams) {
+    const participants = await db
+      .select()
+      .from(participant)
+      .where(eq(participant.teamId, t.id))
+
+    const cat = t.categoryId
+      ? ((
+          await db
+            .select()
+            .from(category)
+            .where(eq(category.id, t.categoryId))
+            .limit(1)
+        )[0] ?? null)
+      : null
+
+    result.push({ team: t, category: cat, participants })
+  }
+
+  return result
+}
+
+/** Valid source statuses for an organizer's confirm action. */
+const ORGANIZER_CONFIRMABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
+  'submitted',
+  'waitlisted',
+]
+
+export async function confirmTeam(
+  db: Database,
+  teamId: string,
+): Promise<TeamRow> {
+  const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
+  if (!rows[0]) throw new Error('confirmTeam: team not found')
+  if (!ORGANIZER_CONFIRMABLE_STATUSES.includes(rows[0].status)) {
+    throw new Error(
+      `confirmTeam: cannot confirm a team in status "${rows[0].status}"`,
+    )
+  }
+  const updated = await db
+    .update(team)
+    .set({ status: 'confirmed', updatedAt: new Date() })
+    .where(eq(team.id, teamId))
+    .returning()
+  if (!updated[0]) throw new Error('confirmTeam: UPDATE returned no rows')
+  return updated[0]
+}
+
+/** Valid source statuses for an organizer's waitlist action. */
+const ORGANIZER_WAITLISTABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
+  'submitted',
+  'confirmed',
+]
+
+export async function waitlistTeam(
+  db: Database,
+  teamId: string,
+): Promise<TeamRow> {
+  const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
+  if (!rows[0]) throw new Error('waitlistTeam: team not found')
+  if (!ORGANIZER_WAITLISTABLE_STATUSES.includes(rows[0].status)) {
+    throw new Error(
+      `waitlistTeam: cannot waitlist a team in status "${rows[0].status}"`,
+    )
+  }
+  const updated = await db
+    .update(team)
+    .set({ status: 'waitlisted', updatedAt: new Date() })
+    .where(eq(team.id, teamId))
+    .returning()
+  if (!updated[0]) throw new Error('waitlistTeam: UPDATE returned no rows')
+  return updated[0]
+}
+
+/** Valid source statuses for an organizer's return-to-draft action. */
+const ORGANIZER_RETURNABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
+  'submitted',
+  'confirmed',
+  'waitlisted',
+]
+
+export async function returnTeamToDraft(
+  db: Database,
+  teamId: string,
+): Promise<TeamRow> {
+  const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
+  if (!rows[0]) throw new Error('returnTeamToDraft: team not found')
+  if (!ORGANIZER_RETURNABLE_STATUSES.includes(rows[0].status)) {
+    throw new Error(
+      `returnTeamToDraft: cannot return a team in status "${rows[0].status}" to draft`,
+    )
+  }
+  const updated = await db
+    .update(team)
+    .set({ status: 'draft', updatedAt: new Date() })
+    .where(eq(team.id, teamId))
+    .returning()
+  if (!updated[0]) throw new Error('returnTeamToDraft: UPDATE returned no rows')
+  return updated[0]
+}
+
+/** Valid source statuses for an organizer's withdraw action. */
+const ORGANIZER_WITHDRAWABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
+  'submitted',
+  'confirmed',
+  'waitlisted',
+  'draft',
+]
+
+export async function withdrawTeamAsOrganizer(
+  db: Database,
+  teamId: string,
+): Promise<TeamRow> {
+  const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
+  if (!rows[0]) throw new Error('withdrawTeamAsOrganizer: team not found')
+  if (!ORGANIZER_WITHDRAWABLE_STATUSES.includes(rows[0].status)) {
+    throw new Error(
+      `withdrawTeamAsOrganizer: cannot withdraw a team in status "${rows[0].status}"`,
+    )
+  }
+  const updated = await db
+    .update(team)
+    .set({ status: 'withdrawn', updatedAt: new Date() })
+    .where(eq(team.id, teamId))
+    .returning()
+  if (!updated[0])
+    throw new Error('withdrawTeamAsOrganizer: UPDATE returned no rows')
+  return updated[0]
+}
+
+export async function setPaymentStatus(
+  db: Database,
+  teamId: string,
+  status: PaymentStatus,
+): Promise<TeamRow> {
+  const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
+  if (!rows[0]) throw new Error('setPaymentStatus: team not found')
+  const updated = await db
+    .update(team)
+    .set({ paymentStatus: status, updatedAt: new Date() })
+    .where(eq(team.id, teamId))
+    .returning()
+  if (!updated[0]) throw new Error('setPaymentStatus: UPDATE returned no rows')
+  return updated[0]
 }

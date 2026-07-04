@@ -10,11 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as OrganizerRouteImport } from './routes/organizer'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GalleriRouteImport } from './routes/galleri'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as OrganizerRegistrationsRouteImport } from './routes/organizer_.registrations'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
 import { Route as InfoResourcesRouteImport } from './routes/info.resources'
 import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
@@ -32,6 +34,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerRoute = OrganizerRouteImport.update({
+  id: '/organizer',
+  path: '/organizer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -57,6 +64,11 @@ const IndexRoute = IndexRouteImport.update({
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerRegistrationsRoute = OrganizerRegistrationsRouteImport.update({
+  id: '/organizer_/registrations',
+  path: '/organizer/registrations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InfoTipsRoute = InfoTipsRouteImport.update({
@@ -130,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRouteWithChildren
   '/login': typeof LoginRoute
+  '/organizer': typeof OrganizerRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
@@ -142,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/info/prizes': typeof InfoPrizesRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
+  '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -151,6 +165,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRouteWithChildren
   '/login': typeof LoginRoute
+  '/organizer': typeof OrganizerRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
@@ -163,6 +178,7 @@ export interface FileRoutesByTo {
   '/info/prizes': typeof InfoPrizesRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
+  '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -173,6 +189,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRouteWithChildren
   '/login': typeof LoginRoute
+  '/organizer': typeof OrganizerRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard_/$teamId': typeof DashboardTeamIdRoute
@@ -185,6 +202,7 @@ export interface FileRoutesById {
   '/info/prizes': typeof InfoPrizesRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
+  '/organizer_/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
@@ -196,6 +214,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/galleri'
     | '/login'
+    | '/organizer'
     | '/signup'
     | '/blog/$slug'
     | '/dashboard/$teamId'
@@ -208,6 +227,7 @@ export interface FileRouteTypes {
     | '/info/prizes'
     | '/info/resources'
     | '/info/tips'
+    | '/organizer/registrations'
     | '/blog/'
     | '/api/auth/$'
     | '/demo/start/server-funcs'
@@ -217,6 +237,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/galleri'
     | '/login'
+    | '/organizer'
     | '/signup'
     | '/blog/$slug'
     | '/dashboard/$teamId'
@@ -229,6 +250,7 @@ export interface FileRouteTypes {
     | '/info/prizes'
     | '/info/resources'
     | '/info/tips'
+    | '/organizer/registrations'
     | '/blog'
     | '/api/auth/$'
     | '/demo/start/server-funcs'
@@ -238,6 +260,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/galleri'
     | '/login'
+    | '/organizer'
     | '/signup'
     | '/blog/$slug'
     | '/dashboard_/$teamId'
@@ -250,6 +273,7 @@ export interface FileRouteTypes {
     | '/info/prizes'
     | '/info/resources'
     | '/info/tips'
+    | '/organizer_/registrations'
     | '/blog/'
     | '/api/auth/$'
     | '/demo/start/server-funcs'
@@ -260,6 +284,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   GalleriRoute: typeof GalleriRouteWithChildren
   LoginRoute: typeof LoginRoute
+  OrganizerRoute: typeof OrganizerRoute
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DashboardTeamIdRoute: typeof DashboardTeamIdRoute
@@ -271,6 +296,7 @@ export interface RootRouteChildren {
   InfoPrizesRoute: typeof InfoPrizesRoute
   InfoResourcesRoute: typeof InfoResourcesRoute
   InfoTipsRoute: typeof InfoTipsRoute
+  OrganizerRegistrationsRoute: typeof OrganizerRegistrationsRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
@@ -283,6 +309,13 @@ declare module '@tanstack/solid-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer': {
+      id: '/organizer'
+      path: '/organizer'
+      fullPath: '/organizer'
+      preLoaderRoute: typeof OrganizerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -318,6 +351,13 @@ declare module '@tanstack/solid-router' {
       path: '/blog'
       fullPath: '/blog/'
       preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer_/registrations': {
+      id: '/organizer_/registrations'
+      path: '/organizer/registrations'
+      fullPath: '/organizer/registrations'
+      preLoaderRoute: typeof OrganizerRegistrationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/info/tips': {
@@ -430,6 +470,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   GalleriRoute: GalleriRouteWithChildren,
   LoginRoute: LoginRoute,
+  OrganizerRoute: OrganizerRoute,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DashboardTeamIdRoute: DashboardTeamIdRoute,
@@ -441,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfoPrizesRoute: InfoPrizesRoute,
   InfoResourcesRoute: InfoResourcesRoute,
   InfoTipsRoute: InfoTipsRoute,
+  OrganizerRegistrationsRoute: OrganizerRegistrationsRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,

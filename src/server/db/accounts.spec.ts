@@ -143,4 +143,53 @@ describe('auth data layer', () => {
     // Assert
     expect(resolved).toBeNull()
   })
+
+  // ---------------------------------------------------------------------------
+  // Issue 005 — Organizer role assignment
+  // ---------------------------------------------------------------------------
+
+  describe('organizer role assignment', () => {
+    it('defaults a new Account to the coach role', async () => {
+      // Arrange
+      const db = await createTestDb()
+
+      // Act
+      const acc = await createAccount(db, {
+        email: 'coach@example.com',
+        name: 'Coach Nova',
+      })
+
+      // Assert
+      expect(acc.role).toBe('coach')
+    })
+
+    it('creates an Account with the organizer role when explicitly passed', async () => {
+      // Arrange
+      const db = await createTestDb()
+
+      // Act
+      const acc = await createAccount(db, {
+        email: 'admin@wro.dk',
+        name: 'Organizer',
+        role: 'organizer',
+      })
+
+      // Assert
+      expect(acc.role).toBe('organizer')
+    })
+
+    it('non-allowlisted email receives coach role', async () => {
+      // Arrange
+      const db = await createTestDb()
+
+      // Act
+      const acc = await createAccount(db, {
+        email: 'random@example.com',
+        name: 'Random Person',
+      })
+
+      // Assert — default role is coach
+      expect(acc.role).toBe('coach')
+    })
+  })
 })

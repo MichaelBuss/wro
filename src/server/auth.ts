@@ -17,14 +17,31 @@ const registrationContextSchema = z.object({
   name: z.string().min(1),
 })
 
+/**
+ * Parse ORGANIZER_EMAIL_ALLOWLIST into a Set of lower-cased emails.
+ * Empty string / undefined → empty Set (no one gets the organizer role by env).
+ */
+function parseAllowlist(raw: string | undefined): ReadonlySet<string> {
+  if (!raw) return new Set()
+  return new Set(
+    raw
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean),
+  )
+}
+
 function buildAuth(
   db: Awaited<ReturnType<typeof getDb>>,
   env: {
     BETTER_AUTH_URL?: string
     BETTER_AUTH_SECRET?: string
     PASSKEY_RP_ID?: string
+    ORGANIZER_EMAIL_ALLOWLIST?: string
   },
 ) {
+  const organizerAllowlist = parseAllowlist(env.ORGANIZER_EMAIL_ALLOWLIST)
+
   return betterAuth({
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
@@ -45,7 +62,11 @@ function buildAuth(
               JSON.parse(context || '{}'),
             )
             const existing = await getAccountByEmail(db, email)
-            return existing ?? (await createAccount(db, { email, name }))
+            if (existing) return existing
+            const role = organizerAllowlist.has(email.toLowerCase())
+              ? 'organizer'
+              : 'coach'
+            return createAccount(db, { email, name, role })
           },
         },
       }),

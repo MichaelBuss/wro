@@ -42,12 +42,17 @@ export const category = pgTable('category', {
 // sessions hang off it. See docs/architecture/authentication.md.
 // ---------------------------------------------------------------------------
 
+export const userRoles = ['coach', 'organizer'] as const
+export type UserRole = (typeof userRoles)[number]
+
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  // Organizer role is bootstrapped via env email allowlist (see authentication ADR).
+  role: text('role').$type<UserRole>().notNull().default('coach'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
@@ -128,10 +133,18 @@ export const registrationStatuses = [
 ] as const
 export type RegistrationStatus = (typeof registrationStatuses)[number]
 
+export const paymentStatuses = ['unpaid', 'paid', 'waived'] as const
+export type PaymentStatus = (typeof paymentStatuses)[number]
+
 export const team = pgTable('team', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   status: text('status').$type<RegistrationStatus>().notNull().default('draft'),
+  // Payment flag is set by organizers independently of Registration Status.
+  paymentStatus: text('payment_status')
+    .$type<PaymentStatus>()
+    .notNull()
+    .default('unpaid'),
   // Detail fields — all nullable because teams start as name-only drafts.
   categoryId: text('category_id').references(() => category.id, {
     onDelete: 'set null',
