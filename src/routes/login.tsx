@@ -1,10 +1,21 @@
-import { createFileRoute, useNavigate } from '@tanstack/solid-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/solid-router'
 import { Show, createSignal } from 'solid-js'
 import { PageShell } from '~/components/layout'
 import { Button, Heading, Lead } from '~/components/ui'
 import { authClient } from '~/lib/auth-client'
+import { getSession } from '~/lib/auth-functions'
+import { decideLoginAccess } from '~/lib/login-access'
 
-export const Route = createFileRoute('/login')({ component: LoginPage })
+export const Route = createFileRoute('/login')({
+  beforeLoad: async () => {
+    const session = await getSession()
+    const access = decideLoginAccess(session)
+    if (access.type === 'redirect') {
+      throw redirect({ to: access.to })
+    }
+  },
+  component: LoginPage,
+})
 
 function LoginPage() {
   const navigate = useNavigate()

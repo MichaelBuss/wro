@@ -1,4 +1,5 @@
 export { MobileDrawer } from './MobileDrawer'
+export { NavAuthLink } from './NavAuthLink'
 export { NavDropdown } from './NavDropdown'
 export { ExternalLink, NavLink } from './NavLink'
 export { Logo, WroLogoMark } from './logo'

@@ -5,6 +5,7 @@ import type { ParentProps } from 'solid-js'
 import { For, createSignal } from 'solid-js'
 import { cva, cx } from '~/cva.config'
 import { INFO_TOPICS } from '~/data/info-topics'
+import { NavAuthLink } from './NavAuthLink'
 
 const mobileNavLink = cva({
   base: 'flex items-center gap-3 px-4 py-3 text-foreground/60 hover:text-foreground hover:bg-accent transition-colors rounded-lg mx-2',
@@ -108,13 +109,7 @@ export function MobileDrawer() {
           </nav>
 
           <div class="p-4 border-t border-border">
-            <Link
-              to="/signup"
-              onClick={close}
-              class="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-foreground/70 hover:text-foreground underline-offset-4 hover:underline transition-colors"
-            >
-              Tilmeld dig nu
-            </Link>
+            <NavAuthLink variant="drawer" onClick={close} />
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
