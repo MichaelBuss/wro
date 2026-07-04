@@ -15,6 +15,8 @@ import { cvaNavLink } from './NavLink'
  * across browsers.
  */
 export function NavDropdown() {
+  let contentRef: HTMLElement | undefined
+
   return (
     <PopoverPrimitive.Root placement="bottom" gutter={8}>
       <PopoverPrimitive.Trigger
@@ -29,6 +31,18 @@ export function NavDropdown() {
 
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
+          ref={contentRef}
+          // Direct the dialog's initial focus to the panel itself, not the
+          // first link. Kobalte otherwise focuses the first item on every
+          // open; once the session's :focus-visible modality has latched to
+          // "keyboard" (after any Tab/Escape), that paints a focus ring on the
+          // item every time it opens. Focusing the container keeps keyboard
+          // access intact — Tab still steps into the links (with a ring) and
+          // Escape returns to the trigger — without highlighting an item.
+          onOpenAutoFocus={(e) => {
+            e.preventDefault()
+            contentRef?.focus()
+          }}
           class={cx(
             'z-50 w-64 py-2 origin-top rounded-xl border border-border bg-card shadow-lg shadow-foreground/5',
             'focus:outline-none',
