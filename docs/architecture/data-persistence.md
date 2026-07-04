@@ -28,10 +28,11 @@ overview: >
 3. [Why Portable Postgres](#why-portable-postgres)
 4. [Two Distinct Data Planes](#two-distinct-data-planes)
 5. [Data Residency & GDPR](#data-residency--gdpr)
-6. [Build Order & Migration Path](#build-order--migration-path)
-7. [Fit With the Stack](#fit-with-the-stack)
-8. [Alternatives Considered](#alternatives-considered)
-9. [Revision History](#revision-history)
+6. [Backup & Recovery](#backup--recovery)
+7. [Build Order & Migration Path](#build-order--migration-path)
+8. [Fit With the Stack](#fit-with-the-stack)
+9. [Alternatives Considered](#alternatives-considered)
+10. [Revision History](#revision-history)
 
 ## Problem / Context
 
@@ -95,6 +96,46 @@ These do not mix. The content pipeline is unchanged; Postgres is additive.
   relational model makes "everything belonging to this Account" a clean,
   cascade-friendly query.
 
+## Backup & Recovery
+
+Backups matter here because the database holds registrations **and minors' PII**.
+The strategy is phased.
+
+**Local-first build (now):** no backups needed. The schema lives in **committed
+Drizzle migrations** (the effective schema backup) and local rows are disposable
+seed/test data.
+
+**Production (after the cloudnet.dk move):** the concrete mechanism depends on
+what the host provides.
+
+- **If cloudnet.dk offers managed Postgres:** rely on its **automated backups +
+  point-in-time recovery**, but verify retention and that we can actually trigger
+  a restore ourselves.
+- **If we self-host Postgres there:** we own backups. Baseline for this small,
+  low-churn dataset:
+  - **Automated daily `pg_dump`** to **encrypted, off-box storage in the EU**
+    (never only on the DB host).
+  - **~30-day rolling retention.**
+  - **Periodic test-restores** into a scratch database — an untested backup is not
+    a backup.
+  - **WAL archiving / PITR** only if a ~24h loss window ever becomes unacceptable;
+    daily dumps are expected to suffice.
+
+**Targets (owner's decision, revisit as stakes change):** **RPO ≈ 24h, RTO ≈ a
+few hours.** Registration-deadline week may warrant temporarily tighter RPO.
+
+**GDPR interaction with backups:** backups contain PII, so they are **encrypted,
+access-controlled, and retention-limited**, and belong in the data-retention
+note. Erasure (see [Team Registration → Data Rights](team-registration.md#data-rights-gdpr))
+removes data from the **live** database but **not** from historical backups;
+backups age out on the retention schedule and are **not** mined to re-inject
+erased individuals except in a genuine disaster restore. This is a deliberate,
+standard trade-off, stated so it is a decision rather than an accident.
+
+Implementation is tracked in issue
+[`docs/issues/010-production-backups-and-restore-drill.md`](../issues/010-production-backups-and-restore-drill.md),
+deferred until the cloudnet.dk hosting shape is known.
+
 ## Build Order & Migration Path
 
 The registration feature is **not yet live** and will go live only **after** the
@@ -144,3 +185,5 @@ sign-up is a non-starter, and the serverless function has no durable disk.
 - **2026-07-04** (Michael): Initial proposal for host-agnostic Postgres + Drizzle,
   separate from the content layer, with a local-first build order and a
   cloudnet.dk migration path.
+- **2026-07-04** (Michael): Added Backup & Recovery section (phased strategy,
+  RPO/RTO targets, GDPR/backup interaction); tracked in issue 010.

@@ -81,10 +81,45 @@ export const passkey = pgTable('passkey', {
   aaguid: text('aaguid'),
 })
 
+// ---------------------------------------------------------------------------
+// Team registration schema. A Team is owned via a membership relationship so
+// one Account can manage multiple Teams and a second coach can be added later
+// (invite flow) with no migration. See docs/architecture/team-registration.md.
+// ---------------------------------------------------------------------------
+
+export const registrationStatuses = [
+  'draft',
+  'submitted',
+  'confirmed',
+  'waitlisted',
+  'withdrawn',
+] as const
+export type RegistrationStatus = (typeof registrationStatuses)[number]
+
+export const team = pgTable('team', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  status: text('status').$type<RegistrationStatus>().notNull().default('draft'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const teamMembership = pgTable('team_membership', {
+  id: text('id').primaryKey(),
+  teamId: text('team_id')
+    .notNull()
+    .references(() => team.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
   passkeys: many(passkey),
+  memberships: many(teamMembership),
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -99,7 +134,25 @@ export const passkeyRelations = relations(passkey, ({ one }) => ({
   user: one(user, { fields: [passkey.userId], references: [user.id] }),
 }))
 
+export const teamRelations = relations(team, ({ many }) => ({
+  memberships: many(teamMembership),
+}))
+
+export const teamMembershipRelations = relations(teamMembership, ({ one }) => ({
+  team: one(team, {
+    fields: [teamMembership.teamId],
+    references: [team.id],
+  }),
+  user: one(user, {
+    fields: [teamMembership.userId],
+    references: [user.id],
+  }),
+}))
+
 export type UserRow = typeof user.$inferSelect
 export type NewUserRow = typeof user.$inferInsert
 export type SessionRow = typeof session.$inferSelect
 export type PasskeyRow = typeof passkey.$inferSelect
+export type TeamRow = typeof team.$inferSelect
+export type NewTeamRow = typeof team.$inferInsert
+export type TeamMembershipRow = typeof teamMembership.$inferSelect
