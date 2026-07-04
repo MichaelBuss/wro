@@ -5,6 +5,7 @@ import { Button, Heading, Lead } from '~/components/ui'
 import { authClient } from '~/lib/auth-client'
 import { getSession } from '~/lib/auth-functions'
 import { decideLoginAccess } from '~/lib/login-access'
+import { usePasskeyAutofill } from '~/lib/use-passkey-autofill'
 
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
@@ -62,6 +63,14 @@ function LoginPage() {
       },
     })
   }
+
+  usePasskeyAutofill({
+    onSuccess: async () => {
+      setBusy(false)
+      await navigate({ to: '/dashboard' })
+    },
+    onError: setError,
+  })
 
   return (
     <PageShell size="sm">
