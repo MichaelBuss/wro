@@ -3,14 +3,14 @@
   "hooks": {
     "beforeShellExecution": [
       {
-        "command": "node .cursor/hooks/protect-branches.cjs",
+        "command": "node .cursor/hooks/protect-branches.js",
         "failClosed": true,
         "matcher": "\\bgit\\b|\\bgh\\b"
       }
     ],
     "afterFileEdit": [
       {
-        "command": "node .cursor/hooks/format-file.cjs"
+        "command": "node .cursor/hooks/format-file.js"
       }
     ]
   }

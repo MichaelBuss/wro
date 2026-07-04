@@ -1,7 +1,8 @@
+import * as DialogPrimitive from '@kobalte/core/dialog'
 import { Link } from '@tanstack/solid-router'
-import { BookOpen, Home, X } from 'lucide-solid'
+import { BookOpen, Home, Menu, X } from 'lucide-solid'
 import type { ParentProps } from 'solid-js'
-import { For, onMount } from 'solid-js'
+import { For, createSignal } from 'solid-js'
 import { cva, cx } from '~/cva.config'
 import { INFO_TOPICS } from '~/data/info-topics'
 
@@ -16,143 +17,108 @@ const mobileNavLink = cva({
   defaultVariants: { active: false },
 })
 
-const panelClasses = [
-  'ml-auto',
-  'h-full',
-  'w-[min(85vw,320px)]',
-  'bg-background',
-  'border-l',
-  'border-border',
-  'shadow-xl',
-  'shadow-foreground/5',
-  'flex',
-  'flex-col',
-  'translate-x-0',
-  'transition-transform',
-  'duration-300',
-  'ease-[cubic-bezier(0.32,0.72,0,1)]',
-  'starting:translate-x-full',
-]
-
-const dialogClasses = [
-  'fixed',
-  'inset-0',
-  'm-0',
-  'p-0',
-  'w-full',
-  'h-full',
-  'max-w-none',
-  'max-h-none',
-  'bg-transparent',
-  'backdrop:bg-black/25',
-  'backdrop:backdrop-blur-sm',
-  'backdrop:transition-all',
-  'backdrop:duration-300',
-  'starting:backdrop:bg-black/0',
-  'starting:backdrop:backdrop-blur-0',
-]
-
-export const MOBILE_DRAWER_ID = 'mobile-drawer'
-
-const closeDrawer = () => {
-  document.getElementById(MOBILE_DRAWER_ID)?.closest('dialog')?.close()
-}
-
 /**
- * Mobile navigation drawer using native <dialog> with modern features:
+ * Mobile navigation drawer built on Kobalte's Dialog primitive.
  *
- * - Invoker Commands (Chrome 135): Open/close declaratively with commandfor/command
- * - Dialog Light Dismiss (Chrome 134): closedby="any" for click-outside-to-close
+ * Kobalte gives us the focus trap, scroll lock, Escape handling and
+ * click-outside dismissal for free, cross-browser. Open state is controlled
+ * so that following a nav link also closes the drawer.
  */
 export function MobileDrawer() {
-  let dialogRef: HTMLDialogElement | undefined
-
-  onMount(() => {
-    if (dialogRef) {
-      dialogRef.setAttribute('closedby', 'any')
-    }
-  })
-
-  const handleClick = (e: MouseEvent) => {
-    if (e.target === dialogRef) {
-      dialogRef.close()
-    }
-  }
+  const [open, setOpen] = createSignal(false)
+  const close = () => setOpen(false)
 
   return (
-    <dialog
-      ref={dialogRef}
-      id={MOBILE_DRAWER_ID}
-      onClick={handleClick}
-      class={cx(dialogClasses)}
-    >
-      <div class={cx(panelClasses)}>
-        <div class="flex items-center justify-between p-4 border-b border-border">
-          <span class="text-sm-copy font-medium text-foreground">
-            Navigation
-          </span>
-          <button
-            commandfor={MOBILE_DRAWER_ID}
-            command="close"
-            class="p-2 -mr-2 text-foreground/60 hover:text-foreground hover:bg-accent rounded-lg transition-colors"
-            aria-label="Luk menu"
-          >
-            <X size={20} />
-          </button>
-        </div>
+    <DialogPrimitive.Root open={open()} onOpenChange={setOpen}>
+      <DialogPrimitive.Trigger
+        aria-label="Åbn menu"
+        class="md:hidden p-2 -mr-2 text-foreground/60 hover:text-foreground hover:bg-accent rounded-lg transition-colors"
+      >
+        <Menu size={22} />
+      </DialogPrimitive.Trigger>
 
-        <nav class="flex-1 py-4 overflow-y-auto">
-          <Link
-            to="/"
-            onClick={closeDrawer}
-            class={mobileNavLink({ active: false })}
-            activeProps={{ class: mobileNavLink({ active: true }) }}
-            activeOptions={{ exact: true }}
-          >
-            <Home size={18} />
-            <span>Forside</span>
-          </Link>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay
+          class={cx(
+            'fixed inset-0 z-50 bg-black/25 backdrop-blur-sm',
+            'data-[expanded]:animate-[kb-overlay-in_300ms_ease]',
+            'data-[closed]:animate-[kb-overlay-out_200ms_ease]',
+          )}
+        />
+        <DialogPrimitive.Content
+          class={cx(
+            'fixed inset-y-0 right-0 z-50 flex h-full w-[min(85vw,320px)] flex-col',
+            'bg-background border-l border-border shadow-xl shadow-foreground/5',
+            'focus:outline-none',
+            'data-[expanded]:animate-[kb-drawer-in_300ms_cubic-bezier(0.32,0.72,0,1)]',
+            'data-[closed]:animate-[kb-drawer-out_250ms_ease-in]',
+          )}
+        >
+          <div class="flex items-center justify-between p-4 border-b border-border">
+            <DialogPrimitive.Title class="text-sm-copy font-medium text-foreground">
+              Navigation
+            </DialogPrimitive.Title>
+            <DialogPrimitive.CloseButton
+              aria-label="Luk menu"
+              class="p-2 -mr-2 text-foreground/60 hover:text-foreground hover:bg-accent rounded-lg transition-colors"
+            >
+              <X size={20} />
+            </DialogPrimitive.CloseButton>
+          </div>
 
-          <MobileNavSection title="Information">
-            <For each={INFO_TOPICS}>
-              {(topic) => (
-                <Link
-                  to={topic.route}
-                  onClick={closeDrawer}
-                  class={mobileNavLink({ active: false })}
-                  activeProps={{ class: mobileNavLink({ active: true }) }}
-                >
-                  <topic.icon class="w-[18px] h-[18px] text-primary/60" />
-                  <span>{topic.shortTitle}</span>
-                </Link>
-              )}
-            </For>
-          </MobileNavSection>
-
-          <MobileNavSection title="Mere">
+          <nav class="flex-1 py-4 overflow-y-auto">
             <Link
-              to="/blog"
-              onClick={closeDrawer}
+              to="/"
+              onClick={close}
               class={mobileNavLink({ active: false })}
               activeProps={{ class: mobileNavLink({ active: true }) }}
+              activeOptions={{ exact: true }}
             >
-              <BookOpen size={18} />
-              <span>Blog</span>
+              <Home size={18} />
+              <span>Forside</span>
             </Link>
-          </MobileNavSection>
-        </nav>
 
-        <div class="p-4 border-t border-border">
-          <Link
-            to="/signup"
-            onClick={closeDrawer}
-            class="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-foreground/70 hover:text-foreground underline-offset-4 hover:underline transition-colors"
-          >
-            Tilmeld dig nu
-          </Link>
-        </div>
-      </div>
-    </dialog>
+            <MobileNavSection title="Information">
+              <For each={INFO_TOPICS}>
+                {(topic) => (
+                  <Link
+                    to={topic.route}
+                    onClick={close}
+                    class={mobileNavLink({ active: false })}
+                    activeProps={{ class: mobileNavLink({ active: true }) }}
+                  >
+                    <topic.icon class="w-[18px] h-[18px] text-primary/60" />
+                    <span>{topic.shortTitle}</span>
+                  </Link>
+                )}
+              </For>
+            </MobileNavSection>
+
+            <MobileNavSection title="Mere">
+              <Link
+                to="/blog"
+                onClick={close}
+                class={mobileNavLink({ active: false })}
+                activeProps={{ class: mobileNavLink({ active: true }) }}
+              >
+                <BookOpen size={18} />
+                <span>Blog</span>
+              </Link>
+            </MobileNavSection>
+          </nav>
+
+          <div class="p-4 border-t border-border">
+            <Link
+              to="/signup"
+              onClick={close}
+              class="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-foreground/70 hover:text-foreground underline-offset-4 hover:underline transition-colors"
+            >
+              Tilmeld dig nu
+            </Link>
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }
 
