@@ -1,7 +1,13 @@
 import { and, eq } from 'drizzle-orm'
 import type { Database } from './client'
 import { category, event, participant, team, teamMembership } from './schema'
-import type { CategoryRow, EventRow, ParticipantRow, TeamRow } from './schema'
+import type {
+  CategoryRow,
+  EventRow,
+  ParticipantRow,
+  RegistrationStatus,
+  TeamRow,
+} from './schema'
 
 /**
  * Data-layer accessors for Teams, Participants, Events, and Categories.
@@ -94,17 +100,8 @@ export async function renameTeam(
   userId: string,
   name: string,
 ): Promise<TeamRow> {
-  const membership = await db
-    .select()
-    .from(teamMembership)
-    .where(
-      and(eq(teamMembership.teamId, teamId), eq(teamMembership.userId, userId)),
-    )
-    .limit(1)
-
-  if (!membership[0]) {
-    throw new Error('renameTeam: account is not a member of this team')
-  }
+  await assertMembership(db, teamId, userId, 'renameTeam')
+  await assertCoachEditable(db, teamId, 'renameTeam')
 
   const rows = await db
     .update(team)
@@ -115,6 +112,130 @@ export async function renameTeam(
   if (!rows[0]) {
     throw new Error('renameTeam: UPDATE returned no rows')
   }
+  return rows[0]
+}
+
+// ---------------------------------------------------------------------------
+// Registration lifecycle helpers
+// ---------------------------------------------------------------------------
+
+/** States from which a coach is allowed to edit team details / participants. */
+const COACH_EDITABLE_STATUSES: ReadonlyArray<RegistrationStatus> = ['draft']
+
+/** States from which a coach can withdraw a team. */
+const WITHDRAWABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
+  'submitted',
+  'confirmed',
+  'waitlisted',
+]
+
+/**
+ * Asserts the team is still coach-editable (Draft status and before the event's
+ * registration deadline if a category is assigned).
+ */
+async function assertCoachEditable(
+  db: Database,
+  teamId: string,
+  context: string,
+): Promise<void> {
+  const teamRows = await db
+    .select()
+    .from(team)
+    .where(eq(team.id, teamId))
+    .limit(1)
+
+  if (!teamRows[0]) throw new Error(`${context}: team not found`)
+  const teamRow = teamRows[0]
+
+  if (!COACH_EDITABLE_STATUSES.includes(teamRow.status)) {
+    throw new Error(
+      `${context}: team is ${teamRow.status} and cannot be edited by a coach`,
+    )
+  }
+
+  if (teamRow.categoryId) {
+    const categoryRows = await db
+      .select({ eventId: category.eventId })
+      .from(category)
+      .where(eq(category.id, teamRow.categoryId))
+      .limit(1)
+
+    if (categoryRows[0]) {
+      const eventRows = await db
+        .select({ registrationDeadline: event.registrationDeadline })
+        .from(event)
+        .where(eq(event.id, categoryRows[0].eventId))
+        .limit(1)
+
+      const deadline = eventRows[0]?.registrationDeadline
+      if (deadline && new Date() > deadline) {
+        throw new Error(
+          `${context}: registration deadline has passed for this event`,
+        )
+      }
+    }
+  }
+}
+
+export async function submitTeam(
+  db: Database,
+  teamId: string,
+  userId: string,
+): Promise<TeamRow> {
+  await assertMembership(db, teamId, userId, 'submitTeam')
+
+  const teamRows = await db
+    .select()
+    .from(team)
+    .where(eq(team.id, teamId))
+    .limit(1)
+
+  if (!teamRows[0]) throw new Error('submitTeam: team not found')
+
+  if (teamRows[0].status !== 'draft') {
+    throw new Error(
+      `submitTeam: cannot submit a team in status "${teamRows[0].status}"`,
+    )
+  }
+
+  const rows = await db
+    .update(team)
+    .set({ status: 'submitted', updatedAt: new Date() })
+    .where(eq(team.id, teamId))
+    .returning()
+
+  if (!rows[0]) throw new Error('submitTeam: UPDATE returned no rows')
+  return rows[0]
+}
+
+export async function withdrawTeam(
+  db: Database,
+  teamId: string,
+  userId: string,
+): Promise<TeamRow> {
+  await assertMembership(db, teamId, userId, 'withdrawTeam')
+
+  const teamRows = await db
+    .select()
+    .from(team)
+    .where(eq(team.id, teamId))
+    .limit(1)
+
+  if (!teamRows[0]) throw new Error('withdrawTeam: team not found')
+
+  if (!WITHDRAWABLE_STATUSES.includes(teamRows[0].status)) {
+    throw new Error(
+      `withdrawTeam: cannot withdraw a team in status "${teamRows[0].status}"`,
+    )
+  }
+
+  const rows = await db
+    .update(team)
+    .set({ status: 'withdrawn', updatedAt: new Date() })
+    .where(eq(team.id, teamId))
+    .returning()
+
+  if (!rows[0]) throw new Error('withdrawTeam: UPDATE returned no rows')
   return rows[0]
 }
 
@@ -175,6 +296,7 @@ export async function setTeamCategory(
   categoryId: string | null,
 ): Promise<TeamRow> {
   await assertMembership(db, teamId, userId, 'setTeamCategory')
+  await assertCoachEditable(db, teamId, 'setTeamCategory')
 
   const rows = await db
     .update(team)
@@ -206,6 +328,7 @@ export async function updateTeamDetails(
   fields: TeamDetailFields,
 ): Promise<TeamRow> {
   await assertMembership(db, teamId, userId, 'updateTeamDetails')
+  await assertCoachEditable(db, teamId, 'updateTeamDetails')
 
   const rows = await db
     .update(team)
@@ -235,6 +358,7 @@ export async function addParticipant(
   input: NewParticipant,
 ): Promise<ParticipantRow> {
   await assertMembership(db, teamId, userId, 'addParticipant')
+  await assertCoachEditable(db, teamId, 'addParticipant')
 
   const rows = await db
     .insert(participant)
@@ -261,6 +385,7 @@ export async function updateParticipant(
   input: NewParticipant,
 ): Promise<ParticipantRow> {
   await assertMembership(db, teamId, userId, 'updateParticipant')
+  await assertCoachEditable(db, teamId, 'updateParticipant')
 
   const rows = await db
     .update(participant)
@@ -283,6 +408,7 @@ export async function removeParticipant(
   userId: string,
 ): Promise<void> {
   await assertMembership(db, teamId, userId, 'removeParticipant')
+  await assertCoachEditable(db, teamId, 'removeParticipant')
 
   await db
     .delete(participant)

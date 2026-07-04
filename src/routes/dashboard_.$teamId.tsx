@@ -1,7 +1,7 @@
 import { Link, createFileRoute, redirect, useRouter } from '@tanstack/solid-router'
 import { For, Show, createSignal } from 'solid-js'
 import { PageShell } from '~/components/layout'
-import { Button, Heading } from '~/components/ui'
+import { Button, Heading, StatusBadge } from '~/components/ui'
 import { checkAgeBandEligibility } from '~/lib/age-band'
 import { getSession } from '~/lib/auth-functions'
 import { decideDashboardAccess } from '~/lib/dashboard-access'
@@ -11,8 +11,10 @@ import {
   listAllCategoriesFn,
   removeParticipantFn,
   setCategoryFn,
+  submitTeamFn,
   updateParticipantFn,
   updateTeamDetailsFn,
+  withdrawTeamFn,
 } from '~/lib/team-functions'
 import type { ParticipantRow } from '~/server/db/schema'
 
@@ -167,6 +169,23 @@ function TeamDetailPage() {
     return !checkAgeBandEligibility(birthYear, cat)
   }
 
+  const isEditable = () => loaderData().details.team.status === 'draft'
+
+  const isWithdrawable = () => {
+    const s = loaderData().details.team.status
+    return s === 'submitted' || s === 'confirmed' || s === 'waitlisted'
+  }
+
+  async function handleSubmit() {
+    await submitTeamFn({ data: { teamId: params().teamId } })
+    await router.invalidate()
+  }
+
+  async function handleWithdraw() {
+    await withdrawTeamFn({ data: { teamId: params().teamId } })
+    await router.invalidate()
+  }
+
   return (
     <PageShell size="sm">
       <div class="max-w-lg mx-auto">
@@ -179,10 +198,41 @@ function TeamDetailPage() {
           </Link>
         </div>
 
-        <Heading level="h1" class="mb-1">
-          {loaderData().details.team.name}
-        </Heading>
-        <p class="text-sm text-muted-foreground mb-8">Redigér holddetaljer</p>
+        <div class="mb-1 flex items-center gap-3">
+          <Heading level="h1" class="flex-1">
+            {loaderData().details.team.name}
+          </Heading>
+          <StatusBadge status={loaderData().details.team.status} />
+        </div>
+        <p class="text-sm text-muted-foreground mb-6">
+          {isEditable() ? 'Redigér holddetaljer' : 'Holddetaljer (skrivebeskyttet)'}
+        </p>
+
+        <Show when={isEditable()}>
+          <div class="mb-6 rounded-lg border border-border bg-muted/30 px-4 py-3 flex items-center justify-between gap-3">
+            <p class="text-sm text-muted-foreground">
+              Klar til at indsende holdet til review?
+            </p>
+            <Button type="button" onClick={() => void handleSubmit()}>
+              Indsend tilmelding
+            </Button>
+          </div>
+        </Show>
+
+        <Show when={isWithdrawable()}>
+          <div class="mb-6 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-center justify-between gap-3">
+            <p class="text-sm text-muted-foreground">
+              Hold er indsendt og afventer review.
+            </p>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => void handleWithdraw()}
+            >
+              Træk tilmelding tilbage
+            </Button>
+          </div>
+        </Show>
 
         {/* ------------------------------------------------------------------ */}
         {/* Category picker                                                     */}
@@ -195,7 +245,7 @@ function TeamDetailPage() {
             class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
             value={loaderData().details.category?.id ?? ''}
             onChange={(e) => void handleCategoryChange(e.currentTarget.value)}
-            disabled={isSavingCategory()}
+            disabled={isSavingCategory() || !isEditable()}
           >
             <option value="">— Vælg kategori —</option>
             <For each={loaderData().categories}>
@@ -236,7 +286,7 @@ function TeamDetailPage() {
                 {(p) => (
                   <li class="rounded-lg border border-border px-4 py-3">
                     <Show
-                      when={editingParticipantId() === p.id}
+                      when={isEditable() && editingParticipantId() === p.id}
                       fallback={
                         <div class="flex items-center gap-3">
                           <div class="flex-1">
@@ -250,22 +300,24 @@ function TeamDetailPage() {
                               </span>
                             </Show>
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startEditParticipant(p)}
-                          >
-                            Redigér
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => void handleRemoveParticipant(p.id)}
-                          >
-                            Fjern
-                          </Button>
+                          <Show when={isEditable()}>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => startEditParticipant(p)}
+                            >
+                              Redigér
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => void handleRemoveParticipant(p.id)}
+                            >
+                              Fjern
+                            </Button>
+                          </Show>
                         </div>
                       }
                     >
@@ -310,34 +362,36 @@ function TeamDetailPage() {
             </ul>
           </Show>
 
-          <form
-            class="flex items-center gap-2"
-            onSubmit={(e) => void handleAddParticipant(e)}
-          >
-            <input
-              class="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Navn"
-              value={newParticipantName()}
-              onInput={(e) => setNewParticipantName(e.currentTarget.value)}
-              required
-              maxLength={200}
-              disabled={isAddingParticipant()}
-            />
-            <input
-              class="w-24 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Fødselsår"
-              value={newParticipantYear()}
-              onInput={(e) => setNewParticipantYear(e.currentTarget.value)}
-              type="number"
-              min={1990}
-              max={2030}
-              required
-              disabled={isAddingParticipant()}
-            />
-            <Button type="submit" disabled={isAddingParticipant()}>
-              Tilføj
-            </Button>
-          </form>
+          <Show when={isEditable()}>
+            <form
+              class="flex items-center gap-2"
+              onSubmit={(e) => void handleAddParticipant(e)}
+            >
+              <input
+                class="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Navn"
+                value={newParticipantName()}
+                onInput={(e) => setNewParticipantName(e.currentTarget.value)}
+                required
+                maxLength={200}
+                disabled={isAddingParticipant()}
+              />
+              <input
+                class="w-24 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Fødselsår"
+                value={newParticipantYear()}
+                onInput={(e) => setNewParticipantYear(e.currentTarget.value)}
+                type="number"
+                min={1990}
+                max={2030}
+                required
+                disabled={isAddingParticipant()}
+              />
+              <Button type="submit" disabled={isAddingParticipant()}>
+                Tilføj
+              </Button>
+            </form>
+          </Show>
         </section>
 
         {/* ------------------------------------------------------------------ */}
@@ -353,12 +407,13 @@ function TeamDetailPage() {
                 Navn <span class="text-destructive">*</span>
               </label>
               <input
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 value={raName()}
                 onInput={(e) => setRaName(e.currentTarget.value)}
                 placeholder="Fulde navn"
                 required
                 maxLength={200}
+                disabled={!isEditable()}
               />
             </div>
             <div>
@@ -366,12 +421,13 @@ function TeamDetailPage() {
                 Telefon <span class="text-destructive">*</span>
               </label>
               <input
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 value={raPhone()}
                 onInput={(e) => setRaPhone(e.currentTarget.value)}
                 placeholder="+45 00 00 00 00"
                 required
                 maxLength={50}
+                disabled={!isEditable()}
               />
             </div>
             <div>
@@ -379,12 +435,13 @@ function TeamDetailPage() {
                 E-mail <span class="text-muted-foreground text-xs">(valgfri)</span>
               </label>
               <input
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 value={raEmail()}
                 onInput={(e) => setRaEmail(e.currentTarget.value)}
                 placeholder="kontakt@example.com"
                 type="email"
                 maxLength={200}
+                disabled={!isEditable()}
               />
             </div>
             <div>
@@ -392,16 +449,19 @@ function TeamDetailPage() {
                 Organisation <span class="text-muted-foreground text-xs">(valgfri)</span>
               </label>
               <input
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 value={org()}
                 onInput={(e) => setOrg(e.currentTarget.value)}
                 placeholder="Skole, klub eller forening"
                 maxLength={200}
+                disabled={!isEditable()}
               />
             </div>
-            <Button type="submit" disabled={isSavingDetails()}>
-              {isSavingDetails() ? 'Gemmer…' : 'Gem detaljer'}
-            </Button>
+            <Show when={isEditable()}>
+              <Button type="submit" disabled={isSavingDetails()}>
+                {isSavingDetails() ? 'Gemmer…' : 'Gem detaljer'}
+              </Button>
+            </Show>
           </form>
         </section>
       </div>

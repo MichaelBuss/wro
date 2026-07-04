@@ -12,8 +12,10 @@ import {
   removeParticipant,
   renameTeam,
   setTeamCategory,
+  submitTeam,
   updateParticipant,
   updateTeamDetails,
+  withdrawTeam,
 } from './teams'
 import { createTestDb } from './testing'
 
@@ -396,6 +398,195 @@ describe('teams data layer', () => {
           organization: null,
         }),
       ).rejects.toThrow('not a member')
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // Issue 004 — Registration lifecycle (coach side)
+  // ---------------------------------------------------------------------------
+
+  describe('registration lifecycle', () => {
+    it('transitions a Draft to Submitted on submitTeam', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      expect(t.status).toBe('draft')
+
+      // Act
+      const updated = await submitTeam(db, t.id, coach.id)
+
+      // Assert
+      expect(updated.status).toBe('submitted')
+    })
+
+    it('rejects submitTeam from an Account that does not manage the Team', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { team: t } = await setupCoachAndTeam(db)
+      const intruder = await createAccount(db, {
+        email: 'intruder@example.com',
+        name: 'Intruder',
+      })
+
+      // Act / Assert
+      await expect(submitTeam(db, t.id, intruder.id)).rejects.toThrow(
+        'not a member',
+      )
+    })
+
+    it('rejects submitTeam when team is already Submitted', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+
+      // Act / Assert
+      await expect(submitTeam(db, t.id, coach.id)).rejects.toThrow(
+        'cannot submit a team in status "submitted"',
+      )
+    })
+
+    it('rejects coach edits after team is Submitted', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+
+      // Act / Assert — all mutating operations should be rejected
+      await expect(renameTeam(db, t.id, coach.id, 'New Name')).rejects.toThrow(
+        'cannot be edited by a coach',
+      )
+
+      await expect(
+        updateTeamDetails(db, t.id, coach.id, {
+          responsibleAdultName: 'Jane',
+          responsibleAdultPhone: '+45 20 00 00 00',
+          responsibleAdultEmail: null,
+          organization: null,
+        }),
+      ).rejects.toThrow('cannot be edited by a coach')
+
+      await expect(
+        addParticipant(db, t.id, coach.id, { name: 'Alice', birthYear: 2013 }),
+      ).rejects.toThrow('cannot be edited by a coach')
+    })
+
+    it('withdraws a Submitted team to Withdrawn', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+
+      // Act
+      const withdrawn = await withdrawTeam(db, t.id, coach.id)
+
+      // Assert
+      expect(withdrawn.status).toBe('withdrawn')
+    })
+
+    it('withdraws a Confirmed team to Withdrawn', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      // Manually force to confirmed (organizer action, done directly in DB for this test)
+      await db
+        .update(team)
+        .set({ status: 'confirmed' })
+        .where(eq(team.id, t.id))
+
+      // Act
+      const withdrawn = await withdrawTeam(db, t.id, coach.id)
+
+      // Assert
+      expect(withdrawn.status).toBe('withdrawn')
+    })
+
+    it('withdraws a Waitlisted team to Withdrawn', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await db
+        .update(team)
+        .set({ status: 'waitlisted' })
+        .where(eq(team.id, t.id))
+
+      // Act
+      const withdrawn = await withdrawTeam(db, t.id, coach.id)
+
+      // Assert
+      expect(withdrawn.status).toBe('withdrawn')
+    })
+
+    it('rejects withdrawTeam from a Draft (invalid transition)', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+
+      // Act / Assert
+      await expect(withdrawTeam(db, t.id, coach.id)).rejects.toThrow(
+        'cannot withdraw a team in status "draft"',
+      )
+    })
+
+    it('rejects withdrawTeam from a Withdrawn team (invalid transition)', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      await submitTeam(db, t.id, coach.id)
+      await withdrawTeam(db, t.id, coach.id)
+
+      // Act / Assert
+      await expect(withdrawTeam(db, t.id, coach.id)).rejects.toThrow(
+        'cannot withdraw a team in status "withdrawn"',
+      )
+    })
+
+    it('rejects edits after the Event registration deadline has passed', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      const { categories, event: seededEvent } = await seedBaselineEvent(db)
+
+      // Assign a category so the team is tied to the event
+      await setTeamCategory(db, t.id, coach.id, categories[0].id)
+
+      // Set the deadline in the past
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      await db
+        .update(event)
+        .set({ registrationDeadline: yesterday })
+        .where(eq(event.id, seededEvent.id))
+
+      // Act / Assert
+      await expect(
+        addParticipant(db, t.id, coach.id, { name: 'Alice', birthYear: 2013 }),
+      ).rejects.toThrow('registration deadline has passed')
+
+      await expect(renameTeam(db, t.id, coach.id, 'New Name')).rejects.toThrow(
+        'registration deadline has passed',
+      )
+    })
+
+    it('allows edits when the Event deadline is in the future', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const { coach, team: t } = await setupCoachAndTeam(db)
+      const { categories, event: seededEvent } = await seedBaselineEvent(db)
+      await setTeamCategory(db, t.id, coach.id, categories[0].id)
+
+      // Set the deadline in the future
+      const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+      await db
+        .update(event)
+        .set({ registrationDeadline: tomorrow })
+        .where(eq(event.id, seededEvent.id))
+
+      // Act / Assert — should succeed without throwing
+      await expect(
+        addParticipant(db, t.id, coach.id, { name: 'Alice', birthYear: 2013 }),
+      ).resolves.toBeTruthy()
     })
   })
 

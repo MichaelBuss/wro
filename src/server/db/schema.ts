@@ -13,6 +13,8 @@ export const event = pgTable('event', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   kind: text('kind').$type<EventKind>().notNull(),
+  // Null means registration is open indefinitely.
+  registrationDeadline: timestamp('registration_deadline'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })

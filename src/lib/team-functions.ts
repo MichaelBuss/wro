@@ -12,8 +12,10 @@ import {
   removeParticipant,
   renameTeam,
   setTeamCategory,
+  submitTeam,
   updateParticipant,
   updateTeamDetails,
+  withdrawTeam,
 } from '~/server/db/teams'
 
 const createTeamSchema = z.object({
@@ -162,4 +164,20 @@ export const removeParticipantFn = createServerFn({ method: 'POST' })
     const user = await getAuthedUser()
     const db = await getDb()
     return removeParticipant(db, data.participantId, data.teamId, user.id)
+  })
+
+export const submitTeamFn = createServerFn({ method: 'POST' })
+  .validator(teamIdSchema)
+  .handler(async ({ data }) => {
+    const user = await getAuthedUser()
+    const db = await getDb()
+    return submitTeam(db, data.teamId, user.id)
+  })
+
+export const withdrawTeamFn = createServerFn({ method: 'POST' })
+  .validator(teamIdSchema)
+  .handler(async ({ data }) => {
+    const user = await getAuthedUser()
+    const db = await getDb()
+    return withdrawTeam(db, data.teamId, user.id)
   })

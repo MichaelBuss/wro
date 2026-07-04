@@ -6,11 +6,16 @@ import {
 } from '@tanstack/solid-router'
 import { For, Show, createSignal } from 'solid-js'
 import { PageShell } from '~/components/layout'
-import { Button, Heading, Lead } from '~/components/ui'
+import { Button, Heading, Lead, StatusBadge } from '~/components/ui'
 import { authClient } from '~/lib/auth-client'
 import { getSession } from '~/lib/auth-functions'
 import { decideDashboardAccess } from '~/lib/dashboard-access'
-import { createTeamFn, listTeamsFn, renameTeamFn } from '~/lib/team-functions'
+import {
+  createTeamFn,
+  listTeamsFn,
+  renameTeamFn,
+  withdrawTeamFn,
+} from '~/lib/team-functions'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
@@ -79,6 +84,11 @@ function Dashboard() {
     await router.invalidate()
   }
 
+  async function handleWithdraw(teamId: string) {
+    await withdrawTeamFn({ data: { teamId } })
+    await router.invalidate()
+  }
+
   return (
     <PageShell size="sm">
       <div class="max-w-lg mx-auto">
@@ -111,24 +121,47 @@ function Dashboard() {
                       fallback={
                         <>
                           <span class="flex-1 font-medium">{t.name}</span>
-                          <span class="rounded-full bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium">
-                            Kladde
-                          </span>
-                          <Link
-                            to="/dashboard/$teamId"
-                            params={{ teamId: t.id }}
-                            class="text-sm text-primary hover:underline px-2"
+                          <StatusBadge status={t.status} />
+                          <Show when={t.status === 'draft'}>
+                            <Link
+                              to="/dashboard/$teamId"
+                              params={{ teamId: t.id }}
+                              class="text-sm text-primary hover:underline px-2"
+                            >
+                              Redigér
+                            </Link>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => startRename(t.id, t.name)}
+                            >
+                              Omdøb
+                            </Button>
+                          </Show>
+                          <Show
+                            when={
+                              t.status === 'submitted' ||
+                              t.status === 'confirmed' ||
+                              t.status === 'waitlisted'
+                            }
                           >
-                            Redigér
-                          </Link>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startRename(t.id, t.name)}
-                          >
-                            Omdøb
-                          </Button>
+                            <Link
+                              to="/dashboard/$teamId"
+                              params={{ teamId: t.id }}
+                              class="text-sm text-muted-foreground hover:underline px-2"
+                            >
+                              Se hold
+                            </Link>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => void handleWithdraw(t.id)}
+                            >
+                              Træk tilbage
+                            </Button>
+                          </Show>
                         </>
                       }
                     >
