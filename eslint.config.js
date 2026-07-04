@@ -61,7 +61,7 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.config.js'],
+          allowDefaultProject: ['*.config.js', '.cursor/hooks/*.js'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
