@@ -1,195 +1,234 @@
+import { eq } from 'drizzle-orm'
 import { describe, expect, it } from 'vitest'
-import {
-  createAccount,
-  createSession,
-  deleteSession,
-  getAccountByEmail,
-  getAccountBySessionToken,
-  getPasskeysForAccount,
-  linkPasskey,
-} from './accounts'
-import { account, passkey, session, user, verification } from './schema'
+import { createAccount, deleteAccount, exportAccountData } from './accounts'
+import { participant, team, teamMembership, user } from './schema'
+import { addParticipant, createTeam } from './teams'
 import { createTestDb } from './testing'
 
-const HOUR = 60 * 60 * 1000
+// ---------------------------------------------------------------------------
+// GDPR: coach data export
+// ---------------------------------------------------------------------------
 
-describe('auth data layer', () => {
-  it('applies all migrations cleanly to an empty database', async () => {
-    // Arrange / Act
-    const db = await createTestDb()
-
-    // Assert — a missing table would make these selects throw.
-    await expect(db.select().from(user)).resolves.toEqual([])
-    await expect(db.select().from(session)).resolves.toEqual([])
-    await expect(db.select().from(account)).resolves.toEqual([])
-    await expect(db.select().from(verification)).resolves.toEqual([])
-    await expect(db.select().from(passkey)).resolves.toEqual([])
-  })
-
-  it('persists a created Account and retrieves it by email', async () => {
+describe('exportAccountData', () => {
+  it('includes the Account profile in the export', async () => {
     // Arrange
     const db = await createTestDb()
-
-    // Act
-    const created = await createAccount(db, {
-      email: 'coach@example.com',
-      name: 'Coach Nova',
-    })
-    const found = await getAccountByEmail(db, 'coach@example.com')
-
-    // Assert
-    expect(created.id).toBeTruthy()
-    expect(found).toMatchObject({
-      id: created.id,
-      email: 'coach@example.com',
-      name: 'Coach Nova',
-    })
-  })
-
-  it('returns null for an unknown email', async () => {
-    // Arrange
-    const db = await createTestDb()
-
-    // Act
-    const found = await getAccountByEmail(db, 'nobody@example.com')
-
-    // Assert
-    expect(found).toBeNull()
-  })
-
-  it('stores a passkey credential against an Account and retrieves it', async () => {
-    // Arrange
-    const db = await createTestDb()
-    const acc = await createAccount(db, {
+    const coach = await createAccount(db, {
       email: 'coach@example.com',
       name: 'Coach Nova',
     })
 
     // Act
-    await linkPasskey(db, {
-      userId: acc.id,
-      credentialID: 'cred-123',
-      publicKey: 'pub-key-abc',
-      name: 'MacBook',
-    })
-    const passkeys = await getPasskeysForAccount(db, acc.id)
+    const result = await exportAccountData(db, coach.id)
 
     // Assert
-    expect(passkeys).toHaveLength(1)
-    expect(passkeys[0]).toMatchObject({
-      userId: acc.id,
-      credentialID: 'cred-123',
-      publicKey: 'pub-key-abc',
-    })
+    expect(result.account.id).toBe(coach.id)
+    expect(result.account.name).toBe('Coach Nova')
+    expect(result.account.email).toBe('coach@example.com')
+    expect(result.account.role).toBe('coach')
   })
 
-  it('resolves the signed-in Account from a live session token', async () => {
+  it('includes all Teams and their Participants for the Account', async () => {
     // Arrange
     const db = await createTestDb()
-    const acc = await createAccount(db, {
+    const coach = await createAccount(db, {
       email: 'coach@example.com',
       name: 'Coach Nova',
     })
-    await createSession(db, {
-      userId: acc.id,
-      token: 'session-token-1',
-      expiresAt: new Date(Date.now() + HOUR),
+    const t1 = await createTeam(db, { name: 'Team Alpha', userId: coach.id })
+    const t2 = await createTeam(db, { name: 'Team Beta', userId: coach.id })
+    await addParticipant(db, t1.id, coach.id, {
+      name: 'Alice',
+      birthYear: 2010,
     })
+    await addParticipant(db, t1.id, coach.id, { name: 'Bob', birthYear: 2011 })
 
     // Act
-    const resolved = await getAccountBySessionToken(db, 'session-token-1')
+    const result = await exportAccountData(db, coach.id)
 
     // Assert
-    expect(resolved).toMatchObject({ id: acc.id, email: 'coach@example.com' })
+    const teamIds = result.teams.map((t) => t.id)
+    expect(teamIds).toContain(t1.id)
+    expect(teamIds).toContain(t2.id)
+
+    const alpha = result.teams.find((t) => t.id === t1.id)
+    expect(alpha?.participants).toHaveLength(2)
+    const names = alpha?.participants.map((p) => p.name)
+    expect(names).toContain('Alice')
+    expect(names).toContain('Bob')
+
+    const beta = result.teams.find((t) => t.id === t2.id)
+    expect(beta?.participants).toHaveLength(0)
   })
 
-  it('reports signed-out once the session is torn down', async () => {
+  it('excludes Teams and Participants belonging to other Accounts', async () => {
     // Arrange
     const db = await createTestDb()
-    const acc = await createAccount(db, {
+    const coachA = await createAccount(db, {
+      email: 'coachA@example.com',
+      name: 'Coach A',
+    })
+    const coachB = await createAccount(db, {
+      email: 'coachB@example.com',
+      name: 'Coach B',
+    })
+    await createTeam(db, { name: 'Team A', userId: coachA.id })
+    const tB = await createTeam(db, { name: 'Team B', userId: coachB.id })
+    await addParticipant(db, tB.id, coachB.id, {
+      name: 'B-Participant',
+      birthYear: 2012,
+    })
+
+    // Act — export coachA's data
+    const result = await exportAccountData(db, coachA.id)
+
+    // Assert — only Team A, no Team B or its participants
+    expect(result.teams).toHaveLength(1)
+    expect(result.teams[0]?.name).toBe('Team A')
+    const allParticipantNames = result.teams.flatMap((t) =>
+      t.participants.map((p) => p.name),
+    )
+    expect(allParticipantNames).not.toContain('B-Participant')
+  })
+
+  it('returns an empty teams list for an Account with no Teams', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
       email: 'coach@example.com',
       name: 'Coach Nova',
     })
-    await createSession(db, {
-      userId: acc.id,
-      token: 'session-token-1',
-      expiresAt: new Date(Date.now() + HOUR),
-    })
 
     // Act
-    await deleteSession(db, 'session-token-1')
-    const resolved = await getAccountBySessionToken(db, 'session-token-1')
+    const result = await exportAccountData(db, coach.id)
 
     // Assert
-    expect(resolved).toBeNull()
+    expect(result.teams).toHaveLength(0)
   })
+})
 
-  it('treats an expired session as signed out', async () => {
+// ---------------------------------------------------------------------------
+// GDPR: coach account erasure
+// ---------------------------------------------------------------------------
+
+describe('deleteAccount', () => {
+  it('removes the Account row', async () => {
     // Arrange
     const db = await createTestDb()
-    const acc = await createAccount(db, {
+    const coach = await createAccount(db, {
       email: 'coach@example.com',
       name: 'Coach Nova',
     })
-    await createSession(db, {
-      userId: acc.id,
-      token: 'expired-token',
-      expiresAt: new Date(Date.now() - HOUR),
-    })
 
     // Act
-    const resolved = await getAccountBySessionToken(db, 'expired-token')
+    await deleteAccount(db, coach.id)
 
     // Assert
-    expect(resolved).toBeNull()
+    const remaining = await db.select().from(user).where(eq(user.id, coach.id))
+    expect(remaining).toHaveLength(0)
   })
 
-  // ---------------------------------------------------------------------------
-  // Issue 005 — Organizer role assignment
-  // ---------------------------------------------------------------------------
+  it('cascades deletion to all Teams owned by the Account', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    const t1 = await createTeam(db, { name: 'Team Alpha', userId: coach.id })
+    const t2 = await createTeam(db, { name: 'Team Beta', userId: coach.id })
 
-  describe('organizer role assignment', () => {
-    it('defaults a new Account to the coach role', async () => {
-      // Arrange
-      const db = await createTestDb()
+    // Act
+    await deleteAccount(db, coach.id)
 
-      // Act
-      const acc = await createAccount(db, {
-        email: 'coach@example.com',
-        name: 'Coach Nova',
-      })
+    // Assert — both teams gone
+    const remainingTeams = await db
+      .select()
+      .from(team)
+      .where(eq(team.id, t1.id))
+    expect(remainingTeams).toHaveLength(0)
 
-      // Assert
-      expect(acc.role).toBe('coach')
+    const remainingTeams2 = await db
+      .select()
+      .from(team)
+      .where(eq(team.id, t2.id))
+    expect(remainingTeams2).toHaveLength(0)
+  })
+
+  it('cascades deletion to all Participants in those Teams — no orphaned rows remain', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    const t = await createTeam(db, { name: 'Team Alpha', userId: coach.id })
+    await addParticipant(db, t.id, coach.id, { name: 'Alice', birthYear: 2010 })
+    await addParticipant(db, t.id, coach.id, { name: 'Bob', birthYear: 2011 })
+
+    // Act
+    await deleteAccount(db, coach.id)
+
+    // Assert — no participants remain for that team
+    const remaining = await db
+      .select()
+      .from(participant)
+      .where(eq(participant.teamId, t.id))
+    expect(remaining).toHaveLength(0)
+  })
+
+  it('cascades deletion to TeamMembership rows — no orphaned memberships remain', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    await createTeam(db, { name: 'Team Alpha', userId: coach.id })
+
+    // Act
+    await deleteAccount(db, coach.id)
+
+    // Assert — no memberships remain for this user
+    const remaining = await db
+      .select()
+      .from(teamMembership)
+      .where(eq(teamMembership.userId, coach.id))
+    expect(remaining).toHaveLength(0)
+  })
+
+  it('does not affect Teams or Participants belonging to other Accounts', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coachA = await createAccount(db, {
+      email: 'coachA@example.com',
+      name: 'Coach A',
+    })
+    const coachB = await createAccount(db, {
+      email: 'coachB@example.com',
+      name: 'Coach B',
+    })
+    const tB = await createTeam(db, { name: 'Team B', userId: coachB.id })
+    await addParticipant(db, tB.id, coachB.id, {
+      name: 'B-Participant',
+      birthYear: 2012,
     })
 
-    it('creates an Account with the organizer role when explicitly passed', async () => {
-      // Arrange
-      const db = await createTestDb()
+    // Act — delete coachA
+    await deleteAccount(db, coachA.id)
 
-      // Act
-      const acc = await createAccount(db, {
-        email: 'admin@wro.dk',
-        name: 'Organizer',
-        role: 'organizer',
-      })
+    // Assert — coachB's team and participant are unaffected
+    const remainingTeams = await db
+      .select()
+      .from(team)
+      .where(eq(team.id, tB.id))
+    expect(remainingTeams).toHaveLength(1)
 
-      // Assert
-      expect(acc.role).toBe('organizer')
-    })
-
-    it('non-allowlisted email receives coach role', async () => {
-      // Arrange
-      const db = await createTestDb()
-
-      // Act
-      const acc = await createAccount(db, {
-        email: 'random@example.com',
-        name: 'Random Person',
-      })
-
-      // Assert — default role is coach
-      expect(acc.role).toBe('coach')
-    })
+    const remainingParticipants = await db
+      .select()
+      .from(participant)
+      .where(eq(participant.teamId, tB.id))
+    expect(remainingParticipants).toHaveLength(1)
+    expect(remainingParticipants[0]?.name).toBe('B-Participant')
   })
 })

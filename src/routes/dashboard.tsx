@@ -7,6 +7,7 @@ import {
 import { For, Show, createSignal } from 'solid-js'
 import { PageShell } from '~/components/layout'
 import { Button, Heading, Lead, StatusBadge } from '~/components/ui'
+import { deleteMyAccountFn, exportMyDataFn } from '~/lib/account-functions'
 import { authClient } from '~/lib/auth-client'
 import { getSession } from '~/lib/auth-functions'
 import { decideDashboardAccess } from '~/lib/dashboard-access'
@@ -46,9 +47,36 @@ function Dashboard() {
   const [renamingId, setRenamingId] = createSignal<string | null>(null)
   const [renameValue, setRenameValue] = createSignal('')
 
+  type DeleteStep = 'idle' | 'confirming' | 'deleting'
+  const [deleteStep, setDeleteStep] = createSignal<DeleteStep>('idle')
+
   async function signOut() {
     await authClient.signOut()
     await navigate({ to: '/login' })
+  }
+
+  async function handleExportData() {
+    const data = await exportMyDataFn()
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = 'wro-mine-data.json'
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteStep('deleting')
+    try {
+      await deleteMyAccountFn()
+      await authClient.signOut()
+      await navigate({ to: '/' })
+    } catch {
+      setDeleteStep('confirming')
+    }
   }
 
   async function handleCreateTeam(e: SubmitEvent) {
@@ -213,6 +241,79 @@ function Dashboard() {
               Opret hold
             </Button>
           </form>
+        </section>
+
+        <section class="mb-10 border-t border-border pt-8">
+          <Heading level="h2" class="mb-1">
+            Mine data
+          </Heading>
+          <p class="text-sm text-muted-foreground mb-4">
+            Du kan til enhver tid hente en kopi af dine data eller slette din
+            konto og alt tilknyttet indhold (hold og deltagere).
+          </p>
+
+          <div class="flex flex-wrap gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void handleExportData()}
+            >
+              Eksportér mine data
+            </Button>
+
+            <Show when={deleteStep() === 'idle'}>
+              <Button
+                type="button"
+                variant="outline"
+                class="text-destructive border-destructive/40 hover:bg-destructive/5"
+                onClick={() => setDeleteStep('confirming')}
+              >
+                Slet konto
+              </Button>
+            </Show>
+          </div>
+
+          <Show when={deleteStep() === 'confirming'}>
+            <div class="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
+              <p class="text-sm font-medium text-destructive">
+                Er du sikker? Denne handling kan ikke fortrydes.
+              </p>
+              <p class="text-sm text-muted-foreground">
+                Alle dine hold og deltagere slettes permanent. Vi anbefaler, at
+                du eksporterer dine data først.
+              </p>
+              <div class="flex flex-wrap gap-3 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void handleExportData()}
+                >
+                  Eksportér mine data
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => void handleDeleteAccount()}
+                >
+                  Ja, slet min konto permanent
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDeleteStep('idle')}
+                >
+                  Annuller
+                </Button>
+              </div>
+            </div>
+          </Show>
+
+          <Show when={deleteStep() === 'deleting'}>
+            <p class="mt-4 text-sm text-muted-foreground">Sletter konto…</p>
+          </Show>
         </section>
 
         <Button type="button" variant="outline" onClick={() => void signOut()}>

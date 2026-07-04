@@ -1,7 +1,14 @@
 import { and, eq } from 'drizzle-orm'
 import type { Database } from './client'
-import { passkey, session, user } from './schema'
-import type { UserRole, UserRow } from './schema'
+import {
+  participant,
+  passkey,
+  session,
+  team,
+  teamMembership,
+  user,
+} from './schema'
+import type { ParticipantRow, TeamRow, UserRole, UserRow } from './schema'
 
 /**
  * Data-layer accessors for Accounts, their passkeys, and their sessions.
@@ -157,4 +164,78 @@ export async function deleteSessionForUser(
   await db
     .delete(session)
     .where(and(eq(session.userId, userId), eq(session.token, token)))
+}
+
+// ---------------------------------------------------------------------------
+// GDPR data-subject rights — export and erasure
+// ---------------------------------------------------------------------------
+
+export interface TeamExportEntry extends TeamRow {
+  participants: Array<ParticipantRow>
+}
+
+export interface AccountExport {
+  account: Pick<UserRow, 'id' | 'name' | 'email' | 'role' | 'createdAt'>
+  teams: Array<TeamExportEntry>
+}
+
+/**
+ * Collect everything belonging to this Account: their profile, Teams, and
+ * Participants. Only the requesting Account's own data is ever returned.
+ */
+export async function exportAccountData(
+  db: Database,
+  userId: string,
+): Promise<AccountExport> {
+  const accountRow = await getAccountById(db, userId)
+  if (!accountRow) throw new Error('exportAccountData: account not found')
+
+  const membershipRows = await db
+    .select({ team })
+    .from(teamMembership)
+    .innerJoin(team, eq(teamMembership.teamId, team.id))
+    .where(eq(teamMembership.userId, userId))
+
+  const teams: Array<TeamExportEntry> = []
+  for (const row of membershipRows) {
+    const participants = await db
+      .select()
+      .from(participant)
+      .where(eq(participant.teamId, row.team.id))
+
+    teams.push({ ...row.team, participants })
+  }
+
+  return {
+    account: {
+      id: accountRow.id,
+      name: accountRow.name,
+      email: accountRow.email,
+      role: accountRow.role,
+      createdAt: accountRow.createdAt,
+    },
+    teams,
+  }
+}
+
+/**
+ * Erase an Account and all associated data. Teams owned by this Account are
+ * deleted first (cascading to their Participants and Memberships), then the
+ * user row itself is deleted (cascading to Sessions, Passkeys, and auth
+ * provider records).
+ */
+export async function deleteAccount(
+  db: Database,
+  userId: string,
+): Promise<void> {
+  const membershipRows = await db
+    .select({ teamId: teamMembership.teamId })
+    .from(teamMembership)
+    .where(eq(teamMembership.userId, userId))
+
+  for (const row of membershipRows) {
+    await db.delete(team).where(eq(team.id, row.teamId))
+  }
+
+  await db.delete(user).where(eq(user.id, userId))
 }
