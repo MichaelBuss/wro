@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/solid-start'
 import { getRequestHeaders } from '@tanstack/solid-start/server'
 import { z } from 'zod'
 import { checkAgeBandEligibility } from '~/lib/age-band'
+import { buildEventRegistrationsCsv } from '~/lib/csv'
 import { getAuth } from '~/server/auth'
 import { getAccountById } from '~/server/db/accounts'
 import { getDb } from '~/server/db/client'
@@ -11,6 +12,7 @@ import {
   confirmTeam,
   createCategory,
   createEvent,
+  exportTeamsForEvent,
   listAllTeamsForOrganizer,
   listEventsWithCategories,
   removeCategory,
@@ -218,6 +220,26 @@ export const removeCategoryFn = createServerFn({ method: 'POST' })
     await assertOrganizer()
     const db = await getDb()
     await removeCategory(db, data.categoryId)
+  })
+
+// ---------------------------------------------------------------------------
+// GDPR: per-event CSV export (organizer only)
+// ---------------------------------------------------------------------------
+
+const exportEventRegistrationsSchema = z.object({ eventId: z.string().min(1) })
+
+/**
+ * Returns a CSV string containing all team registrations for the given Event.
+ * One row per Team; includes participants, responsible adult contact, status,
+ * and payment. Server-enforced to organizer role only via assertOrganizer().
+ */
+export const exportEventRegistrationsCsvFn = createServerFn({ method: 'GET' })
+  .validator(exportEventRegistrationsSchema)
+  .handler(async ({ data }) => {
+    await assertOrganizer()
+    const db = await getDb()
+    const rows = await exportTeamsForEvent(db, data.eventId)
+    return { csv: buildEventRegistrationsCsv(rows) }
   })
 
 export type { EventWithCategories }

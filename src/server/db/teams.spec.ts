@@ -9,6 +9,7 @@ import {
   createCategory,
   createEvent,
   createTeam,
+  exportTeamsForEvent,
   getTeamWithDetails,
   listAllCategories,
   listAllTeamsForOrganizer,
@@ -1335,5 +1336,155 @@ describe('event and category management', () => {
       expect(results[0]?.event.kind).toBe('gathering')
       expect(results[0]?.categories).toHaveLength(0)
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Issue 008: exportTeamsForEvent — organizer per-event CSV data layer
+// ---------------------------------------------------------------------------
+
+describe('exportTeamsForEvent', () => {
+  it('returns one entry per team registered to the given Event', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    const ev = await createEvent(db, {
+      name: 'WRO 2026',
+      kind: 'competition',
+      registrationDeadline: null,
+    })
+    const cat = await createCategory(db, ev.id, {
+      name: 'RoboMission Senior',
+      minBirthYear: null,
+      maxBirthYear: null,
+    })
+    const t1 = await createTeam(db, { name: 'Team Alpha', userId: coach.id })
+    const t2 = await createTeam(db, { name: 'Team Beta', userId: coach.id })
+    await setTeamCategory(db, t1.id, coach.id, cat.id)
+    await setTeamCategory(db, t2.id, coach.id, cat.id)
+
+    // Act
+    const result = await exportTeamsForEvent(db, ev.id)
+
+    // Assert
+    expect(result).toHaveLength(2)
+    const names = result.map((r) => r.team.name)
+    expect(names).toContain('Team Alpha')
+    expect(names).toContain('Team Beta')
+  })
+
+  it('includes the category name and participants for each team', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    const ev = await createEvent(db, {
+      name: 'WRO 2026',
+      kind: 'competition',
+      registrationDeadline: null,
+    })
+    const cat = await createCategory(db, ev.id, {
+      name: 'RoboMission Junior',
+      minBirthYear: null,
+      maxBirthYear: null,
+    })
+    const t = await createTeam(db, { name: 'Team Alpha', userId: coach.id })
+    await setTeamCategory(db, t.id, coach.id, cat.id)
+    await addParticipant(db, t.id, coach.id, { name: 'Alice', birthYear: 2012 })
+    await addParticipant(db, t.id, coach.id, { name: 'Bob', birthYear: 2013 })
+
+    // Act
+    const result = await exportTeamsForEvent(db, ev.id)
+
+    // Assert
+    expect(result).toHaveLength(1)
+    expect(result[0]?.categoryName).toBe('RoboMission Junior')
+    expect(result[0]?.participants).toHaveLength(2)
+    const participantNames = result[0]?.participants.map((p) => p.name)
+    expect(participantNames).toContain('Alice')
+    expect(participantNames).toContain('Bob')
+  })
+
+  it('does not include teams registered to a different Event', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    const ev1 = await createEvent(db, {
+      name: 'WRO 2025',
+      kind: 'competition',
+      registrationDeadline: null,
+    })
+    const ev2 = await createEvent(db, {
+      name: 'WRO 2026',
+      kind: 'competition',
+      registrationDeadline: null,
+    })
+    const cat1 = await createCategory(db, ev1.id, {
+      name: 'Cat A',
+      minBirthYear: null,
+      maxBirthYear: null,
+    })
+    const cat2 = await createCategory(db, ev2.id, {
+      name: 'Cat B',
+      minBirthYear: null,
+      maxBirthYear: null,
+    })
+    const t1 = await createTeam(db, { name: 'Team 2025', userId: coach.id })
+    const t2 = await createTeam(db, { name: 'Team 2026', userId: coach.id })
+    await setTeamCategory(db, t1.id, coach.id, cat1.id)
+    await setTeamCategory(db, t2.id, coach.id, cat2.id)
+
+    // Act — export only ev2
+    const result = await exportTeamsForEvent(db, ev2.id)
+
+    // Assert — only the team in ev2 is returned
+    expect(result).toHaveLength(1)
+    expect(result[0]?.team.name).toBe('Team 2026')
+  })
+
+  it('returns an empty array when the Event has no registrations', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const ev = await createEvent(db, {
+      name: 'Empty Event',
+      kind: 'competition',
+      registrationDeadline: null,
+    })
+
+    // Act
+    const result = await exportTeamsForEvent(db, ev.id)
+
+    // Assert
+    expect(result).toHaveLength(0)
+  })
+
+  it('excludes teams with no category (they belong to no event)', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    const ev = await createEvent(db, {
+      name: 'WRO 2026',
+      kind: 'competition',
+      registrationDeadline: null,
+    })
+    // Team with no category
+    await createTeam(db, { name: 'Unassigned Team', userId: coach.id })
+
+    // Act
+    const result = await exportTeamsForEvent(db, ev.id)
+
+    // Assert — uncategorised team is not in the export
+    expect(result).toHaveLength(0)
   })
 })

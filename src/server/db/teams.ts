@@ -598,6 +598,49 @@ export interface TeamForOrganizer {
   participants: Array<ParticipantRow>
 }
 
+/**
+ * Registration row returned for the per-event CSV export.
+ * Teams without a category are not included (they cannot belong to any event).
+ */
+export interface TeamRegistrationRow {
+  team: TeamRow
+  categoryName: string
+  participants: Array<ParticipantRow>
+}
+
+/**
+ * Collect all Teams registered to a given Event (via their Category assignment).
+ * Returns one entry per Team with the category name and its participants.
+ * Teams with no Category cannot belong to an event and are excluded.
+ */
+export async function exportTeamsForEvent(
+  db: Database,
+  eventId: string,
+): Promise<Array<TeamRegistrationRow>> {
+  const teamsWithCategory = await db
+    .select({ team, categoryName: category.name })
+    .from(team)
+    .innerJoin(category, eq(team.categoryId, category.id))
+    .where(eq(category.eventId, eventId))
+
+  const result: Array<TeamRegistrationRow> = []
+
+  for (const row of teamsWithCategory) {
+    const participants = await db
+      .select()
+      .from(participant)
+      .where(eq(participant.teamId, row.team.id))
+
+    result.push({
+      team: row.team,
+      categoryName: row.categoryName,
+      participants,
+    })
+  }
+
+  return result
+}
+
 export async function listAllTeamsForOrganizer(
   db: Database,
 ): Promise<Array<TeamForOrganizer>> {

@@ -12,6 +12,7 @@ import { decideOrganizerAccess, getSessionWithRole } from '~/lib/auth-functions'
 import {
   createCategoryFn,
   createEventFn,
+  exportEventRegistrationsCsvFn,
   listEventsWithCategoriesFn,
   removeCategoryFn,
   updateCategoryFn,
@@ -450,6 +451,29 @@ function EventCard(props: EventCardProps) {
   const [editingCategoryId, setEditingCategoryId] = createSignal<string | null>(
     null,
   )
+  const [downloading, setDownloading] = createSignal(false)
+
+  async function handleDownloadCsv() {
+    setDownloading(true)
+    try {
+      const result = await exportEventRegistrationsCsvFn({
+        data: { eventId: props.entry.event.id },
+      })
+      const blob = new Blob([result.csv], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const safeName = props.entry.event.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+      a.download = `registreringer-${safeName}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   async function handleRemoveCategory(categoryId: string) {
     await removeCategoryFn({ data: { categoryId } })
@@ -474,6 +498,15 @@ function EventCard(props: EventCardProps) {
                   </Show>
                 </p>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={downloading()}
+                onClick={() => void handleDownloadCsv()}
+              >
+                {downloading() ? 'Henter…' : 'Download CSV'}
+              </Button>
               <Button
                 type="button"
                 variant="outline"
