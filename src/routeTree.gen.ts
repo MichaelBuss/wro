@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RecoverRouteImport } from './routes/recover'
 import { Route as OrganizerRouteImport } from './routes/organizer'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GalleriRouteImport } from './routes/galleri'
@@ -17,6 +18,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as OrganizerRegistrationsRouteImport } from './routes/organizer_.registrations'
+import { Route as OrganizerRecoveryRouteImport } from './routes/organizer_.recovery'
 import { Route as OrganizerEventsRouteImport } from './routes/organizer_.events'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
 import { Route as InfoResourcesRouteImport } from './routes/info.resources'
@@ -35,6 +37,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecoverRoute = RecoverRouteImport.update({
+  id: '/recover',
+  path: '/recover',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizerRoute = OrganizerRouteImport.update({
@@ -70,6 +77,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const OrganizerRegistrationsRoute = OrganizerRegistrationsRouteImport.update({
   id: '/organizer_/registrations',
   path: '/organizer/registrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerRecoveryRoute = OrganizerRecoveryRouteImport.update({
+  id: '/organizer_/recovery',
+  path: '/organizer/recovery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizerEventsRoute = OrganizerEventsRouteImport.update({
@@ -149,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/galleri': typeof GalleriRouteWithChildren
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
+  '/recover': typeof RecoverRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
@@ -162,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer/events': typeof OrganizerEventsRoute
+  '/organizer/recovery': typeof OrganizerRecoveryRoute
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -173,6 +187,7 @@ export interface FileRoutesByTo {
   '/galleri': typeof GalleriRouteWithChildren
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
+  '/recover': typeof RecoverRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
@@ -186,6 +201,7 @@ export interface FileRoutesByTo {
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer/events': typeof OrganizerEventsRoute
+  '/organizer/recovery': typeof OrganizerRecoveryRoute
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -198,6 +214,7 @@ export interface FileRoutesById {
   '/galleri': typeof GalleriRouteWithChildren
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
+  '/recover': typeof RecoverRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard_/$teamId': typeof DashboardTeamIdRoute
@@ -211,6 +228,7 @@ export interface FileRoutesById {
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer_/events': typeof OrganizerEventsRoute
+  '/organizer_/recovery': typeof OrganizerRecoveryRoute
   '/organizer_/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -224,6 +242,7 @@ export interface FileRouteTypes {
     | '/galleri'
     | '/login'
     | '/organizer'
+    | '/recover'
     | '/signup'
     | '/blog/$slug'
     | '/dashboard/$teamId'
@@ -237,6 +256,7 @@ export interface FileRouteTypes {
     | '/info/resources'
     | '/info/tips'
     | '/organizer/events'
+    | '/organizer/recovery'
     | '/organizer/registrations'
     | '/blog/'
     | '/api/auth/$'
@@ -248,6 +268,7 @@ export interface FileRouteTypes {
     | '/galleri'
     | '/login'
     | '/organizer'
+    | '/recover'
     | '/signup'
     | '/blog/$slug'
     | '/dashboard/$teamId'
@@ -261,6 +282,7 @@ export interface FileRouteTypes {
     | '/info/resources'
     | '/info/tips'
     | '/organizer/events'
+    | '/organizer/recovery'
     | '/organizer/registrations'
     | '/blog'
     | '/api/auth/$'
@@ -272,6 +294,7 @@ export interface FileRouteTypes {
     | '/galleri'
     | '/login'
     | '/organizer'
+    | '/recover'
     | '/signup'
     | '/blog/$slug'
     | '/dashboard_/$teamId'
@@ -285,6 +308,7 @@ export interface FileRouteTypes {
     | '/info/resources'
     | '/info/tips'
     | '/organizer_/events'
+    | '/organizer_/recovery'
     | '/organizer_/registrations'
     | '/blog/'
     | '/api/auth/$'
@@ -297,6 +321,7 @@ export interface RootRouteChildren {
   GalleriRoute: typeof GalleriRouteWithChildren
   LoginRoute: typeof LoginRoute
   OrganizerRoute: typeof OrganizerRoute
+  RecoverRoute: typeof RecoverRoute
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DashboardTeamIdRoute: typeof DashboardTeamIdRoute
@@ -309,6 +334,7 @@ export interface RootRouteChildren {
   InfoResourcesRoute: typeof InfoResourcesRoute
   InfoTipsRoute: typeof InfoTipsRoute
   OrganizerEventsRoute: typeof OrganizerEventsRoute
+  OrganizerRecoveryRoute: typeof OrganizerRecoveryRoute
   OrganizerRegistrationsRoute: typeof OrganizerRegistrationsRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -322,6 +348,13 @@ declare module '@tanstack/solid-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recover': {
+      id: '/recover'
+      path: '/recover'
+      fullPath: '/recover'
+      preLoaderRoute: typeof RecoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organizer': {
@@ -371,6 +404,13 @@ declare module '@tanstack/solid-router' {
       path: '/organizer/registrations'
       fullPath: '/organizer/registrations'
       preLoaderRoute: typeof OrganizerRegistrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer_/recovery': {
+      id: '/organizer_/recovery'
+      path: '/organizer/recovery'
+      fullPath: '/organizer/recovery'
+      preLoaderRoute: typeof OrganizerRecoveryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organizer_/events': {
@@ -491,6 +531,7 @@ const rootRouteChildren: RootRouteChildren = {
   GalleriRoute: GalleriRouteWithChildren,
   LoginRoute: LoginRoute,
   OrganizerRoute: OrganizerRoute,
+  RecoverRoute: RecoverRoute,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DashboardTeamIdRoute: DashboardTeamIdRoute,
@@ -503,6 +544,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfoResourcesRoute: InfoResourcesRoute,
   InfoTipsRoute: InfoTipsRoute,
   OrganizerEventsRoute: OrganizerEventsRoute,
+  OrganizerRecoveryRoute: OrganizerRecoveryRoute,
   OrganizerRegistrationsRoute: OrganizerRegistrationsRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

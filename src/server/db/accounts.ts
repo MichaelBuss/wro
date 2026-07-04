@@ -3,12 +3,19 @@ import type { Database } from './client'
 import {
   participant,
   passkey,
+  recoveryLink,
   session,
   team,
   teamMembership,
   user,
 } from './schema'
-import type { ParticipantRow, TeamRow, UserRole, UserRow } from './schema'
+import type {
+  ParticipantRow,
+  RecoveryLinkRow,
+  TeamRow,
+  UserRole,
+  UserRow,
+} from './schema'
 
 /**
  * Data-layer accessors for Accounts, their passkeys, and their sessions.
@@ -101,6 +108,20 @@ export async function getPasskeysForAccount(db: Database, userId: string) {
   return db.select().from(passkey).where(eq(passkey.userId, userId))
 }
 
+/**
+ * Remove a specific passkey from an Account. The ownership check (userId ===
+ * passkey.userId) ensures a coach cannot delete another coach's passkeys.
+ */
+export async function deletePasskey(
+  db: Database,
+  passkeyId: string,
+  userId: string,
+): Promise<void> {
+  await db
+    .delete(passkey)
+    .where(and(eq(passkey.id, passkeyId), eq(passkey.userId, userId)))
+}
+
 export interface NewSession {
   userId: string
   token: string
@@ -164,6 +185,74 @@ export async function deleteSessionForUser(
   await db
     .delete(session)
     .where(and(eq(session.userId, userId), eq(session.token, token)))
+}
+
+// ---------------------------------------------------------------------------
+// Recovery links — break-glass passkey recovery (see authentication ADR)
+// ---------------------------------------------------------------------------
+
+export interface NewRecoveryLink {
+  targetUserId: string
+  generatedByUserId: string
+  expiresAt: Date
+}
+
+/** Generate a fresh recovery link row. The token is a random UUID. */
+export async function createRecoveryLink(
+  db: Database,
+  input: NewRecoveryLink,
+): Promise<RecoveryLinkRow> {
+  const rows = await db
+    .insert(recoveryLink)
+    .values({
+      id: crypto.randomUUID(),
+      token: crypto.randomUUID(),
+      targetUserId: input.targetUserId,
+      generatedByUserId: input.generatedByUserId,
+      expiresAt: input.expiresAt,
+      createdAt: new Date(),
+    })
+    .returning()
+
+  if (!rows[0]) {
+    throw new Error('createRecoveryLink: INSERT returned no rows')
+  }
+  return rows[0]
+}
+
+export async function getRecoveryLinkByToken(
+  db: Database,
+  token: string,
+): Promise<RecoveryLinkRow | null> {
+  const rows = await db
+    .select()
+    .from(recoveryLink)
+    .where(eq(recoveryLink.token, token))
+    .limit(1)
+  return rows.length > 0 && rows[0] ? rows[0] : null
+}
+
+/**
+ * Validate and atomically consume a recovery link.
+ * Returns the targetUserId on success; throws a descriptive error otherwise.
+ * Marks the link as used so it cannot be reused.
+ */
+export async function consumeRecoveryLink(
+  db: Database,
+  token: string,
+): Promise<string> {
+  const link = await getRecoveryLinkByToken(db, token)
+  if (!link) throw new Error('Recovery link not found')
+  if (link.usedAt) throw new Error('Recovery link already used')
+  if (link.expiresAt.getTime() <= Date.now())
+    throw new Error('Recovery link expired')
+
+  await db
+    .update(recoveryLink)
+    .set({ usedAt: new Date() })
+    .where(eq(recoveryLink.id, link.id))
+
+  return link.targetUserId
 }
 
 // ---------------------------------------------------------------------------

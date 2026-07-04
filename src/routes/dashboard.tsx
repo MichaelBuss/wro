@@ -11,6 +11,7 @@ import { deleteMyAccountFn, exportMyDataFn } from '~/lib/account-functions'
 import { authClient } from '~/lib/auth-client'
 import { getSession } from '~/lib/auth-functions'
 import { decideDashboardAccess } from '~/lib/dashboard-access'
+import { listMyPasskeysFn, removePasskeyFn } from '~/lib/recovery-functions'
 import {
   createTeamFn,
   listTeamsFn,
@@ -30,8 +31,11 @@ export const Route = createFileRoute('/dashboard')({
     return { user: access.user }
   },
   loader: async () => {
-    const teams = await listTeamsFn()
-    return { teams }
+    const [teams, passkeys] = await Promise.all([
+      listTeamsFn(),
+      listMyPasskeysFn(),
+    ])
+    return { teams, passkeys }
   },
   component: Dashboard,
 })
@@ -49,6 +53,12 @@ function Dashboard() {
 
   type DeleteStep = 'idle' | 'confirming' | 'deleting'
   const [deleteStep, setDeleteStep] = createSignal<DeleteStep>('idle')
+
+  const [passkeyBusy, setPasskeyBusy] = createSignal(false)
+  const [passkeyError, setPasskeyError] = createSignal<string | null>(null)
+  const [removingPasskeyId, setRemovingPasskeyId] = createSignal<string | null>(
+    null,
+  )
 
   async function signOut() {
     await authClient.signOut()
@@ -115,6 +125,33 @@ function Dashboard() {
   async function handleWithdraw(teamId: string) {
     await withdrawTeamFn({ data: { teamId } })
     await router.invalidate()
+  }
+
+  async function handleAddPasskey() {
+    setPasskeyError(null)
+    setPasskeyBusy(true)
+    await authClient.passkey.addPasskey({
+      fetchOptions: {
+        onError: (ctx) => {
+          setPasskeyBusy(false)
+          setPasskeyError(ctx.error.message)
+        },
+        onSuccess: async () => {
+          setPasskeyBusy(false)
+          await router.invalidate()
+        },
+      },
+    })
+  }
+
+  async function handleRemovePasskey(passkeyId: string) {
+    setRemovingPasskeyId(passkeyId)
+    try {
+      await removePasskeyFn({ data: { passkeyId } })
+      await router.invalidate()
+    } finally {
+      setRemovingPasskeyId(null)
+    }
   }
 
   return (
@@ -241,6 +278,64 @@ function Dashboard() {
               Opret hold
             </Button>
           </form>
+        </section>
+
+        <section class="mb-10 border-t border-border pt-8">
+          <Heading level="h2" class="mb-1">
+            Adgangsnøgler
+          </Heading>
+          <p class="text-sm text-muted-foreground mb-4">
+            Du kan tilføje flere enheder (f.eks. din bærbare computer) som
+            adgangsnøgler, og fjerne dem du ikke længere bruger.
+          </p>
+
+          <ul class="space-y-2 mb-4">
+            <For each={loaderData().passkeys}>
+              {(key) => (
+                <li class="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+                  <span class="flex-1 text-sm">
+                    {key.name ?? 'Unavngivet enhed'}
+                    <span class="ml-2 text-xs text-muted-foreground">
+                      (tilføjet{' '}
+                      {key.createdAt
+                        ? new Date(key.createdAt).toLocaleDateString('da-DK')
+                        : '—'}
+                      )
+                    </span>
+                  </span>
+                  <Show when={loaderData().passkeys.length > 1}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      class="text-destructive hover:text-destructive"
+                      disabled={removingPasskeyId() === key.id}
+                      onClick={() => void handleRemovePasskey(key.id)}
+                    >
+                      Fjern
+                    </Button>
+                  </Show>
+                </li>
+              )}
+            </For>
+          </ul>
+
+          <Button
+            type="button"
+            variant="outline"
+            disabled={passkeyBusy()}
+            onClick={() => void handleAddPasskey()}
+          >
+            Tilføj enhed
+          </Button>
+
+          <Show when={passkeyError()}>
+            {(msg) => (
+              <p class="mt-2 text-sm text-destructive" role="alert">
+                {msg()}
+              </p>
+            )}
+          </Show>
         </section>
 
         <section class="mb-10 border-t border-border pt-8">

@@ -31,7 +31,7 @@ function LoginPage() {
 
     await authClient.passkey.addPasskey({
       name: name(),
-      context: JSON.stringify({ email: email(), name: name() }),
+      context: JSON.stringify({ type: 'signup', email: email(), name: name() }),
       fetchOptions: {
         onError: (context) => {
           setBusy(false)

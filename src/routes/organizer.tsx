@@ -74,6 +74,21 @@ function OrganizerLanding() {
 
           <div class="rounded-lg border border-border px-5 py-4 flex items-center justify-between gap-4">
             <div>
+              <p class="font-medium">Konti-gendannelse</p>
+              <p class="text-sm text-muted-foreground">
+                Generer gendannelseslinks til låste konti
+              </p>
+            </div>
+            <Link
+              to="/organizer/recovery"
+              class="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+            >
+              Åbn
+            </Link>
+          </div>
+
+          <div class="rounded-lg border border-border px-5 py-4 flex items-center justify-between gap-4">
+            <div>
               <p class="font-medium">Indholdsredaktion (Sveltia CMS)</p>
               <p class="text-sm text-muted-foreground">
                 Redigér sideindhold via GitHub-login

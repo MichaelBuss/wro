@@ -26,11 +26,15 @@ export default defineConfig({
         // - /admin: static Decap CMS app, not a TanStack route
         // - /api/auth: Better Auth server handler
         // - /dashboard, /login: authenticated / passkey routes (see auth ADR)
+        // - /organizer: organizer-gated routes (role-checked at request time)
+        // - /recover: recovery link pages (token-specific, single-use)
         filter: ({ path }) =>
           !path.startsWith('/admin') &&
           !path.startsWith('/api') &&
           !path.startsWith('/dashboard') &&
-          !path.startsWith('/login'),
+          !path.startsWith('/login') &&
+          !path.startsWith('/organizer') &&
+          !path.startsWith('/recover'),
       },
     }),
     solidPlugin({ ssr: true }),

@@ -1,7 +1,17 @@
 import { eq } from 'drizzle-orm'
 import { describe, expect, it } from 'vitest'
-import { createAccount, deleteAccount, exportAccountData } from './accounts'
-import { participant, team, teamMembership, user } from './schema'
+import {
+  consumeRecoveryLink,
+  createAccount,
+  createRecoveryLink,
+  deleteAccount,
+  deletePasskey,
+  exportAccountData,
+  getPasskeysForAccount,
+  getRecoveryLinkByToken,
+  linkPasskey,
+} from './accounts'
+import { participant, passkey, team, teamMembership, user } from './schema'
 import { addParticipant, createTeam } from './teams'
 import { createTestDb } from './testing'
 
@@ -230,5 +240,284 @@ describe('deleteAccount', () => {
       .where(eq(participant.teamId, tB.id))
     expect(remainingParticipants).toHaveLength(1)
     expect(remainingParticipants[0]?.name).toBe('B-Participant')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Passkey management: list and remove
+// ---------------------------------------------------------------------------
+
+describe('getPasskeysForAccount / deletePasskey', () => {
+  it('lists passkeys belonging to an Account', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    await linkPasskey(db, {
+      userId: coach.id,
+      credentialID: 'cred-1',
+      publicKey: 'pk-1',
+      name: 'Laptop',
+    })
+    await linkPasskey(db, {
+      userId: coach.id,
+      credentialID: 'cred-2',
+      publicKey: 'pk-2',
+      name: 'Phone',
+    })
+
+    // Act
+    const keys = await getPasskeysForAccount(db, coach.id)
+
+    // Assert
+    expect(keys).toHaveLength(2)
+    const names = keys.map((k) => k.name)
+    expect(names).toContain('Laptop')
+    expect(names).toContain('Phone')
+  })
+
+  it('does not list passkeys belonging to a different Account', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coachA = await createAccount(db, {
+      email: 'coachA@example.com',
+      name: 'Coach A',
+    })
+    const coachB = await createAccount(db, {
+      email: 'coachB@example.com',
+      name: 'Coach B',
+    })
+    await linkPasskey(db, {
+      userId: coachB.id,
+      credentialID: 'cred-b',
+      publicKey: 'pk-b',
+    })
+
+    // Act
+    const keys = await getPasskeysForAccount(db, coachA.id)
+
+    // Assert
+    expect(keys).toHaveLength(0)
+  })
+
+  it('removes a passkey owned by the Account', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach Nova',
+    })
+    const key = await linkPasskey(db, {
+      userId: coach.id,
+      credentialID: 'cred-1',
+      publicKey: 'pk-1',
+    })
+
+    // Act
+    await deletePasskey(db, key.id, coach.id)
+
+    // Assert
+    const remaining = await db
+      .select()
+      .from(passkey)
+      .where(eq(passkey.id, key.id))
+    expect(remaining).toHaveLength(0)
+  })
+
+  it('does not remove a passkey belonging to another Account', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const coachA = await createAccount(db, {
+      email: 'coachA@example.com',
+      name: 'Coach A',
+    })
+    const coachB = await createAccount(db, {
+      email: 'coachB@example.com',
+      name: 'Coach B',
+    })
+    const keyB = await linkPasskey(db, {
+      userId: coachB.id,
+      credentialID: 'cred-b',
+      publicKey: 'pk-b',
+    })
+
+    // Act — coachA tries to delete coachB's passkey
+    await deletePasskey(db, keyB.id, coachA.id)
+
+    // Assert — passkey is still there
+    const remaining = await db
+      .select()
+      .from(passkey)
+      .where(eq(passkey.id, keyB.id))
+    expect(remaining).toHaveLength(1)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Recovery links: generation, single-use, expiry, and audit log
+// ---------------------------------------------------------------------------
+
+function futureDate(offsetMs: number) {
+  return new Date(Date.now() + offsetMs)
+}
+
+describe('createRecoveryLink / getRecoveryLinkByToken', () => {
+  it('records the link with generation metadata (audit log)', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const organizer = await createAccount(db, {
+      email: 'org@example.com',
+      name: 'Organizer',
+      role: 'organizer',
+    })
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach',
+    })
+    const expiresAt = futureDate(24 * 60 * 60 * 1000)
+
+    // Act
+    const link = await createRecoveryLink(db, {
+      targetUserId: coach.id,
+      generatedByUserId: organizer.id,
+      expiresAt,
+    })
+
+    // Assert — the row acts as the generation log entry
+    expect(link.targetUserId).toBe(coach.id)
+    expect(link.generatedByUserId).toBe(organizer.id)
+    expect(link.usedAt).toBeNull()
+    expect(link.createdAt).toBeInstanceOf(Date)
+    expect(link.expiresAt.getTime()).toBeCloseTo(expiresAt.getTime(), -3)
+  })
+
+  it('retrieves a link by its token', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const organizer = await createAccount(db, {
+      email: 'org@example.com',
+      name: 'Organizer',
+      role: 'organizer',
+    })
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach',
+    })
+    const link = await createRecoveryLink(db, {
+      targetUserId: coach.id,
+      generatedByUserId: organizer.id,
+      expiresAt: futureDate(60_000),
+    })
+
+    // Act
+    const fetched = await getRecoveryLinkByToken(db, link.token)
+
+    // Assert
+    expect(fetched?.id).toBe(link.id)
+    expect(fetched?.token).toBe(link.token)
+  })
+
+  it('returns null for an unknown token', async () => {
+    // Arrange
+    const db = await createTestDb()
+
+    // Act
+    const result = await getRecoveryLinkByToken(db, 'no-such-token')
+
+    // Assert
+    expect(result).toBeNull()
+  })
+})
+
+describe('consumeRecoveryLink', () => {
+  it('works once and records use (audit log)', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const organizer = await createAccount(db, {
+      email: 'org@example.com',
+      name: 'Organizer',
+      role: 'organizer',
+    })
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach',
+    })
+    const link = await createRecoveryLink(db, {
+      targetUserId: coach.id,
+      generatedByUserId: organizer.id,
+      expiresAt: futureDate(60_000),
+    })
+
+    // Act
+    const returnedUserId = await consumeRecoveryLink(db, link.token)
+
+    // Assert — correct user is returned
+    expect(returnedUserId).toBe(coach.id)
+
+    // Assert — usedAt is now set (use log entry)
+    const updated = await getRecoveryLinkByToken(db, link.token)
+    expect(updated?.usedAt).toBeInstanceOf(Date)
+  })
+
+  it('rejects reuse of an already-consumed link', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const organizer = await createAccount(db, {
+      email: 'org@example.com',
+      name: 'Organizer',
+      role: 'organizer',
+    })
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach',
+    })
+    const link = await createRecoveryLink(db, {
+      targetUserId: coach.id,
+      generatedByUserId: organizer.id,
+      expiresAt: futureDate(60_000),
+    })
+    await consumeRecoveryLink(db, link.token)
+
+    // Act + Assert — second use throws
+    await expect(consumeRecoveryLink(db, link.token)).rejects.toThrow(
+      'Recovery link already used',
+    )
+  })
+
+  it('rejects an expired link', async () => {
+    // Arrange
+    const db = await createTestDb()
+    const organizer = await createAccount(db, {
+      email: 'org@example.com',
+      name: 'Organizer',
+      role: 'organizer',
+    })
+    const coach = await createAccount(db, {
+      email: 'coach@example.com',
+      name: 'Coach',
+    })
+    const link = await createRecoveryLink(db, {
+      targetUserId: coach.id,
+      generatedByUserId: organizer.id,
+      // Already expired
+      expiresAt: new Date(Date.now() - 1000),
+    })
+
+    // Act + Assert
+    await expect(consumeRecoveryLink(db, link.token)).rejects.toThrow(
+      'Recovery link expired',
+    )
+  })
+
+  it('rejects an unknown token', async () => {
+    // Arrange
+    const db = await createTestDb()
+
+    // Act + Assert
+    await expect(consumeRecoveryLink(db, 'ghost-token')).rejects.toThrow(
+      'Recovery link not found',
+    )
   })
 })
