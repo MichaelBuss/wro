@@ -3,6 +3,7 @@ import type { Database } from './client'
 import { category, event, participant, team, teamMembership } from './schema'
 import type {
   CategoryRow,
+  EventKind,
   EventRow,
   ParticipantRow,
   PaymentStatus,
@@ -451,6 +452,139 @@ export async function listAllCategories(
     .innerJoin(event, eq(category.eventId, event.id))
 
   return rows
+}
+
+// ---------------------------------------------------------------------------
+// Events & Categories — organizer CRUD
+// ---------------------------------------------------------------------------
+
+export interface EventWithCategories {
+  event: EventRow
+  categories: Array<CategoryRow>
+}
+
+export async function listEventsWithCategories(
+  db: Database,
+): Promise<Array<EventWithCategories>> {
+  const events = await db.select().from(event)
+  const result: Array<EventWithCategories> = []
+
+  for (const e of events) {
+    const categories = await db
+      .select()
+      .from(category)
+      .where(eq(category.eventId, e.id))
+    result.push({ event: e, categories })
+  }
+
+  return result
+}
+
+export interface NewEventInput {
+  name: string
+  kind: EventKind
+  registrationDeadline: Date | null
+}
+
+export async function createEvent(
+  db: Database,
+  input: NewEventInput,
+): Promise<EventRow> {
+  const now = new Date()
+  const rows = await db
+    .insert(event)
+    .values({
+      id: crypto.randomUUID(),
+      name: input.name,
+      kind: input.kind,
+      registrationDeadline: input.registrationDeadline,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning()
+
+  if (!rows[0]) throw new Error('createEvent: INSERT returned no rows')
+  return rows[0]
+}
+
+export async function updateEvent(
+  db: Database,
+  eventId: string,
+  input: NewEventInput,
+): Promise<EventRow> {
+  const rows = await db
+    .update(event)
+    .set({
+      name: input.name,
+      kind: input.kind,
+      registrationDeadline: input.registrationDeadline,
+      updatedAt: new Date(),
+    })
+    .where(eq(event.id, eventId))
+    .returning()
+
+  if (!rows[0]) throw new Error('updateEvent: event not found')
+  return rows[0]
+}
+
+export interface NewCategoryInput {
+  name: string
+  minBirthYear: number | null
+  maxBirthYear: number | null
+}
+
+export async function createCategory(
+  db: Database,
+  eventId: string,
+  input: NewCategoryInput,
+): Promise<CategoryRow> {
+  const now = new Date()
+  const rows = await db
+    .insert(category)
+    .values({
+      id: crypto.randomUUID(),
+      eventId,
+      name: input.name,
+      minBirthYear: input.minBirthYear,
+      maxBirthYear: input.maxBirthYear,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning()
+
+  if (!rows[0]) throw new Error('createCategory: INSERT returned no rows')
+  return rows[0]
+}
+
+export async function updateCategory(
+  db: Database,
+  categoryId: string,
+  input: NewCategoryInput,
+): Promise<CategoryRow> {
+  const rows = await db
+    .update(category)
+    .set({
+      name: input.name,
+      minBirthYear: input.minBirthYear,
+      maxBirthYear: input.maxBirthYear,
+      updatedAt: new Date(),
+    })
+    .where(eq(category.id, categoryId))
+    .returning()
+
+  if (!rows[0]) throw new Error('updateCategory: category not found')
+  return rows[0]
+}
+
+/**
+ * Removes a Category. Teams referencing it have their categoryId set to null
+ * by the ON DELETE SET NULL foreign key constraint — no orphaned references.
+ */
+export async function removeCategory(
+  db: Database,
+  categoryId: string,
+): Promise<void> {
+  await db.delete(category).where(eq(category.id, categoryId))
 }
 
 // ---------------------------------------------------------------------------

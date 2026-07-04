@@ -6,17 +6,23 @@ import { seedBaselineEvent } from './seed'
 import {
   addParticipant,
   confirmTeam,
+  createCategory,
+  createEvent,
   createTeam,
   getTeamWithDetails,
   listAllCategories,
   listAllTeamsForOrganizer,
+  listEventsWithCategories,
   listTeamsByAccount,
+  removeCategory,
   removeParticipant,
   renameTeam,
   returnTeamToDraft,
   setPaymentStatus,
   setTeamCategory,
   submitTeam,
+  updateCategory,
+  updateEvent,
   updateParticipant,
   updateTeamDetails,
   waitlistTeam,
@@ -902,6 +908,432 @@ describe('teams data layer', () => {
       const entry = all[0]
       expect(entry.category?.id).toBe(categories[0]?.id)
       expect(entry.participants).toHaveLength(1)
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Issue 006 — Organizer manages Events & Categories
+// ---------------------------------------------------------------------------
+
+describe('event and category management', () => {
+  describe('createEvent', () => {
+    it('creates a Competition event with a registration deadline', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const deadline = new Date('2027-09-01T12:00:00Z')
+
+      // Act
+      const created = await createEvent(db, {
+        name: 'WRO Denmark 2027',
+        kind: 'competition',
+        registrationDeadline: deadline,
+      })
+
+      // Assert
+      expect(created.id).toBeTruthy()
+      expect(created.name).toBe('WRO Denmark 2027')
+      expect(created.kind).toBe('competition')
+      expect(created.registrationDeadline?.toISOString()).toBe(
+        deadline.toISOString(),
+      )
+    })
+
+    it('creates a Gathering event without a deadline', async () => {
+      // Arrange
+      const db = await createTestDb()
+
+      // Act
+      const created = await createEvent(db, {
+        name: 'Summer Gathering 2027',
+        kind: 'gathering',
+        registrationDeadline: null,
+      })
+
+      // Assert
+      expect(created.kind).toBe('gathering')
+      expect(created.registrationDeadline).toBeNull()
+    })
+
+    it('persists the new event so it appears in listEventsWithCategories', async () => {
+      // Arrange
+      const db = await createTestDb()
+
+      // Act
+      await createEvent(db, {
+        name: 'WRO Denmark 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      const results = await listEventsWithCategories(db)
+
+      // Assert
+      expect(results).toHaveLength(1)
+      expect(results[0]?.event.name).toBe('WRO Denmark 2027')
+      expect(results[0]?.categories).toHaveLength(0)
+    })
+  })
+
+  describe('updateEvent', () => {
+    it('updates event name, kind, and deadline', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const created = await createEvent(db, {
+        name: 'Old Name',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      const newDeadline = new Date('2027-10-01T00:00:00Z')
+
+      // Act
+      const updated = await updateEvent(db, created.id, {
+        name: 'New Name',
+        kind: 'gathering',
+        registrationDeadline: newDeadline,
+      })
+
+      // Assert
+      expect(updated.name).toBe('New Name')
+      expect(updated.kind).toBe('gathering')
+      expect(updated.registrationDeadline?.toISOString()).toBe(
+        newDeadline.toISOString(),
+      )
+    })
+
+    it('clears the deadline when updated to null', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const created = await createEvent(db, {
+        name: 'Deadline Event',
+        kind: 'competition',
+        registrationDeadline: new Date('2027-09-01T12:00:00Z'),
+      })
+
+      // Act
+      const updated = await updateEvent(db, created.id, {
+        name: created.name,
+        kind: created.kind,
+        registrationDeadline: null,
+      })
+
+      // Assert
+      expect(updated.registrationDeadline).toBeNull()
+    })
+
+    it('throws when the event does not exist', async () => {
+      // Arrange
+      const db = await createTestDb()
+
+      // Act / Assert
+      await expect(
+        updateEvent(db, 'nonexistent-id', {
+          name: 'Ghost',
+          kind: 'competition',
+          registrationDeadline: null,
+        }),
+      ).rejects.toThrow('event not found')
+    })
+  })
+
+  describe('createCategory', () => {
+    it('adds a Category to a Competition event and persists it', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'WRO 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+
+      // Act
+      const cat = await createCategory(db, ev.id, {
+        name: 'RoboMission Junior',
+        minBirthYear: 2011,
+        maxBirthYear: 2015,
+      })
+
+      // Assert
+      expect(cat.id).toBeTruthy()
+      expect(cat.eventId).toBe(ev.id)
+      expect(cat.name).toBe('RoboMission Junior')
+      expect(cat.minBirthYear).toBe(2011)
+      expect(cat.maxBirthYear).toBe(2015)
+    })
+
+    it('allows a Category with no age band (gathering use case)', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'RSVP Gathering',
+        kind: 'gathering',
+        registrationDeadline: null,
+      })
+
+      // Act
+      const cat = await createCategory(db, ev.id, {
+        name: 'Open',
+        minBirthYear: null,
+        maxBirthYear: null,
+      })
+
+      // Assert
+      expect(cat.minBirthYear).toBeNull()
+      expect(cat.maxBirthYear).toBeNull()
+    })
+
+    it('appears in listEventsWithCategories after being created', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'WRO 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      await createCategory(db, ev.id, {
+        name: 'RoboMission Junior',
+        minBirthYear: 2011,
+        maxBirthYear: 2015,
+      })
+      await createCategory(db, ev.id, {
+        name: 'Future Innovators',
+        minBirthYear: 2009,
+        maxBirthYear: 2018,
+      })
+
+      // Act
+      const results = await listEventsWithCategories(db)
+
+      // Assert
+      expect(results).toHaveLength(1)
+      expect(results[0]?.categories).toHaveLength(2)
+      const names = results[0]?.categories.map((c) => c.name).sort()
+      expect(names).toEqual(['Future Innovators', 'RoboMission Junior'])
+    })
+  })
+
+  describe('updateCategory', () => {
+    it('updates name and age band of an existing Category', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'WRO 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      const cat = await createCategory(db, ev.id, {
+        name: 'Old Name',
+        minBirthYear: 2010,
+        maxBirthYear: 2014,
+      })
+
+      // Act
+      const updated = await updateCategory(db, cat.id, {
+        name: 'New Name',
+        minBirthYear: 2011,
+        maxBirthYear: 2015,
+      })
+
+      // Assert
+      expect(updated.name).toBe('New Name')
+      expect(updated.minBirthYear).toBe(2011)
+      expect(updated.maxBirthYear).toBe(2015)
+      expect(updated.id).toBe(cat.id)
+    })
+
+    it('renaming a Category does not break Teams that reference it', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'WRO 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      const cat = await createCategory(db, ev.id, {
+        name: 'RoboMission Junior',
+        minBirthYear: 2011,
+        maxBirthYear: 2015,
+      })
+      const coach = await createAccount(db, {
+        email: 'coach@example.com',
+        name: 'Coach',
+      })
+      const t = await createTeam(db, { name: 'Team A', userId: coach.id })
+      await setTeamCategory(db, t.id, coach.id, cat.id)
+
+      // Act
+      await updateCategory(db, cat.id, {
+        name: 'RoboMission Junior (Renamed)',
+        minBirthYear: 2011,
+        maxBirthYear: 2015,
+      })
+
+      // Assert — Team still references the category (by id), and the category has the new name
+      const details = await getTeamWithDetails(db, t.id, coach.id)
+      expect(details.category?.id).toBe(cat.id)
+      expect(details.category?.name).toBe('RoboMission Junior (Renamed)')
+    })
+
+    it('throws when the category does not exist', async () => {
+      // Arrange
+      const db = await createTestDb()
+
+      // Act / Assert
+      await expect(
+        updateCategory(db, 'nonexistent-id', {
+          name: 'Ghost',
+          minBirthYear: null,
+          maxBirthYear: null,
+        }),
+      ).rejects.toThrow('category not found')
+    })
+  })
+
+  describe('removeCategory', () => {
+    it('removes a Category and Teams referencing it get categoryId set to null', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'WRO 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      const cat = await createCategory(db, ev.id, {
+        name: 'RoboMission Junior',
+        minBirthYear: 2011,
+        maxBirthYear: 2015,
+      })
+      const coach = await createAccount(db, {
+        email: 'coach@example.com',
+        name: 'Coach',
+      })
+      const t = await createTeam(db, { name: 'Team A', userId: coach.id })
+      await setTeamCategory(db, t.id, coach.id, cat.id)
+
+      // Confirm the team references the category before removal
+      const before = await getTeamWithDetails(db, t.id, coach.id)
+      expect(before.category?.id).toBe(cat.id)
+
+      // Act
+      await removeCategory(db, cat.id)
+
+      // Assert — team's categoryId is now null (no orphaned reference)
+      const after = await getTeamWithDetails(db, t.id, coach.id)
+      expect(after.category).toBeNull()
+      expect(after.team.categoryId).toBeNull()
+    })
+
+    it('removes a Category that no Team references without error', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'WRO 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      const cat = await createCategory(db, ev.id, {
+        name: 'Unused Category',
+        minBirthYear: null,
+        maxBirthYear: null,
+      })
+
+      // Act / Assert — should not throw
+      await expect(removeCategory(db, cat.id)).resolves.toBeUndefined()
+
+      const results = await listEventsWithCategories(db)
+      expect(results[0]?.categories).toHaveLength(0)
+    })
+  })
+
+  describe('coach registration reads from managed data', () => {
+    it('listAllCategories returns categories from organizer-created events, not only seeds', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'Organizer-Created Event',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      await createCategory(db, ev.id, {
+        name: 'Managed Category',
+        minBirthYear: 2010,
+        maxBirthYear: 2016,
+      })
+
+      // Act
+      const categories = await listAllCategories(db)
+
+      // Assert — coach picker reads from DB, not hardcoded seed
+      expect(categories).toHaveLength(1)
+      expect(categories[0]?.name).toBe('Managed Category')
+      expect(categories[0]?.eventName).toBe('Organizer-Created Event')
+    })
+
+    it('a coach can assign a team to an organizer-created Category', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'WRO 2027',
+        kind: 'competition',
+        registrationDeadline: null,
+      })
+      const cat = await createCategory(db, ev.id, {
+        name: 'RoboMission Junior',
+        minBirthYear: 2011,
+        maxBirthYear: 2015,
+      })
+      const coach = await createAccount(db, {
+        email: 'coach@example.com',
+        name: 'Coach',
+      })
+      const t = await createTeam(db, { name: 'Team A', userId: coach.id })
+
+      // Act
+      await setTeamCategory(db, t.id, coach.id, cat.id)
+
+      // Assert
+      const details = await getTeamWithDetails(db, t.id, coach.id)
+      expect(details.category?.id).toBe(cat.id)
+      expect(details.category?.name).toBe('RoboMission Junior')
+    })
+  })
+
+  describe('gathering events', () => {
+    it('a Gathering event can have categories (optional RSVP use)', async () => {
+      // Arrange
+      const db = await createTestDb()
+      const ev = await createEvent(db, {
+        name: 'Summer Gathering',
+        kind: 'gathering',
+        registrationDeadline: null,
+      })
+
+      // Act — adding a category to a gathering should not error
+      const cat = await createCategory(db, ev.id, {
+        name: 'Open',
+        minBirthYear: null,
+        maxBirthYear: null,
+      })
+
+      // Assert
+      expect(cat.eventId).toBe(ev.id)
+    })
+
+    it('a Gathering event can exist with no categories', async () => {
+      // Arrange
+      const db = await createTestDb()
+      await createEvent(db, {
+        name: 'Open Day',
+        kind: 'gathering',
+        registrationDeadline: null,
+      })
+
+      // Act
+      const results = await listEventsWithCategories(db)
+
+      // Assert — gathering event with zero categories is valid
+      expect(results).toHaveLength(1)
+      expect(results[0]?.event.kind).toBe('gathering')
+      expect(results[0]?.categories).toHaveLength(0)
     })
   })
 })

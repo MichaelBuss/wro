@@ -17,6 +17,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as OrganizerRegistrationsRouteImport } from './routes/organizer_.registrations'
+import { Route as OrganizerEventsRouteImport } from './routes/organizer_.events'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
 import { Route as InfoResourcesRouteImport } from './routes/info.resources'
 import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
@@ -69,6 +70,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const OrganizerRegistrationsRoute = OrganizerRegistrationsRouteImport.update({
   id: '/organizer_/registrations',
   path: '/organizer/registrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerEventsRoute = OrganizerEventsRouteImport.update({
+  id: '/organizer_/events',
+  path: '/organizer/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InfoTipsRoute = InfoTipsRouteImport.update({
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/info/prizes': typeof InfoPrizesRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
+  '/organizer/events': typeof OrganizerEventsRoute
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/info/prizes': typeof InfoPrizesRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
+  '/organizer/events': typeof OrganizerEventsRoute
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/info/prizes': typeof InfoPrizesRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
+  '/organizer_/events': typeof OrganizerEventsRoute
   '/organizer_/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/info/prizes'
     | '/info/resources'
     | '/info/tips'
+    | '/organizer/events'
     | '/organizer/registrations'
     | '/blog/'
     | '/api/auth/$'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/info/prizes'
     | '/info/resources'
     | '/info/tips'
+    | '/organizer/events'
     | '/organizer/registrations'
     | '/blog'
     | '/api/auth/$'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/info/prizes'
     | '/info/resources'
     | '/info/tips'
+    | '/organizer_/events'
     | '/organizer_/registrations'
     | '/blog/'
     | '/api/auth/$'
@@ -296,6 +308,7 @@ export interface RootRouteChildren {
   InfoPrizesRoute: typeof InfoPrizesRoute
   InfoResourcesRoute: typeof InfoResourcesRoute
   InfoTipsRoute: typeof InfoTipsRoute
+  OrganizerEventsRoute: typeof OrganizerEventsRoute
   OrganizerRegistrationsRoute: typeof OrganizerRegistrationsRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -358,6 +371,13 @@ declare module '@tanstack/solid-router' {
       path: '/organizer/registrations'
       fullPath: '/organizer/registrations'
       preLoaderRoute: typeof OrganizerRegistrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer_/events': {
+      id: '/organizer_/events'
+      path: '/organizer/events'
+      fullPath: '/organizer/events'
+      preLoaderRoute: typeof OrganizerEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/info/tips': {
@@ -482,6 +502,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfoPrizesRoute: InfoPrizesRoute,
   InfoResourcesRoute: InfoResourcesRoute,
   InfoTipsRoute: InfoTipsRoute,
+  OrganizerEventsRoute: OrganizerEventsRoute,
   OrganizerRegistrationsRoute: OrganizerRegistrationsRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
