@@ -24,6 +24,7 @@ import { Route as InfoCostRouteImport } from './routes/info.cost'
 import { Route as GalleriYearRouteImport } from './routes/galleri.$year'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as DemoFormRouteImport } from './routes/demo.form'
+import { Route as DashboardTeamIdRouteImport } from './routes/dashboard_.$teamId'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
@@ -103,6 +104,11 @@ const DemoFormRoute = DemoFormRouteImport.update({
   path: '/demo/form',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardTeamIdRoute = DashboardTeamIdRouteImport.update({
+  id: '/dashboard_/$teamId',
+  path: '/dashboard/$teamId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/dashboard/$teamId': typeof DashboardTeamIdRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/galleri/$year': typeof GalleriYearRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/dashboard/$teamId': typeof DashboardTeamIdRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/galleri/$year': typeof GalleriYearRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/dashboard_/$teamId': typeof DashboardTeamIdRoute
   '/demo/form': typeof DemoFormRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/galleri/$year': typeof GalleriYearRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/blog/$slug'
+    | '/dashboard/$teamId'
     | '/demo/form'
     | '/demo/tanstack-query'
     | '/galleri/$year'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/blog/$slug'
+    | '/dashboard/$teamId'
     | '/demo/form'
     | '/demo/tanstack-query'
     | '/galleri/$year'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/blog/$slug'
+    | '/dashboard_/$teamId'
     | '/demo/form'
     | '/demo/tanstack-query'
     | '/galleri/$year'
@@ -250,6 +262,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  DashboardTeamIdRoute: typeof DashboardTeamIdRoute
   DemoFormRoute: typeof DemoFormRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   InfoCostRoute: typeof InfoCostRoute
@@ -370,6 +383,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DemoFormRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard_/$teamId': {
+      id: '/dashboard_/$teamId'
+      path: '/dashboard/$teamId'
+      fullPath: '/dashboard/$teamId'
+      preLoaderRoute: typeof DashboardTeamIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
@@ -412,6 +432,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
+  DashboardTeamIdRoute: DashboardTeamIdRoute,
   DemoFormRoute: DemoFormRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   InfoCostRoute: InfoCostRoute,

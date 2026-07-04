@@ -1,4 +1,9 @@
-import { createFileRoute, redirect, useRouter } from '@tanstack/solid-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from '@tanstack/solid-router'
 import { For, Show, createSignal } from 'solid-js'
 import { PageShell } from '~/components/layout'
 import { Button, Heading, Lead } from '~/components/ui'
@@ -109,6 +114,13 @@ function Dashboard() {
                           <span class="rounded-full bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium">
                             Kladde
                           </span>
+                          <Link
+                            to="/dashboard/$teamId"
+                            params={{ teamId: t.id }}
+                            class="text-sm text-primary hover:underline px-2"
+                          >
+                            Redigér
+                          </Link>
                           <Button
                             type="button"
                             variant="ghost"

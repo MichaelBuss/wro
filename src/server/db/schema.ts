@@ -2,6 +2,36 @@ import { relations } from 'drizzle-orm'
 import { boolean, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 
 // ---------------------------------------------------------------------------
+// Event & Category schema. An Event scopes Team registrations; Categories are
+// configured per Event (name + age band). See docs/architecture/team-registration.md.
+// ---------------------------------------------------------------------------
+
+export const eventKinds = ['competition', 'gathering'] as const
+export type EventKind = (typeof eventKinds)[number]
+
+export const event = pgTable('event', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  kind: text('kind').$type<EventKind>().notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const category = pgTable('category', {
+  id: text('id').primaryKey(),
+  eventId: text('event_id')
+    .notNull()
+    .references(() => event.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  // Eligibility band expressed as birth years: a Participant born in year Y is
+  // in-band if minBirthYear <= Y <= maxBirthYear. Null means no bound.
+  minBirthYear: integer('min_birth_year'),
+  maxBirthYear: integer('max_birth_year'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// ---------------------------------------------------------------------------
 // Better Auth core schema (user / session / account / verification).
 //
 // Column keys MUST match Better Auth's field names (camelCase) because the
@@ -100,8 +130,26 @@ export const team = pgTable('team', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   status: text('status').$type<RegistrationStatus>().notNull().default('draft'),
+  // Detail fields — all nullable because teams start as name-only drafts.
+  categoryId: text('category_id').references(() => category.id, {
+    onDelete: 'set null',
+  }),
+  responsibleAdultName: text('responsible_adult_name'),
+  responsibleAdultPhone: text('responsible_adult_phone'),
+  responsibleAdultEmail: text('responsible_adult_email'),
+  organization: text('organization'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const participant = pgTable('participant', {
+  id: text('id').primaryKey(),
+  teamId: text('team_id')
+    .notNull()
+    .references(() => team.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  birthYear: integer('birth_year').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 export const teamMembership = pgTable('team_membership', {
@@ -134,8 +182,22 @@ export const passkeyRelations = relations(passkey, ({ one }) => ({
   user: one(user, { fields: [passkey.userId], references: [user.id] }),
 }))
 
-export const teamRelations = relations(team, ({ many }) => ({
+export const eventRelations = relations(event, ({ many }) => ({
+  categories: many(category),
+}))
+
+export const categoryRelations = relations(category, ({ one, many }) => ({
+  event: one(event, { fields: [category.eventId], references: [event.id] }),
+  teams: many(team),
+}))
+
+export const teamRelations = relations(team, ({ many, one }) => ({
   memberships: many(teamMembership),
+  participants: many(participant),
+  category: one(category, {
+    fields: [team.categoryId],
+    references: [category.id],
+  }),
 }))
 
 export const teamMembershipRelations = relations(teamMembership, ({ one }) => ({
@@ -149,6 +211,10 @@ export const teamMembershipRelations = relations(teamMembership, ({ one }) => ({
   }),
 }))
 
+export const participantRelations = relations(participant, ({ one }) => ({
+  team: one(team, { fields: [participant.teamId], references: [team.id] }),
+}))
+
 export type UserRow = typeof user.$inferSelect
 export type NewUserRow = typeof user.$inferInsert
 export type SessionRow = typeof session.$inferSelect
@@ -156,3 +222,9 @@ export type PasskeyRow = typeof passkey.$inferSelect
 export type TeamRow = typeof team.$inferSelect
 export type NewTeamRow = typeof team.$inferInsert
 export type TeamMembershipRow = typeof teamMembership.$inferSelect
+export type EventRow = typeof event.$inferSelect
+export type NewEventRow = typeof event.$inferInsert
+export type CategoryRow = typeof category.$inferSelect
+export type NewCategoryRow = typeof category.$inferInsert
+export type ParticipantRow = typeof participant.$inferSelect
+export type NewParticipantRow = typeof participant.$inferInsert

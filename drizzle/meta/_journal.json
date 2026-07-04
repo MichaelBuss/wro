@@ -15,6 +15,13 @@
       "when": 1783172545520,
       "tag": "0001_charming_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783173043460,
+      "tag": "0002_nifty_mysterio",
+      "breakpoints": true
     }
   ]
 }
