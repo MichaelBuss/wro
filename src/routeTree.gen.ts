@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as GalleriRouteImport } from './routes/galleri'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
@@ -24,15 +26,26 @@ import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-qu
 import { Route as DemoFormRouteImport } from './routes/demo.form'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
+import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleriRoute = GalleriRouteImport.update({
   id: '/galleri',
   path: '/galleri',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -100,10 +113,17 @@ const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   path: '/demo/start/server-funcs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRouteWithChildren
+  '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
@@ -116,11 +136,14 @@ export interface FileRoutesByFullPath {
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRouteWithChildren
+  '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
@@ -133,12 +156,15 @@ export interface FileRoutesByTo {
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/blog': typeof BlogIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRouteWithChildren
+  '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/form': typeof DemoFormRoute
@@ -151,13 +177,16 @@ export interface FileRoutesById {
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
     | '/galleri'
+    | '/login'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
@@ -170,11 +199,14 @@ export interface FileRouteTypes {
     | '/info/resources'
     | '/info/tips'
     | '/blog/'
+    | '/api/auth/$'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/galleri'
+    | '/login'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
@@ -187,11 +219,14 @@ export interface FileRouteTypes {
     | '/info/resources'
     | '/info/tips'
     | '/blog'
+    | '/api/auth/$'
     | '/demo/start/server-funcs'
   id:
     | '__root__'
     | '/'
+    | '/dashboard'
     | '/galleri'
+    | '/login'
     | '/signup'
     | '/blog/$slug'
     | '/demo/form'
@@ -204,12 +239,15 @@ export interface FileRouteTypes {
     | '/info/resources'
     | '/info/tips'
     | '/blog/'
+    | '/api/auth/$'
     | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   GalleriRoute: typeof GalleriRouteWithChildren
+  LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DemoFormRoute: typeof DemoFormRoute
@@ -221,6 +259,7 @@ export interface RootRouteChildren {
   InfoResourcesRoute: typeof InfoResourcesRoute
   InfoTipsRoute: typeof InfoTipsRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
 
@@ -233,11 +272,25 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/galleri': {
       id: '/galleri'
       path: '/galleri'
       fullPath: '/galleri'
       preLoaderRoute: typeof GalleriRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -331,6 +384,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DemoStartServerFuncsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -347,7 +407,9 @@ const GalleriRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   GalleriRoute: GalleriRouteWithChildren,
+  LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DemoFormRoute: DemoFormRoute,
@@ -359,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfoResourcesRoute: InfoResourcesRoute,
   InfoTipsRoute: InfoTipsRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }
 export const routeTree = rootRouteImport
