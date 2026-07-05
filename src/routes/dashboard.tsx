@@ -9,7 +9,7 @@ import { PageShell } from '~/components/layout'
 import { Button, Heading, Lead, StatusBadge } from '~/components/ui'
 import { deleteMyAccountFn, exportMyDataFn } from '~/lib/account-functions'
 import { authClient } from '~/lib/auth-client'
-import { getSession } from '~/lib/auth-functions'
+import { getSessionWithRole } from '~/lib/auth-functions'
 import { decideDashboardAccess } from '~/lib/dashboard-access'
 import { listMyPasskeysFn, removePasskeyFn } from '~/lib/recovery-functions'
 import {
@@ -21,11 +21,16 @@ import {
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
-    const session = await getSession()
+    const session = await getSessionWithRole()
     const access = decideDashboardAccess(session)
 
     if (access.type === 'redirect') {
       throw redirect({ to: access.to })
+    }
+
+    // Organizers have their own area — coaches only beyond this point.
+    if (session?.user.role === 'organizer') {
+      throw redirect({ to: '/organizer' })
     }
 
     return { user: access.user }

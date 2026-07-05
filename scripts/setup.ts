@@ -101,9 +101,24 @@ if (existsSync(ENV_FILE)) {
 } else {
   copyFileSync(ENV_EXAMPLE, ENV_FILE)
   ok('Copied .env.example → .env')
-  warn('Open .env and set ORGANIZER_EMAIL_ALLOWLIST to your email')
-  warn('before signing up, or you will not have the organizer role.')
-  log('Continuing setup — you can re-run `npm run setup` at any time.')
+}
+
+// Always remind about ORGANIZER_EMAIL_ALLOWLIST — easy to miss whether .env
+// was just created or already existed.
+const hasOrganizerEmail =
+  dotEnv.ORGANIZER_EMAIL_ALLOWLIST !== undefined &&
+  dotEnv.ORGANIZER_EMAIL_ALLOWLIST !== 'you@example.com' &&
+  dotEnv.ORGANIZER_EMAIL_ALLOWLIST !== ''
+
+if (!hasOrganizerEmail) {
+  warn(
+    'ORGANIZER_EMAIL_ALLOWLIST is not set (or still has the placeholder value).',
+  )
+  warn(
+    'Add your email to .env before signing up, or you will not get the organizer role:',
+  )
+  warn('  ORGANIZER_EMAIL_ALLOWLIST=your@email.com')
+  log('')
 }
 
 // ── Step 2: Docker Compose ────────────────────────────────────────────────────

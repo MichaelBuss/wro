@@ -38,9 +38,22 @@ function LoginPage() {
           setBusy(false)
           setError(context.error.message)
         },
-        onSuccess: async () => {
-          setBusy(false)
-          await navigate({ to: '/dashboard' })
+        onSuccess: () => {
+          // Account + passkey are created but no session exists yet — sign in
+          // immediately. The just-created passkey is cached by the browser and
+          // auto-selected without a second visible prompt on most platforms.
+          void authClient.signIn.passkey({
+            fetchOptions: {
+              onError: (context) => {
+                setBusy(false)
+                setError(context.error.message)
+              },
+              onSuccess: async () => {
+                setBusy(false)
+                await navigate({ to: '/dashboard' })
+              },
+            },
+          })
         },
       },
     })
