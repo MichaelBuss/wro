@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1783171365680,
+      "tag": "0000_init_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783172545520,
+      "tag": "0001_charming_paper_doll",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783173043460,
+      "tag": "0002_nifty_mysterio",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783173708726,
+      "tag": "0003_concerned_karnak",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783174271621,
+      "tag": "0004_nostalgic_ultimates",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783191744479,
+      "tag": "0005_odd_paper_doll",
+      "breakpoints": true
+    }
+  ]
+}

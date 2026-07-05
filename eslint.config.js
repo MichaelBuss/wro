@@ -1,5 +1,7 @@
 import { tanstackConfig } from '@tanstack/eslint-config'
+import vitest from '@vitest/eslint-plugin'
 import { defineConfig } from 'eslint/config'
+import drizzle from 'eslint-plugin-drizzle'
 import eslintComments from 'eslint-plugin-eslint-comments'
 import importX from 'eslint-plugin-import-x'
 import solid from 'eslint-plugin-solid/configs/typescript'
@@ -95,6 +97,37 @@ export default defineConfig([
       'import/order': 'off',
       // Use Array<T> style
       '@typescript-eslint/array-type': ['error', { default: 'generic' }],
+    },
+  },
+
+  // Drizzle: guard against catastrophic data loss on the registration/PII tables.
+  // A bare db.delete()/db.update() without .where() would hit every row, so make
+  // it a lint error. `db` is the shared Drizzle handle name used by every accessor.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    plugins: { drizzle },
+    rules: {
+      'drizzle/enforce-delete-with-where': [
+        'error',
+        { drizzleObjectName: ['db'] },
+      ],
+      'drizzle/enforce-update-with-where': [
+        'error',
+        { drizzleObjectName: ['db'] },
+      ],
+    },
+  },
+
+  // Vitest: enforce the project's testing conventions on spec files. Notably,
+  // no focused (.only) or skipped tests may be committed — a suite with skipped
+  // tests is not a passing suite (see .cursor/skills/testing/SKILL.md).
+  {
+    files: ['**/*.spec.{ts,tsx}'],
+    plugins: { vitest },
+    rules: {
+      ...vitest.configs.recommended.rules,
+      'vitest/no-focused-tests': 'error',
+      'vitest/no-disabled-tests': 'error',
     },
   },
 

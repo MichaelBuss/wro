@@ -1,0 +1,1 @@
+ALTER TABLE "event" ADD COLUMN "registration_deadline" timestamp;

@@ -1,5 +1,4 @@
-import { Link } from '@tanstack/solid-router'
-import { Logo, MobileDrawer, NavDropdown, NavLink } from './nav'
+import { Logo, MobileDrawer, NavAuthLink, NavDropdown, NavLink } from './nav'
 
 /**
  * Site header with responsive navigation.
@@ -28,13 +27,7 @@ export default function Header() {
             <NavLink to="/blog">Blog</NavLink>
           </div>
 
-          {/* Quiet signup link */}
-          <Link
-            to="/signup"
-            class="hidden md:inline-flex text-sm text-foreground/60 hover:text-foreground underline-offset-4 hover:underline transition-colors"
-          >
-            Tilmeld dig
-          </Link>
+          <NavAuthLink class="hidden md:inline-flex" />
 
           {/* Mobile navigation drawer (owns its trigger) */}
           <MobileDrawer />

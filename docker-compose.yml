@@ -1,0 +1,27 @@
+# Local-only Postgres for development. Registration + auth data lives here
+# (see docs/architecture/data-persistence.md). No cloud database is provisioned
+# until the cloudnet.dk migration; all access is via DATABASE_URL.
+#
+#   docker compose up -d
+#   cp .env.example .env   # then: npm run db:migrate
+services:
+  db:
+    image: postgres:17
+    container_name: wro-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wro
+      POSTGRES_PASSWORD: wro
+      POSTGRES_DB: wro
+    ports:
+      - '5432:5432'
+    volumes:
+      - wro-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wro -d wro']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  wro-pgdata:
