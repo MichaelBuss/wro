@@ -1,15 +1,7 @@
 import { createServerFn } from '@tanstack/solid-start'
-import { getRequestHeaders } from '@tanstack/solid-start/server'
-import { getAuth } from '~/server/auth'
+import { requireAccount } from '~/server/auth-guards'
 import { deleteAccount, exportAccountData } from '~/server/db/accounts'
 import { getDb } from '~/server/db/client'
-
-async function getAuthedUser() {
-  const auth = await getAuth()
-  const session = await auth.api.getSession({ headers: getRequestHeaders() })
-  if (!session?.user) throw new Error('Unauthorized')
-  return session.user
-}
 
 /**
  * Return the full GDPR data export for the authenticated Account — their
@@ -17,7 +9,7 @@ async function getAuthedUser() {
  */
 export const exportMyDataFn = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const user = await getAuthedUser()
+    const user = await requireAccount()
     const db = await getDb()
     return exportAccountData(db, user.id)
   },
@@ -30,7 +22,7 @@ export const exportMyDataFn = createServerFn({ method: 'GET' }).handler(
  */
 export const deleteMyAccountFn = createServerFn({ method: 'POST' }).handler(
   async () => {
-    const user = await getAuthedUser()
+    const user = await requireAccount()
     const db = await getDb()
     await deleteAccount(db, user.id)
   },

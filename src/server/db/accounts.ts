@@ -1,7 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 import type { Database } from './client'
 import {
-  participant,
   passkey,
   recoveryLink,
   session,
@@ -16,6 +15,7 @@ import type {
   UserRole,
   UserRow,
 } from './schema'
+import { loadTeamRoster } from './teams'
 
 /**
  * Data-layer accessors for Accounts, their passkeys, and their sessions.
@@ -279,21 +279,11 @@ export async function exportAccountData(
   const accountRow = await getAccountById(db, userId)
   if (!accountRow) throw new Error('exportAccountData: account not found')
 
-  const membershipRows = await db
-    .select({ team })
-    .from(teamMembership)
-    .innerJoin(team, eq(teamMembership.teamId, team.id))
-    .where(eq(teamMembership.userId, userId))
-
-  const teams: Array<TeamExportEntry> = []
-  for (const row of membershipRows) {
-    const participants = await db
-      .select()
-      .from(participant)
-      .where(eq(participant.teamId, row.team.id))
-
-    teams.push({ ...row.team, participants })
-  }
+  const roster = await loadTeamRoster(db, { type: 'account', userId })
+  const teams: Array<TeamExportEntry> = roster.map((entry) => ({
+    ...entry.team,
+    participants: entry.participants,
+  }))
 
   return {
     account: {

@@ -1,4 +1,8 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
+import {
+  isCoachEditable,
+  resolveTransition,
+} from '~/lib/registration-lifecycle'
 import type { Database } from './client'
 import { category, event, participant, team, teamMembership } from './schema'
 import type {
@@ -7,7 +11,6 @@ import type {
   EventRow,
   ParticipantRow,
   PaymentStatus,
-  RegistrationStatus,
   TeamRow,
 } from './schema'
 
@@ -119,17 +122,11 @@ export async function renameTeam(
 
 // ---------------------------------------------------------------------------
 // Registration lifecycle helpers
+//
+// The transition rules themselves live in lib/registration-lifecycle.ts so the
+// server and the route UI validate against one table. These helpers apply that
+// table against the database (load the row, check the transition, persist it).
 // ---------------------------------------------------------------------------
-
-/** States from which a coach is allowed to edit team details / participants. */
-const COACH_EDITABLE_STATUSES: ReadonlyArray<RegistrationStatus> = ['draft']
-
-/** States from which a coach can withdraw a team. */
-const WITHDRAWABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-  'waitlisted',
-]
 
 /**
  * Asserts the team is still coach-editable (Draft status and before the event's
@@ -149,7 +146,7 @@ async function assertCoachEditable(
   if (!teamRows[0]) throw new Error(`${context}: team not found`)
   const teamRow = teamRows[0]
 
-  if (!COACH_EDITABLE_STATUSES.includes(teamRow.status)) {
+  if (!isCoachEditable(teamRow.status)) {
     throw new Error(
       `${context}: team is ${teamRow.status} and cannot be edited by a coach`,
     )
@@ -194,7 +191,8 @@ export async function submitTeam(
 
   if (!teamRows[0]) throw new Error('submitTeam: team not found')
 
-  if (teamRows[0].status !== 'draft') {
+  const next = resolveTransition(teamRows[0].status, 'submit', 'coach')
+  if (!next) {
     throw new Error(
       `submitTeam: cannot submit a team in status "${teamRows[0].status}"`,
     )
@@ -202,7 +200,7 @@ export async function submitTeam(
 
   const rows = await db
     .update(team)
-    .set({ status: 'submitted', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
 
@@ -225,7 +223,8 @@ export async function withdrawTeam(
 
   if (!teamRows[0]) throw new Error('withdrawTeam: team not found')
 
-  if (!WITHDRAWABLE_STATUSES.includes(teamRows[0].status)) {
+  const next = resolveTransition(teamRows[0].status, 'withdraw', 'coach')
+  if (!next) {
     throw new Error(
       `withdrawTeam: cannot withdraw a team in status "${teamRows[0].status}"`,
     )
@@ -233,7 +232,7 @@ export async function withdrawTeam(
 
   const rows = await db
     .update(team)
-    .set({ status: 'withdrawn', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
 
@@ -242,49 +241,104 @@ export async function withdrawTeam(
 }
 
 // ---------------------------------------------------------------------------
-// Team detail — combined view
+// Team roster — the single "team + category + participants" aggregate
+//
+// Coach detail, organizer list, per-event CSV export, and the GDPR account
+// export all need the same shape. Rather than re-implement the join (three of
+// them with an N+1 participant loop) this loader owns it once, parameterised by
+// scope. It runs two queries regardless of scope — teams∙category, then all
+// participants for those teams in one `IN (...)` — so there is no N+1 to fix in
+// four places.
 // ---------------------------------------------------------------------------
 
-export interface TeamWithDetails {
+export interface TeamRosterEntry {
   team: TeamRow
   category: CategoryRow | null
   participants: Array<ParticipantRow>
+}
+
+export type TeamRosterScope =
+  | { type: 'team'; teamId: string }
+  | { type: 'account'; userId: string }
+  | { type: 'event'; eventId: string }
+  | { type: 'all' }
+
+async function loadTeamsWithCategory(
+  db: Database,
+  scope: TeamRosterScope,
+): Promise<Array<{ team: TeamRow; category: CategoryRow | null }>> {
+  switch (scope.type) {
+    case 'team':
+      return db
+        .select({ team, category })
+        .from(team)
+        .leftJoin(category, eq(team.categoryId, category.id))
+        .where(eq(team.id, scope.teamId))
+    case 'account':
+      return db
+        .select({ team, category })
+        .from(teamMembership)
+        .innerJoin(team, eq(teamMembership.teamId, team.id))
+        .leftJoin(category, eq(team.categoryId, category.id))
+        .where(eq(teamMembership.userId, scope.userId))
+    case 'event':
+      // Inner join: teams with no category cannot belong to any event.
+      return db
+        .select({ team, category })
+        .from(team)
+        .innerJoin(category, eq(team.categoryId, category.id))
+        .where(eq(category.eventId, scope.eventId))
+    case 'all':
+      return db
+        .select({ team, category })
+        .from(team)
+        .leftJoin(category, eq(team.categoryId, category.id))
+  }
+}
+
+/**
+ * Load teams with their category and participants for the given scope. This is
+ * the one interface every "team roster" read goes through.
+ */
+export async function loadTeamRoster(
+  db: Database,
+  scope: TeamRosterScope,
+): Promise<Array<TeamRosterEntry>> {
+  const teamRows = await loadTeamsWithCategory(db, scope)
+  if (teamRows.length === 0) return []
+
+  const teamIds = teamRows.map((r) => r.team.id)
+  const participants = await db
+    .select()
+    .from(participant)
+    .where(inArray(participant.teamId, teamIds))
+
+  const participantsByTeam = new Map<string, Array<ParticipantRow>>()
+  for (const p of participants) {
+    const list = participantsByTeam.get(p.teamId) ?? []
+    list.push(p)
+    participantsByTeam.set(p.teamId, list)
+  }
+
+  return teamRows.map((r) => ({
+    team: r.team,
+    category: r.category,
+    participants: participantsByTeam.get(r.team.id) ?? [],
+  }))
 }
 
 export async function getTeamWithDetails(
   db: Database,
   teamId: string,
   userId: string,
-): Promise<TeamWithDetails> {
+): Promise<TeamRosterEntry> {
   await assertMembership(db, teamId, userId, 'getTeamWithDetails')
 
-  const teamRows = await db
-    .select()
-    .from(team)
-    .where(eq(team.id, teamId))
-    .limit(1)
-
-  if (teamRows.length === 0) {
+  const roster = await loadTeamRoster(db, { type: 'team', teamId })
+  if (roster.length === 0 || !roster[0]) {
     throw new Error('getTeamWithDetails: team not found')
   }
-
-  const teamRow = teamRows[0]
-
-  const categoryRows = teamRow.categoryId
-    ? await db
-        .select()
-        .from(category)
-        .where(eq(category.id, teamRow.categoryId))
-        .limit(1)
-    : []
-  const categoryRow = categoryRows.length > 0 ? categoryRows[0] : null
-
-  const participants = await db
-    .select()
-    .from(participant)
-    .where(eq(participant.teamId, teamId))
-
-  return { team: teamRow, category: categoryRow, participants }
+  return roster[0]
 }
 
 // ---------------------------------------------------------------------------
@@ -592,12 +646,6 @@ export async function removeCategory(
 // function layer (see lib/organizer-functions.ts).
 // ---------------------------------------------------------------------------
 
-export interface TeamForOrganizer {
-  team: TeamRow
-  category: CategoryRow | null
-  participants: Array<ParticipantRow>
-}
-
 /**
  * Registration row returned for the per-event CSV export.
  * Teams without a category are not included (they cannot belong to any event).
@@ -617,63 +665,20 @@ export async function exportTeamsForEvent(
   db: Database,
   eventId: string,
 ): Promise<Array<TeamRegistrationRow>> {
-  const teamsWithCategory = await db
-    .select({ team, categoryName: category.name })
-    .from(team)
-    .innerJoin(category, eq(team.categoryId, category.id))
-    .where(eq(category.eventId, eventId))
-
-  const result: Array<TeamRegistrationRow> = []
-
-  for (const row of teamsWithCategory) {
-    const participants = await db
-      .select()
-      .from(participant)
-      .where(eq(participant.teamId, row.team.id))
-
-    result.push({
-      team: row.team,
-      categoryName: row.categoryName,
-      participants,
-    })
-  }
-
-  return result
+  const roster = await loadTeamRoster(db, { type: 'event', eventId })
+  return roster.map((entry) => ({
+    team: entry.team,
+    // Event scope inner-joins the category, so it is always present here.
+    categoryName: entry.category?.name ?? '',
+    participants: entry.participants,
+  }))
 }
 
 export async function listAllTeamsForOrganizer(
   db: Database,
-): Promise<Array<TeamForOrganizer>> {
-  const teams = await db.select().from(team)
-  const result: Array<TeamForOrganizer> = []
-
-  for (const t of teams) {
-    const participants = await db
-      .select()
-      .from(participant)
-      .where(eq(participant.teamId, t.id))
-
-    const cat = t.categoryId
-      ? ((
-          await db
-            .select()
-            .from(category)
-            .where(eq(category.id, t.categoryId))
-            .limit(1)
-        )[0] ?? null)
-      : null
-
-    result.push({ team: t, category: cat, participants })
-  }
-
-  return result
+): Promise<Array<TeamRosterEntry>> {
+  return loadTeamRoster(db, { type: 'all' })
 }
-
-/** Valid source statuses for an organizer's confirm action. */
-const ORGANIZER_CONFIRMABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'waitlisted',
-]
 
 export async function confirmTeam(
   db: Database,
@@ -681,25 +686,20 @@ export async function confirmTeam(
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('confirmTeam: team not found')
-  if (!ORGANIZER_CONFIRMABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'confirm', 'organizer')
+  if (!next) {
     throw new Error(
       `confirmTeam: cannot confirm a team in status "${rows[0].status}"`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'confirmed', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0]) throw new Error('confirmTeam: UPDATE returned no rows')
   return updated[0]
 }
-
-/** Valid source statuses for an organizer's waitlist action. */
-const ORGANIZER_WAITLISTABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-]
 
 export async function waitlistTeam(
   db: Database,
@@ -707,26 +707,20 @@ export async function waitlistTeam(
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('waitlistTeam: team not found')
-  if (!ORGANIZER_WAITLISTABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'waitlist', 'organizer')
+  if (!next) {
     throw new Error(
       `waitlistTeam: cannot waitlist a team in status "${rows[0].status}"`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'waitlisted', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0]) throw new Error('waitlistTeam: UPDATE returned no rows')
   return updated[0]
 }
-
-/** Valid source statuses for an organizer's return-to-draft action. */
-const ORGANIZER_RETURNABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-  'waitlisted',
-]
 
 export async function returnTeamToDraft(
   db: Database,
@@ -734,27 +728,20 @@ export async function returnTeamToDraft(
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('returnTeamToDraft: team not found')
-  if (!ORGANIZER_RETURNABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'return', 'organizer')
+  if (!next) {
     throw new Error(
       `returnTeamToDraft: cannot return a team in status "${rows[0].status}" to draft`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'draft', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0]) throw new Error('returnTeamToDraft: UPDATE returned no rows')
   return updated[0]
 }
-
-/** Valid source statuses for an organizer's withdraw action. */
-const ORGANIZER_WITHDRAWABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-  'waitlisted',
-  'draft',
-]
 
 export async function withdrawTeamAsOrganizer(
   db: Database,
@@ -762,14 +749,15 @@ export async function withdrawTeamAsOrganizer(
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('withdrawTeamAsOrganizer: team not found')
-  if (!ORGANIZER_WITHDRAWABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'withdraw', 'organizer')
+  if (!next) {
     throw new Error(
       `withdrawTeamAsOrganizer: cannot withdraw a team in status "${rows[0].status}"`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'withdrawn', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0])
