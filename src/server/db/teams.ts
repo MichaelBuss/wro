@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import {
   isCoachEditable,
   resolveTransition,
@@ -241,49 +241,104 @@ export async function withdrawTeam(
 }
 
 // ---------------------------------------------------------------------------
-// Team detail — combined view
+// Team roster — the single "team + category + participants" aggregate
+//
+// Coach detail, organizer list, per-event CSV export, and the GDPR account
+// export all need the same shape. Rather than re-implement the join (three of
+// them with an N+1 participant loop) this loader owns it once, parameterised by
+// scope. It runs two queries regardless of scope — teams∙category, then all
+// participants for those teams in one `IN (...)` — so there is no N+1 to fix in
+// four places.
 // ---------------------------------------------------------------------------
 
-export interface TeamWithDetails {
+export interface TeamRosterEntry {
   team: TeamRow
   category: CategoryRow | null
   participants: Array<ParticipantRow>
+}
+
+export type TeamRosterScope =
+  | { type: 'team'; teamId: string }
+  | { type: 'account'; userId: string }
+  | { type: 'event'; eventId: string }
+  | { type: 'all' }
+
+async function loadTeamsWithCategory(
+  db: Database,
+  scope: TeamRosterScope,
+): Promise<Array<{ team: TeamRow; category: CategoryRow | null }>> {
+  switch (scope.type) {
+    case 'team':
+      return db
+        .select({ team, category })
+        .from(team)
+        .leftJoin(category, eq(team.categoryId, category.id))
+        .where(eq(team.id, scope.teamId))
+    case 'account':
+      return db
+        .select({ team, category })
+        .from(teamMembership)
+        .innerJoin(team, eq(teamMembership.teamId, team.id))
+        .leftJoin(category, eq(team.categoryId, category.id))
+        .where(eq(teamMembership.userId, scope.userId))
+    case 'event':
+      // Inner join: teams with no category cannot belong to any event.
+      return db
+        .select({ team, category })
+        .from(team)
+        .innerJoin(category, eq(team.categoryId, category.id))
+        .where(eq(category.eventId, scope.eventId))
+    case 'all':
+      return db
+        .select({ team, category })
+        .from(team)
+        .leftJoin(category, eq(team.categoryId, category.id))
+  }
+}
+
+/**
+ * Load teams with their category and participants for the given scope. This is
+ * the one interface every "team roster" read goes through.
+ */
+export async function loadTeamRoster(
+  db: Database,
+  scope: TeamRosterScope,
+): Promise<Array<TeamRosterEntry>> {
+  const teamRows = await loadTeamsWithCategory(db, scope)
+  if (teamRows.length === 0) return []
+
+  const teamIds = teamRows.map((r) => r.team.id)
+  const participants = await db
+    .select()
+    .from(participant)
+    .where(inArray(participant.teamId, teamIds))
+
+  const participantsByTeam = new Map<string, Array<ParticipantRow>>()
+  for (const p of participants) {
+    const list = participantsByTeam.get(p.teamId) ?? []
+    list.push(p)
+    participantsByTeam.set(p.teamId, list)
+  }
+
+  return teamRows.map((r) => ({
+    team: r.team,
+    category: r.category,
+    participants: participantsByTeam.get(r.team.id) ?? [],
+  }))
 }
 
 export async function getTeamWithDetails(
   db: Database,
   teamId: string,
   userId: string,
-): Promise<TeamWithDetails> {
+): Promise<TeamRosterEntry> {
   await assertMembership(db, teamId, userId, 'getTeamWithDetails')
 
-  const teamRows = await db
-    .select()
-    .from(team)
-    .where(eq(team.id, teamId))
-    .limit(1)
-
-  if (teamRows.length === 0) {
+  const roster = await loadTeamRoster(db, { type: 'team', teamId })
+  if (roster.length === 0 || !roster[0]) {
     throw new Error('getTeamWithDetails: team not found')
   }
-
-  const teamRow = teamRows[0]
-
-  const categoryRows = teamRow.categoryId
-    ? await db
-        .select()
-        .from(category)
-        .where(eq(category.id, teamRow.categoryId))
-        .limit(1)
-    : []
-  const categoryRow = categoryRows.length > 0 ? categoryRows[0] : null
-
-  const participants = await db
-    .select()
-    .from(participant)
-    .where(eq(participant.teamId, teamId))
-
-  return { team: teamRow, category: categoryRow, participants }
+  return roster[0]
 }
 
 // ---------------------------------------------------------------------------
@@ -591,12 +646,6 @@ export async function removeCategory(
 // function layer (see lib/organizer-functions.ts).
 // ---------------------------------------------------------------------------
 
-export interface TeamForOrganizer {
-  team: TeamRow
-  category: CategoryRow | null
-  participants: Array<ParticipantRow>
-}
-
 /**
  * Registration row returned for the per-event CSV export.
  * Teams without a category are not included (they cannot belong to any event).
@@ -616,56 +665,19 @@ export async function exportTeamsForEvent(
   db: Database,
   eventId: string,
 ): Promise<Array<TeamRegistrationRow>> {
-  const teamsWithCategory = await db
-    .select({ team, categoryName: category.name })
-    .from(team)
-    .innerJoin(category, eq(team.categoryId, category.id))
-    .where(eq(category.eventId, eventId))
-
-  const result: Array<TeamRegistrationRow> = []
-
-  for (const row of teamsWithCategory) {
-    const participants = await db
-      .select()
-      .from(participant)
-      .where(eq(participant.teamId, row.team.id))
-
-    result.push({
-      team: row.team,
-      categoryName: row.categoryName,
-      participants,
-    })
-  }
-
-  return result
+  const roster = await loadTeamRoster(db, { type: 'event', eventId })
+  return roster.map((entry) => ({
+    team: entry.team,
+    // Event scope inner-joins the category, so it is always present here.
+    categoryName: entry.category?.name ?? '',
+    participants: entry.participants,
+  }))
 }
 
 export async function listAllTeamsForOrganizer(
   db: Database,
-): Promise<Array<TeamForOrganizer>> {
-  const teams = await db.select().from(team)
-  const result: Array<TeamForOrganizer> = []
-
-  for (const t of teams) {
-    const participants = await db
-      .select()
-      .from(participant)
-      .where(eq(participant.teamId, t.id))
-
-    const cat = t.categoryId
-      ? ((
-          await db
-            .select()
-            .from(category)
-            .where(eq(category.id, t.categoryId))
-            .limit(1)
-        )[0] ?? null)
-      : null
-
-    result.push({ team: t, category: cat, participants })
-  }
-
-  return result
+): Promise<Array<TeamRosterEntry>> {
+  return loadTeamRoster(db, { type: 'all' })
 }
 
 export async function confirmTeam(

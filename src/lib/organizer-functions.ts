@@ -21,7 +21,7 @@ import {
   waitlistTeam,
   withdrawTeamAsOrganizer,
 } from '~/server/db/teams'
-import type { EventWithCategories, TeamForOrganizer } from '~/server/db/teams'
+import type { EventWithCategories, TeamRosterEntry } from '~/server/db/teams'
 
 // ---------------------------------------------------------------------------
 // Enriched team type returned to organizer routes
@@ -34,7 +34,7 @@ export interface TeamSummaryForOrganizer {
   hasEligibilityWarning: boolean
 }
 
-function enrichWithEligibility(raw: TeamForOrganizer): TeamSummaryForOrganizer {
+function enrichWithEligibility(raw: TeamRosterEntry): TeamSummaryForOrganizer {
   const cat = raw.category
   const hasEligibilityWarning =
     cat !== null &&
