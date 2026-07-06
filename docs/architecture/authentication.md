@@ -103,7 +103,7 @@ trade-off of a little manual effort for zero email infrastructure.
   **env email allowlist**: when an Account signs up with an allowlisted email, it
   is auto-granted the organizer role. No seeded fake accounts, no separate
   password system.
-- This is entirely separate from the **Sveltia CMS** at `/admin`, which keeps its
+- This is entirely separate from the **Sveltia CMS** at `/cms`, which keeps its
   own GitHub-based auth for content editing.
 
 ## Fit With the Stack

@@ -2,7 +2,7 @@
  * Shared image transformation settings.
  *
  * Single source of truth for both the CLI optimizer (optimize-images.ts) and
- * Sveltia CMS's in-browser transformation (public/admin/config.yml), so the
+ * Sveltia CMS's in-browser transformation (public/cms/config.yml), so the
  * two never drift apart. If you change these values, update the matching
  * comments in config.yml too.
  */

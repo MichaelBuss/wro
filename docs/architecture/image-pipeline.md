@@ -8,7 +8,7 @@ updated: 2026-07-03
 codeAnchors:
   - scripts/image-settings.ts
   - scripts/optimize-images.ts
-  - public/admin/config.yml
+  - public/cms/config.yml
 relatedPlans:
   - cms-content-layer
 overview: >
@@ -28,7 +28,7 @@ The site displays images in carousels and content pages. These need to be optimi
 
 ## Decision
 
-**Browser-side optimization via Sveltia CMS** — the CMS media library (`public/admin/config.yml`) converts any raster upload to WebP at up to 2048×2048px, quality 85, before committing it to `public/uploads/`. This happens entirely client-side in the editor's browser; the original file never touches the repo, and there's no server-side processing step or third-party image service involved.
+**Browser-side optimization via Sveltia CMS** — the CMS media library (`public/cms/config.yml`) converts any raster upload to WebP at up to 2048×2048px, quality 85, before committing it to `public/uploads/`. This happens entirely client-side in the editor's browser; the original file never touches the repo, and there's no server-side processing step or third-party image service involved.
 
 **Shared settings, single source of truth** — `scripts/image-settings.ts` exports `IMAGE_QUALITY`, `IMAGE_MAX_PX`, and `IMAGE_FORMAT`. The CLI script imports these directly; `config.yml` can't import TypeScript, so its `media_libraries.all.transformations` block repeats the same values with a comment pointing back to `image-settings.ts` so the two don't silently drift.
 
@@ -42,7 +42,7 @@ The site displays images in carousels and content pages. These need to be optimi
 - Content editors can upload and optimize images without CLI access or a developer
 - Images are committed as regular binary files tracked directly in Git — no separate source-vs-generated-output split
 - `sharp` remains a devDependency, used only by the CLI script
-- If `IMAGE_QUALITY`, `IMAGE_MAX_PX`, or `IMAGE_FORMAT` change, `public/admin/config.yml`'s transformation values must be updated to match by hand (no automated sync)
+- If `IMAGE_QUALITY`, `IMAGE_MAX_PX`, or `IMAGE_FORMAT` change, `public/cms/config.yml`'s transformation values must be updated to match by hand (no automated sync)
 
 ## Alternatives Considered
 

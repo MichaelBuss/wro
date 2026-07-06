@@ -127,7 +127,7 @@ gets a unified admin landing with shared navigation to:
   Teams; set the payment flag; see eligibility warnings; manage **Events** and
   their **Categories**; generate account **recovery links**; and **export**
   registrations per Event as CSV (doubles as a check-in / category roster).
-- **Content** — a link out to the existing **Sveltia CMS** at `/admin`, left on
+- **Content** — a link out to the existing **Sveltia CMS** at `/cms`, left on
   its own GitHub-based auth. The two systems share a front door, not an auth or
   storage layer (see [Alternatives Considered](#alternatives-considered)).
 
@@ -154,7 +154,7 @@ Organization/email-contact kept optional or contact-only.
 ## Fit With the Stack
 
 - Auth, dashboard, and admin routes are **dynamic (not prerendered)** — they must
-  be excluded from the prerender crawl, alongside the existing `/admin` exclusion
+  be excluded from the prerender crawl, alongside the existing `/cms` exclusion
   (see [Routing & Data Loading](routing-and-data-loading.md)).
 - Data access goes through **`createServerFn`** handlers called from route
   loaders — the same seam already used for content — but reading/writing Postgres

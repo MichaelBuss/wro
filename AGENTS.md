@@ -67,14 +67,14 @@ Before creating a new component, hook, or utility — search the codebase first.
 
 ## Images
 
-Content editors upload images through the CMS at `/admin`, which optimizes them to WebP in the browser before committing to `public/uploads/`. For batch-adding images from the terminal (e.g. migrating existing files), use:
+Content editors upload images through the CMS at `/cms`, which optimizes them to WebP in the browser before committing to `public/uploads/`. For batch-adding images from the terminal (e.g. migrating existing files), use:
 
 ```bash
 npm run images:optimize path/to/photo1.jpg path/to/photo2.jpg
 # Outputs: public/uploads/photo1.webp, public/uploads/photo2.webp
 ```
 
-This applies the identical transformation (WebP, quality 85, max 2048px) defined in `scripts/image-settings.ts`, which is the single source of truth shared with the CMS config (`public/admin/config.yml`).
+This applies the identical transformation (WebP, quality 85, max 2048px) defined in `scripts/image-settings.ts`, which is the single source of truth shared with the CMS config (`public/cms/config.yml`).
 
 ## Validation
 

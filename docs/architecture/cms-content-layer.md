@@ -9,7 +9,7 @@ codeAnchors:
   - src/content/registry.ts
   - src/server/content.ts
   - scripts/validate-content.ts
-  - public/admin/index.html
+  - public/cms/index.html
 overview: >
   A typed content layer that moves editable copy from hardcoded constants and
   JSX into Markdown files managed by Decap CMS, with a Zod-validated registry
