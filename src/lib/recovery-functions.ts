@@ -1,7 +1,6 @@
 import { createServerFn } from '@tanstack/solid-start'
-import { getRequestHeaders } from '@tanstack/solid-start/server'
 import { z } from 'zod'
-import { getAuth } from '~/server/auth'
+import { requireAccount, requireOrganizer } from '~/server/auth-guards'
 import {
   createRecoveryLink,
   deletePasskey,
@@ -14,27 +13,6 @@ import { user } from '~/server/db/schema'
 import type { UserRole } from '~/server/db/schema'
 
 // ---------------------------------------------------------------------------
-// Shared auth helpers
-// ---------------------------------------------------------------------------
-
-async function assertSession() {
-  const auth = await getAuth()
-  const session = await auth.api.getSession({ headers: getRequestHeaders() })
-  if (!session?.user) throw new Error('Unauthorized')
-  return session.user
-}
-
-async function assertOrganizer() {
-  const sessionUser = await assertSession()
-  const db = await getDb()
-  const userRow = await getAccountById(db, sessionUser.id)
-  if (!userRow || userRow.role !== 'organizer') {
-    throw new Error('Forbidden: organizer role required')
-  }
-  return userRow
-}
-
-// ---------------------------------------------------------------------------
 // Self-service passkey management (any signed-in Account)
 // ---------------------------------------------------------------------------
 
@@ -44,7 +22,7 @@ async function assertOrganizer() {
  */
 export const listMyPasskeysFn = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const sessionUser = await assertSession()
+    const sessionUser = await requireAccount()
     const db = await getDb()
     const keys = await getPasskeysForAccount(db, sessionUser.id)
     return keys.map((k) => ({
@@ -64,7 +42,7 @@ const removePasskeySchema = z.object({ passkeyId: z.string().min(1) })
 export const removePasskeyFn = createServerFn({ method: 'POST' })
   .validator(removePasskeySchema)
   .handler(async ({ data }) => {
-    const sessionUser = await assertSession()
+    const sessionUser = await requireAccount()
     const db = await getDb()
     await deletePasskey(db, data.passkeyId, sessionUser.id)
   })
@@ -88,7 +66,7 @@ export interface CoachForRecovery {
 export const listAccountsForRecoveryFn = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  await assertOrganizer()
+  await requireOrganizer()
   const db = await getDb()
   const rows = await db
     .select({
@@ -117,7 +95,7 @@ const RECOVERY_LINK_TTL_MS = 24 * 60 * 60 * 1000
 export const generateRecoveryLinkFn = createServerFn({ method: 'POST' })
   .validator(generateRecoveryLinkSchema)
   .handler(async ({ data }) => {
-    const organizer = await assertOrganizer()
+    const organizer = await requireOrganizer()
     const db = await getDb()
 
     const target = await getAccountById(db, data.targetUserId)
