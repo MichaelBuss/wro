@@ -109,7 +109,7 @@ The `docs/architecture/` directory has decision records for each major design ar
 - [`routing-and-data-loading.md`](docs/architecture/routing-and-data-loading.md) — TanStack Router, SSR, prerender exclusions
 - [`tech-stack-and-framework.md`](docs/architecture/tech-stack-and-framework.md) — why Solid.js / TanStack Start
 - [`styling-and-theming.md`](docs/architecture/styling-and-theming.md) — Tailwind v4, CVA, Kobalte
-- [`cms-content-layer.md`](docs/architecture/cms-content-layer.md) — Markdown + Sveltia CMS at `/admin`
+- [`cms-content-layer.md`](docs/architecture/cms-content-layer.md) — Markdown + Sveltia CMS at `/cms`
 - [`image-pipeline.md`](docs/architecture/image-pipeline.md) — WebP optimisation, single source of truth
 - [`component-and-ui-system.md`](docs/architecture/component-and-ui-system.md) — component conventions
 - [`build-and-deployment.md`](docs/architecture/build-and-deployment.md) — Netlify, environment setup

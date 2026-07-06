@@ -23,13 +23,13 @@ export default defineConfig({
         concurrency: 1,
         crawlLinks: true,
         // Exclude routes that must render dynamically rather than be prerendered:
-        // - /admin: static Decap CMS app, not a TanStack route
+        // - /cms: static Sveltia CMS app, not a TanStack route
         // - /api/auth: Better Auth server handler
         // - /dashboard, /login: authenticated / passkey routes (see auth ADR)
         // - /organizer: organizer-gated routes (role-checked at request time)
         // - /recover: recovery link pages (token-specific, single-use)
         filter: ({ path }) =>
-          !path.startsWith('/admin') &&
+          !path.startsWith('/cms') &&
           !path.startsWith('/api') &&
           !path.startsWith('/dashboard') &&
           !path.startsWith('/login') &&

@@ -95,7 +95,7 @@ function OrganizerLanding() {
               </p>
             </div>
             <a
-              href="/admin"
+              href="/cms"
               class="inline-flex items-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
               target="_blank"
               rel="noopener noreferrer"
