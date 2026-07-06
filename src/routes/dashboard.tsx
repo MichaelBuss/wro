@@ -12,6 +12,7 @@ import { authClient } from '~/lib/auth-client'
 import { getSessionWithRole } from '~/lib/auth-functions'
 import { decideDashboardAccess } from '~/lib/dashboard-access'
 import { listMyPasskeysFn, removePasskeyFn } from '~/lib/recovery-functions'
+import { canCoachWithdraw, isCoachEditable } from '~/lib/registration-lifecycle'
 import {
   createTeamFn,
   listTeamsFn,
@@ -192,7 +193,7 @@ function Dashboard() {
                         <>
                           <span class="flex-1 font-medium">{t.name}</span>
                           <StatusBadge status={t.status} />
-                          <Show when={t.status === 'draft'}>
+                          <Show when={isCoachEditable(t.status)}>
                             <Link
                               to="/dashboard/$teamId"
                               params={{ teamId: t.id }}
@@ -209,13 +210,7 @@ function Dashboard() {
                               Omdøb
                             </Button>
                           </Show>
-                          <Show
-                            when={
-                              t.status === 'submitted' ||
-                              t.status === 'confirmed' ||
-                              t.status === 'waitlisted'
-                            }
-                          >
+                          <Show when={canCoachWithdraw(t.status)}>
                             <Link
                               to="/dashboard/$teamId"
                               params={{ teamId: t.id }}

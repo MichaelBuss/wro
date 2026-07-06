@@ -6,6 +6,10 @@ import { checkAgeBandEligibility } from '~/lib/age-band'
 import { getSession } from '~/lib/auth-functions'
 import { decideDashboardAccess } from '~/lib/dashboard-access'
 import {
+  canCoachWithdraw,
+  isCoachEditable,
+} from '~/lib/registration-lifecycle'
+import {
   addParticipantFn,
   getTeamDetailsFn,
   listAllCategoriesFn,
@@ -169,12 +173,10 @@ function TeamDetailPage() {
     return !checkAgeBandEligibility(birthYear, cat)
   }
 
-  const isEditable = () => loaderData().details.team.status === 'draft'
+  const isEditable = () => isCoachEditable(loaderData().details.team.status)
 
-  const isWithdrawable = () => {
-    const s = loaderData().details.team.status
-    return s === 'submitted' || s === 'confirmed' || s === 'waitlisted'
-  }
+  const isWithdrawable = () =>
+    canCoachWithdraw(loaderData().details.team.status)
 
   async function handleSubmit() {
     await submitTeamFn({ data: { teamId: params().teamId } })

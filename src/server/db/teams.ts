@@ -1,4 +1,8 @@
 import { and, eq } from 'drizzle-orm'
+import {
+  isCoachEditable,
+  resolveTransition,
+} from '~/lib/registration-lifecycle'
 import type { Database } from './client'
 import { category, event, participant, team, teamMembership } from './schema'
 import type {
@@ -7,7 +11,6 @@ import type {
   EventRow,
   ParticipantRow,
   PaymentStatus,
-  RegistrationStatus,
   TeamRow,
 } from './schema'
 
@@ -119,17 +122,11 @@ export async function renameTeam(
 
 // ---------------------------------------------------------------------------
 // Registration lifecycle helpers
+//
+// The transition rules themselves live in lib/registration-lifecycle.ts so the
+// server and the route UI validate against one table. These helpers apply that
+// table against the database (load the row, check the transition, persist it).
 // ---------------------------------------------------------------------------
-
-/** States from which a coach is allowed to edit team details / participants. */
-const COACH_EDITABLE_STATUSES: ReadonlyArray<RegistrationStatus> = ['draft']
-
-/** States from which a coach can withdraw a team. */
-const WITHDRAWABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-  'waitlisted',
-]
 
 /**
  * Asserts the team is still coach-editable (Draft status and before the event's
@@ -149,7 +146,7 @@ async function assertCoachEditable(
   if (!teamRows[0]) throw new Error(`${context}: team not found`)
   const teamRow = teamRows[0]
 
-  if (!COACH_EDITABLE_STATUSES.includes(teamRow.status)) {
+  if (!isCoachEditable(teamRow.status)) {
     throw new Error(
       `${context}: team is ${teamRow.status} and cannot be edited by a coach`,
     )
@@ -194,7 +191,8 @@ export async function submitTeam(
 
   if (!teamRows[0]) throw new Error('submitTeam: team not found')
 
-  if (teamRows[0].status !== 'draft') {
+  const next = resolveTransition(teamRows[0].status, 'submit', 'coach')
+  if (!next) {
     throw new Error(
       `submitTeam: cannot submit a team in status "${teamRows[0].status}"`,
     )
@@ -202,7 +200,7 @@ export async function submitTeam(
 
   const rows = await db
     .update(team)
-    .set({ status: 'submitted', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
 
@@ -225,7 +223,8 @@ export async function withdrawTeam(
 
   if (!teamRows[0]) throw new Error('withdrawTeam: team not found')
 
-  if (!WITHDRAWABLE_STATUSES.includes(teamRows[0].status)) {
+  const next = resolveTransition(teamRows[0].status, 'withdraw', 'coach')
+  if (!next) {
     throw new Error(
       `withdrawTeam: cannot withdraw a team in status "${teamRows[0].status}"`,
     )
@@ -233,7 +232,7 @@ export async function withdrawTeam(
 
   const rows = await db
     .update(team)
-    .set({ status: 'withdrawn', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
 
@@ -669,37 +668,26 @@ export async function listAllTeamsForOrganizer(
   return result
 }
 
-/** Valid source statuses for an organizer's confirm action. */
-const ORGANIZER_CONFIRMABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'waitlisted',
-]
-
 export async function confirmTeam(
   db: Database,
   teamId: string,
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('confirmTeam: team not found')
-  if (!ORGANIZER_CONFIRMABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'confirm', 'organizer')
+  if (!next) {
     throw new Error(
       `confirmTeam: cannot confirm a team in status "${rows[0].status}"`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'confirmed', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0]) throw new Error('confirmTeam: UPDATE returned no rows')
   return updated[0]
 }
-
-/** Valid source statuses for an organizer's waitlist action. */
-const ORGANIZER_WAITLISTABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-]
 
 export async function waitlistTeam(
   db: Database,
@@ -707,26 +695,20 @@ export async function waitlistTeam(
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('waitlistTeam: team not found')
-  if (!ORGANIZER_WAITLISTABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'waitlist', 'organizer')
+  if (!next) {
     throw new Error(
       `waitlistTeam: cannot waitlist a team in status "${rows[0].status}"`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'waitlisted', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0]) throw new Error('waitlistTeam: UPDATE returned no rows')
   return updated[0]
 }
-
-/** Valid source statuses for an organizer's return-to-draft action. */
-const ORGANIZER_RETURNABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-  'waitlisted',
-]
 
 export async function returnTeamToDraft(
   db: Database,
@@ -734,27 +716,20 @@ export async function returnTeamToDraft(
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('returnTeamToDraft: team not found')
-  if (!ORGANIZER_RETURNABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'return', 'organizer')
+  if (!next) {
     throw new Error(
       `returnTeamToDraft: cannot return a team in status "${rows[0].status}" to draft`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'draft', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0]) throw new Error('returnTeamToDraft: UPDATE returned no rows')
   return updated[0]
 }
-
-/** Valid source statuses for an organizer's withdraw action. */
-const ORGANIZER_WITHDRAWABLE_STATUSES: ReadonlyArray<RegistrationStatus> = [
-  'submitted',
-  'confirmed',
-  'waitlisted',
-  'draft',
-]
 
 export async function withdrawTeamAsOrganizer(
   db: Database,
@@ -762,14 +737,15 @@ export async function withdrawTeamAsOrganizer(
 ): Promise<TeamRow> {
   const rows = await db.select().from(team).where(eq(team.id, teamId)).limit(1)
   if (!rows[0]) throw new Error('withdrawTeamAsOrganizer: team not found')
-  if (!ORGANIZER_WITHDRAWABLE_STATUSES.includes(rows[0].status)) {
+  const next = resolveTransition(rows[0].status, 'withdraw', 'organizer')
+  if (!next) {
     throw new Error(
       `withdrawTeamAsOrganizer: cannot withdraw a team in status "${rows[0].status}"`,
     )
   }
   const updated = await db
     .update(team)
-    .set({ status: 'withdrawn', updatedAt: new Date() })
+    .set({ status: next, updatedAt: new Date() })
     .where(eq(team.id, teamId))
     .returning()
   if (!updated[0])

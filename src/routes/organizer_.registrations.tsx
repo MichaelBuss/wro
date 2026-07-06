@@ -17,6 +17,12 @@ import {
   waitlistTeamFn,
   withdrawTeamAsOrganizerFn,
 } from '~/lib/organizer-functions'
+import {
+  canOrganizerConfirm,
+  canOrganizerReturn,
+  canOrganizerWaitlist,
+  canOrganizerWithdraw,
+} from '~/lib/registration-lifecycle'
 import { paymentStatuses } from '~/server/db/schema'
 
 const paymentStatusSchema = z.enum(paymentStatuses)
@@ -149,12 +155,7 @@ function OrganizerRegistrations() {
                 {/* Action buttons */}
                 <div class="flex flex-wrap items-center gap-2 px-5 py-3 border-t border-border bg-muted/30">
                   {/* Registration status actions */}
-                  <Show
-                    when={
-                      entry.team.status === 'submitted' ||
-                      entry.team.status === 'waitlisted'
-                    }
-                  >
+                  <Show when={canOrganizerConfirm(entry.team.status)}>
                     <Button
                       type="button"
                       size="sm"
@@ -163,12 +164,7 @@ function OrganizerRegistrations() {
                       Bekræft
                     </Button>
                   </Show>
-                  <Show
-                    when={
-                      entry.team.status === 'submitted' ||
-                      entry.team.status === 'confirmed'
-                    }
-                  >
+                  <Show when={canOrganizerWaitlist(entry.team.status)}>
                     <Button
                       type="button"
                       variant="outline"
@@ -178,13 +174,7 @@ function OrganizerRegistrations() {
                       Venteliste
                     </Button>
                   </Show>
-                  <Show
-                    when={
-                      entry.team.status === 'submitted' ||
-                      entry.team.status === 'confirmed' ||
-                      entry.team.status === 'waitlisted'
-                    }
-                  >
+                  <Show when={canOrganizerReturn(entry.team.status)}>
                     <Button
                       type="button"
                       variant="ghost"
@@ -193,6 +183,8 @@ function OrganizerRegistrations() {
                     >
                       Retur til kladde
                     </Button>
+                  </Show>
+                  <Show when={canOrganizerWithdraw(entry.team.status)}>
                     <Button
                       type="button"
                       variant="destructive"
