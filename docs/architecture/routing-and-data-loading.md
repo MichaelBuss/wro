@@ -83,7 +83,7 @@ This keeps server-only concerns (file system access, parsing) out of components 
 
 ## TanStack Query's Role
 
-TanStack Query is installed and the provider wraps the app in `__root.tsx`. Currently it's used in demo routes (`demo.tanstack-query.tsx`) but not for production content loading.
+TanStack Query is installed and the provider wraps the app in `__root.tsx`, but it is not yet used for production content loading.
 
 The strategy is **still evolving**. Possible future directions:
 

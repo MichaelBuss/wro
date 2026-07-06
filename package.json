@@ -57,6 +57,7 @@
     "@types/node": "^26.0.0",
     "@typescript/native-preview": "^7.0.0-dev.20260623.1",
     "@vitest/eslint-plugin": "^1.6.20",
+    "baseline-browser-mapping": "^2.10.40",
     "drizzle-kit": "^0.31.10",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-drizzle": "^0.2.3",

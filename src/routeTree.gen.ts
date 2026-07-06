@@ -27,11 +27,8 @@ import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
 import { Route as InfoDateRouteImport } from './routes/info.date'
 import { Route as InfoCostRouteImport } from './routes/info.cost'
 import { Route as GalleriYearRouteImport } from './routes/galleri.$year'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
-import { Route as DemoFormRouteImport } from './routes/demo.form'
 import { Route as DashboardTeamIdRouteImport } from './routes/dashboard_.$teamId'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
 const SignupRoute = SignupRouteImport.update({
@@ -124,16 +121,6 @@ const GalleriYearRoute = GalleriYearRouteImport.update({
   path: '/$year',
   getParentRoute: () => GalleriRoute,
 } as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormRoute = DemoFormRouteImport.update({
-  id: '/demo/form',
-  path: '/demo/form',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardTeamIdRoute = DashboardTeamIdRouteImport.update({
   id: '/dashboard_/$teamId',
   path: '/dashboard/$teamId',
@@ -142,11 +129,6 @@ const DashboardTeamIdRoute = DashboardTeamIdRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -165,8 +147,6 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
-  '/demo/form': typeof DemoFormRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/galleri/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
@@ -179,7 +159,6 @@ export interface FileRoutesByFullPath {
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -191,8 +170,6 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
-  '/demo/form': typeof DemoFormRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/galleri/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
@@ -205,7 +182,6 @@ export interface FileRoutesByTo {
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -218,8 +194,6 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard_/$teamId': typeof DashboardTeamIdRoute
-  '/demo/form': typeof DemoFormRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/galleri/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
@@ -232,7 +206,6 @@ export interface FileRoutesById {
   '/organizer_/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -246,8 +219,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/blog/$slug'
     | '/dashboard/$teamId'
-    | '/demo/form'
-    | '/demo/tanstack-query'
     | '/galleri/$year'
     | '/info/cost'
     | '/info/date'
@@ -260,7 +231,6 @@ export interface FileRouteTypes {
     | '/organizer/registrations'
     | '/blog/'
     | '/api/auth/$'
-    | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -272,8 +242,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/blog/$slug'
     | '/dashboard/$teamId'
-    | '/demo/form'
-    | '/demo/tanstack-query'
     | '/galleri/$year'
     | '/info/cost'
     | '/info/date'
@@ -286,7 +254,6 @@ export interface FileRouteTypes {
     | '/organizer/registrations'
     | '/blog'
     | '/api/auth/$'
-    | '/demo/start/server-funcs'
   id:
     | '__root__'
     | '/'
@@ -298,8 +265,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/blog/$slug'
     | '/dashboard_/$teamId'
-    | '/demo/form'
-    | '/demo/tanstack-query'
     | '/galleri/$year'
     | '/info/cost'
     | '/info/date'
@@ -312,7 +277,6 @@ export interface FileRouteTypes {
     | '/organizer_/registrations'
     | '/blog/'
     | '/api/auth/$'
-    | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -325,8 +289,6 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DashboardTeamIdRoute: typeof DashboardTeamIdRoute
-  DemoFormRoute: typeof DemoFormRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   InfoCostRoute: typeof InfoCostRoute
   InfoDateRoute: typeof InfoDateRoute
   InfoMaterialsRoute: typeof InfoMaterialsRoute
@@ -338,7 +300,6 @@ export interface RootRouteChildren {
   OrganizerRegistrationsRoute: typeof OrganizerRegistrationsRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -469,20 +430,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof GalleriYearRouteImport
       parentRoute: typeof GalleriRoute
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form': {
-      id: '/demo/form'
-      path: '/demo/form'
-      fullPath: '/demo/form'
-      preLoaderRoute: typeof DemoFormRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard_/$teamId': {
       id: '/dashboard_/$teamId'
       path: '/dashboard/$teamId'
@@ -495,13 +442,6 @@ declare module '@tanstack/solid-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -535,8 +475,6 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DashboardTeamIdRoute: DashboardTeamIdRoute,
-  DemoFormRoute: DemoFormRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   InfoCostRoute: InfoCostRoute,
   InfoDateRoute: InfoDateRoute,
   InfoMaterialsRoute: InfoMaterialsRoute,
@@ -548,7 +486,6 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizerRegistrationsRoute: OrganizerRegistrationsRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
