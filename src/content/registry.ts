@@ -18,6 +18,15 @@ export const OBJECT_POSITIONS = [
 
 export type ObjectPosition = (typeof OBJECT_POSITIONS)[number]
 
+export const GALLERY_EVENTS = [
+  'Danish Final',
+  'World Final',
+  'Panic Weekend',
+  'Misc',
+] as const
+
+export type GalleryEvent = (typeof GALLERY_EVENTS)[number]
+
 /**
  * Content registry — single source of truth for all CMS-managed content.
  *
@@ -113,6 +122,7 @@ export const collectionSchemas = {
     position: z.enum(OBJECT_POSITIONS).optional(),
     order: z.number().optional(),
     year: z.number().optional(),
+    event: z.enum(GALLERY_EVENTS).optional(),
     favorite: z.boolean().optional(),
   }),
   quotes: z.object({

@@ -66,6 +66,14 @@ collections:
           hint: Groups the photo under this year on the /galleri page. Left blank, it appears under "Andre billeder".,
         }
       - {
+          label: Event,
+          name: event,
+          widget: select,
+          options: ['Danish Final', 'World Final', 'Panic Weekend', 'Misc'],
+          required: false,
+          hint: When a year has photos from both events, this splits that year's page into separate Danish final / world final sections. Leave blank if the year has only one event.,
+        }
+      - {
           label: Favorite,
           name: favorite,
           widget: boolean,

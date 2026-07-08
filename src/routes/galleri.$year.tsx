@@ -1,9 +1,13 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
-import { Show } from 'solid-js'
+import { For, Show } from 'solid-js'
 import { BackLink, PageShell } from '~/components/layout'
 import { Heading, PhotoGrid } from '~/components/ui'
-import { groupGalleryByYear, toGalleryDisplayItem } from '~/lib/gallery'
+import {
+  groupGalleryByYear,
+  groupPhotosByEvent,
+  toGalleryDisplayItem,
+} from '~/lib/gallery'
 import { getCollectionItems } from '~/server/content'
 
 const getGalleryYear = createServerFn({ method: 'GET' })
@@ -18,7 +22,11 @@ const getGalleryYear = createServerFn({ method: 'GET' })
 
     return {
       label: group.label,
-      items: group.photos.map(toGalleryDisplayItem),
+      eventGroups: groupPhotosByEvent(group.photos).map((eventGroup) => ({
+        key: eventGroup.key,
+        label: eventGroup.label,
+        items: eventGroup.photos.map(toGalleryDisplayItem),
+      })),
     }
   })
 
@@ -49,7 +57,23 @@ function GalleryYearPage() {
             <Heading level="h1" class="mb-8">
               {yearData().label}
             </Heading>
-            <PhotoGrid items={yearData().items} />
+            <Show
+              when={yearData().eventGroups.length > 1}
+              fallback={
+                <PhotoGrid items={yearData().eventGroups[0]?.items ?? []} />
+              }
+            >
+              <For each={yearData().eventGroups}>
+                {(group) => (
+                  <section class="mb-12 last:mb-0">
+                    <Heading level="h2" class="mb-6">
+                      {group.label}
+                    </Heading>
+                    <PhotoGrid items={group.items} />
+                  </section>
+                )}
+              </For>
+            </Show>
           </>
         )}
       </Show>
