@@ -7,7 +7,7 @@ const UNDATED_YEAR_LABEL = 'Andre billeder'
 export const UNDATED_EVENT_KEY = 'andet'
 const UNDATED_EVENT_LABEL = 'Andre billeder'
 
-const EVENT_LABELS: Record<GalleryEvent, string> = {
+export const EVENT_LABELS: Record<GalleryEvent, string> = {
   'Danish Final': 'Dansk finale',
   'World Final': 'Verdensfinale',
   'Panic Weekend': 'Panikweekend',
