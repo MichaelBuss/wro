@@ -16,6 +16,7 @@
     "format": "prettier --write .",
     "check": "prettier --write . && eslint --fix",
     "images:optimize": "tsx scripts/optimize-images.ts",
+    "gallery:add": "tsx scripts/add-gallery-photos.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push"
