@@ -76,6 +76,15 @@ npm run images:optimize path/to/photo1.jpg path/to/photo2.jpg
 
 This applies the identical transformation (WebP, quality 85, max 2048px) defined in `scripts/image-settings.ts`, which is the single source of truth shared with the CMS config (`public/admin/config.yml`).
 
+To add a whole year's (or year+event's) worth of gallery photos at once, skipping the CMS's one-entry-per-photo click-through:
+
+```bash
+npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
+# Outputs: public/uploads/{name}.webp + content/gallery/{name}.md (with placeholder alt text) for each photo
+```
+
+Rewrite the placeholder alt text in the generated entries before publishing.
+
 ## Validation
 
 After making changes, always run:

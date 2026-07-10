@@ -48,7 +48,7 @@ collections:
     folder: content/gallery
     create: true
     slug: '{{slug}}'
-    hint: Photos are grouped by year on the /galleri page. Favorited photos appear in the homepage preview and as the highlight teaser for their year.
+    hint: Photos are grouped by year on the /galleri page. Favorited photos appear in the homepage preview and as the highlight teaser for their year. Adding many photos at once? Drag them all into the Asset Library first, then create entries from the already-uploaded assets — or use `npm run gallery:add` from the terminal.
     fields:
       - { label: Image, name: image, widget: image }
       - { label: Alt Text, name: alt, widget: string }

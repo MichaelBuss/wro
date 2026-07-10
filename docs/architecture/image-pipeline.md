@@ -4,10 +4,11 @@ status: implemented
 authors:
   - Michael
 created: 2026-02-16
-updated: 2026-07-03
+updated: 2026-07-08
 codeAnchors:
   - scripts/image-settings.ts
   - scripts/optimize-images.ts
+  - scripts/add-gallery-photos.ts
   - public/admin/config.yml
 relatedPlans:
   - cms-content-layer
@@ -32,7 +33,9 @@ The site displays images in carousels and content pages. These need to be optimi
 
 **Shared settings, single source of truth** — `scripts/image-settings.ts` exports `IMAGE_QUALITY`, `IMAGE_MAX_PX`, and `IMAGE_FORMAT`. The CLI script imports these directly; `config.yml` can't import TypeScript, so its `media_libraries.all.transformations` block repeats the same values with a comment pointing back to `image-settings.ts` so the two don't silently drift.
 
-**CLI optimizer for batch uploads** — `scripts/optimize-images.ts` (run via `npm run images:optimize <path> [path...]`) applies the identical transformation from the terminal, for cases where adding images through the CMS UI one at a time isn't convenient (e.g. migrating a batch of existing images). Output goes to `public/uploads/{filename}.webp`.
+**CLI optimizer for batch uploads** — `scripts/optimize-images.ts` (run via `npm run images:optimize <path> [path...]`) applies the identical transformation from the terminal, for cases where adding images through the CMS UI one at a time isn't convenient (e.g. migrating a batch of existing images). Output goes to `public/uploads/{filename}.webp`. Its per-file logic is exported as `optimizeImage()` for reuse.
+
+**Batch gallery content generation** — `scripts/add-gallery-photos.ts` (run via `npm run gallery:add -- --year <number> [--event <event>] <path> [path...]`) builds on `optimizeImage()` to add a whole year's (or year+event's) worth of gallery entries in one command: for each input image it optimizes to `public/uploads/{slug}.webp` and writes a stub `content/gallery/{slug}.md` with placeholder alt text, skipping any entry that already exists on disk so reruns never clobber hand-edited metadata. The gallery collection stays one-entry-per-photo — this script is a terminal-side layer on top of that model to avoid the CMS's one-entry-per-photo click-through when adding many photos at once, not a schema change.
 
 **No responsive srcset** — unlike the previous pipeline, only one WebP is produced per upload (no multi-width variants). This is acceptable for the current usage; `Figure` still accepts `srcset`/`sizes` props if responsive images are needed later.
 
@@ -54,3 +57,4 @@ The site displays images in carousels and content pages. These need to be optimi
 
 - **2026-02-16** (Michael): Initial document capturing Sharp-based build-time image pipeline architecture
 - **2026-07-03** (Michael): Replaced the Sharp build-time pipeline with Sveltia CMS's browser-side WebP optimization plus a CLI script sharing the same settings
+- **2026-07-08** (Michael): Added `scripts/add-gallery-photos.ts` as a batch content-generation layer on top of `optimizeImage()`, for adding many gallery entries per command without a CMS schema change
