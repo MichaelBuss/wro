@@ -26,7 +26,7 @@ import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
 import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
 import { Route as InfoDateRouteImport } from './routes/info.date'
 import { Route as InfoCostRouteImport } from './routes/info.cost'
-import { Route as GalleriYearRouteImport } from './routes/galleri.$year'
+import { Route as GalleriYearRouteImport } from './routes/galleri_.$year'
 import { Route as DashboardTeamIdRouteImport } from './routes/dashboard_.$teamId'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
@@ -117,9 +117,9 @@ const InfoCostRoute = InfoCostRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalleriYearRoute = GalleriYearRouteImport.update({
-  id: '/$year',
-  path: '/$year',
-  getParentRoute: () => GalleriRoute,
+  id: '/galleri_/$year',
+  path: '/galleri/$year',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardTeamIdRoute = DashboardTeamIdRouteImport.update({
   id: '/dashboard_/$teamId',
@@ -140,7 +140,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/galleri': typeof GalleriRouteWithChildren
+  '/galleri': typeof GalleriRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -163,7 +163,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/galleri': typeof GalleriRouteWithChildren
+  '/galleri': typeof GalleriRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -187,14 +187,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/galleri': typeof GalleriRouteWithChildren
+  '/galleri': typeof GalleriRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard_/$teamId': typeof DashboardTeamIdRoute
-  '/galleri/$year': typeof GalleriYearRoute
+  '/galleri_/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -265,7 +265,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/blog/$slug'
     | '/dashboard_/$teamId'
-    | '/galleri/$year'
+    | '/galleri_/$year'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -282,13 +282,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
-  GalleriRoute: typeof GalleriRouteWithChildren
+  GalleriRoute: typeof GalleriRoute
   LoginRoute: typeof LoginRoute
   OrganizerRoute: typeof OrganizerRoute
   RecoverRoute: typeof RecoverRoute
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DashboardTeamIdRoute: typeof DashboardTeamIdRoute
+  GalleriYearRoute: typeof GalleriYearRoute
   InfoCostRoute: typeof InfoCostRoute
   InfoDateRoute: typeof InfoDateRoute
   InfoMaterialsRoute: typeof InfoMaterialsRoute
@@ -423,12 +424,12 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof InfoCostRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/galleri/$year': {
-      id: '/galleri/$year'
-      path: '/$year'
+    '/galleri_/$year': {
+      id: '/galleri_/$year'
+      path: '/galleri/$year'
       fullPath: '/galleri/$year'
       preLoaderRoute: typeof GalleriYearRouteImport
-      parentRoute: typeof GalleriRoute
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard_/$teamId': {
       id: '/dashboard_/$teamId'
@@ -454,27 +455,17 @@ declare module '@tanstack/solid-router' {
   }
 }
 
-interface GalleriRouteChildren {
-  GalleriYearRoute: typeof GalleriYearRoute
-}
-
-const GalleriRouteChildren: GalleriRouteChildren = {
-  GalleriYearRoute: GalleriYearRoute,
-}
-
-const GalleriRouteWithChildren =
-  GalleriRoute._addFileChildren(GalleriRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
-  GalleriRoute: GalleriRouteWithChildren,
+  GalleriRoute: GalleriRoute,
   LoginRoute: LoginRoute,
   OrganizerRoute: OrganizerRoute,
   RecoverRoute: RecoverRoute,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DashboardTeamIdRoute: DashboardTeamIdRoute,
+  GalleriYearRoute: GalleriYearRoute,
   InfoCostRoute: InfoCostRoute,
   InfoDateRoute: InfoDateRoute,
   InfoMaterialsRoute: InfoMaterialsRoute,

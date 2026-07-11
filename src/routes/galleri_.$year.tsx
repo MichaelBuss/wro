@@ -30,7 +30,7 @@ const getGalleryYear = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/galleri/$year')({
+export const Route = createFileRoute('/galleri_/$year')({
   component: GalleryYearPage,
   loader: async ({ params }) => await getGalleryYear({ data: params.year }),
 })
