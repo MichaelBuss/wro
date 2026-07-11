@@ -104,6 +104,43 @@ function buildPlaceholderAlt(options: {
   return `Foto${eventPart} ${year} (${index})`
 }
 
+export interface AddOnePhotoResult {
+  status: 'created' | 'skipped'
+  mdPath: string
+}
+
+/**
+ * Optimizes one image and writes its stub gallery entry, unless an entry
+ * for it already exists. Shared by the CLI loop below and
+ * scripts/add-gallery-photos-wizard.ts.
+ */
+export async function addOnePhoto(
+  inputPath: string,
+  options: { year: number; event: GalleryEvent | undefined; index: number },
+): Promise<AddOnePhotoResult> {
+  const { year, event, index } = options
+  const slug = basename(inputPath, extname(inputPath))
+  const mdPath = join(GALLERY_DIR, `${slug}.md`)
+
+  if (existsSync(mdPath)) {
+    return { status: 'skipped', mdPath }
+  }
+
+  await optimizeImage(inputPath)
+
+  const frontmatter = {
+    image: `/uploads/${slug}.webp`,
+    alt: buildPlaceholderAlt({ year, event, index }),
+    year,
+    ...(event === undefined ? {} : { event }),
+    order: index,
+  }
+
+  writeFileSync(mdPath, `${matter.stringify('', frontmatter).trimEnd()}\n`)
+
+  return { status: 'created', mdPath }
+}
+
 async function main() {
   const { year, event, imagePaths } = parseArgs(process.argv.slice(2))
 
@@ -112,28 +149,15 @@ async function main() {
 
   for (const [i, inputPath] of imagePaths.entries()) {
     const index = i + 1
-    const slug = basename(inputPath, extname(inputPath))
-    const mdPath = join(GALLERY_DIR, `${slug}.md`)
+    const result = await addOnePhoto(inputPath, { year, event, index })
 
-    if (existsSync(mdPath)) {
-      console.warn(`Skipping ${inputPath} — ${mdPath} already exists`)
+    if (result.status === 'skipped') {
+      console.warn(`Skipping ${inputPath} — ${result.mdPath} already exists`)
       skipped += 1
       continue
     }
 
-    await optimizeImage(inputPath)
-
-    const frontmatter = {
-      image: `/uploads/${slug}.webp`,
-      alt: buildPlaceholderAlt({ year, event, index }),
-      year,
-      ...(event === undefined ? {} : { event }),
-      order: index,
-    }
-
-    writeFileSync(mdPath, `${matter.stringify('', frontmatter).trimEnd()}\n`)
-
-    console.log(`${inputPath} → ${mdPath}`)
+    console.log(`${inputPath} → ${result.mdPath}`)
     created += 1
   }
 
@@ -149,7 +173,16 @@ async function main() {
   }
 }
 
-main().catch((error: unknown) => {
-  console.error(error)
-  process.exitCode = 1
-})
+// Only auto-run when executed directly (e.g. via `npm run gallery:add`), not
+// when imported for its `addOnePhoto()` export (e.g. by
+// add-gallery-photos-wizard.ts) — otherwise the importer's own argv would be
+// misinterpreted as this script's CLI flags/paths. Same guard as
+// optimize-images.ts.
+const isMain = import.meta.url === `file://${process.argv[1]}`
+
+if (isMain) {
+  main().catch((error: unknown) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+}
