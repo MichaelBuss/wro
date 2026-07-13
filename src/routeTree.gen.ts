@@ -29,6 +29,7 @@ import { Route as InfoCostRouteImport } from './routes/info.cost'
 import { Route as GalleriYearRouteImport } from './routes/galleri_.$year'
 import { Route as DashboardTeamIdRouteImport } from './routes/dashboard_.$teamId'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as GalleriYearSlugRouteImport } from './routes/galleri_.$year_.$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
 const SignupRoute = SignupRouteImport.update({
@@ -131,6 +132,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleriYearSlugRoute = GalleriYearSlugRouteImport.update({
+  id: '/galleri_/$year_/$slug',
+  path: '/galleri/$year/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/galleri/$year/$slug': typeof GalleriYearSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/galleri/$year/$slug': typeof GalleriYearSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/organizer_/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/galleri_/$year_/$slug': typeof GalleriYearSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/organizer/registrations'
     | '/blog/'
     | '/api/auth/$'
+    | '/galleri/$year/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/organizer/registrations'
     | '/blog'
     | '/api/auth/$'
+    | '/galleri/$year/$slug'
   id:
     | '__root__'
     | '/'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/organizer_/registrations'
     | '/blog/'
     | '/api/auth/$'
+    | '/galleri_/$year_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -301,6 +313,7 @@ export interface RootRouteChildren {
   OrganizerRegistrationsRoute: typeof OrganizerRegistrationsRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  GalleriYearSlugRoute: typeof GalleriYearSlugRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -445,6 +458,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galleri_/$year_/$slug': {
+      id: '/galleri_/$year_/$slug'
+      path: '/galleri/$year/$slug'
+      fullPath: '/galleri/$year/$slug'
+      preLoaderRoute: typeof GalleriYearSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -477,6 +497,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizerRegistrationsRoute: OrganizerRegistrationsRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  GalleriYearSlugRoute: GalleriYearSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

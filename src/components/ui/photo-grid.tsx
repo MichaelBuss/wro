@@ -1,9 +1,12 @@
+import { Link } from '@tanstack/solid-router'
 import { For, Show } from 'solid-js'
 import { cx } from '~/cva.config'
 import type { GalleryItem } from './Gallery'
 
 interface PhotoGridProps {
   items: Array<GalleryItem>
+  /** Year key shared by every item, used to build each tile's lightbox link. */
+  year: string
   class?: string
 }
 
@@ -26,16 +29,25 @@ export function PhotoGrid(props: PhotoGridProps) {
       <For each={props.items}>
         {(item) => (
           <figure class="photo-grid-item group">
-            <img
-              src={item.src}
-              srcset={item.srcset}
-              sizes={item.sizes}
-              alt={item.alt}
-              loading="lazy"
-              decoding="async"
-              class="photo-grid-image w-full transition-transform duration-700 group-hover:scale-[1.02]"
-              style={{ 'object-position': item.objectPosition ?? 'center' }}
-            />
+            <Link
+              to="/galleri/$year/$slug"
+              params={{ year: props.year, slug: item.slug }}
+              class="block h-full w-full"
+            >
+              <img
+                src={item.src}
+                srcset={item.srcset}
+                sizes={item.sizes}
+                alt={item.alt}
+                loading="lazy"
+                decoding="async"
+                class="photo-grid-image w-full transition-transform duration-700 group-hover:scale-[1.02]"
+                style={{
+                  'object-position': item.objectPosition ?? 'center',
+                  'view-transition-name': `photo-${item.slug}`,
+                }}
+              />
+            </Link>
             <Show when={item.caption ?? item.year}>
               <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
                 <Show when={item.year}>

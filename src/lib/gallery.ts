@@ -122,7 +122,8 @@ export function groupPhotosByEvent(
 /**
  * Maps a validated gallery content item onto the plain shape consumed by
  * the `Gallery` and `PhotoGrid` display components, decoupling them from
- * the content schema.
+ * the content schema. `slug` and `yearKey` are included so callers can link
+ * each tile to its lightbox route (`/galleri/$year/$slug`).
  */
 export function toGalleryDisplayItem(photo: GalleryPhoto) {
   return {
@@ -131,6 +132,60 @@ export function toGalleryDisplayItem(photo: GalleryPhoto) {
     caption: photo.description,
     year: photo.year,
     objectPosition: photo.position,
+    slug: photo.slug,
+    yearKey: getGalleryYearKey(photo),
+  }
+}
+
+export interface AdjacentGalleryPhoto {
+  photo: GalleryPhoto
+  eventLabel: string
+  prevSlug: string | undefined
+  nextSlug: string | undefined
+  index: number
+  total: number
+}
+
+/**
+ * Locates a photo within its year + event group (mirroring how the gallery
+ * grids are organized via `groupPhotosByEvent`) and returns enough context
+ * to drive the lightbox: the photo itself, its neighbours for prev/next
+ * navigation (wrapping around; `undefined` when the group has only one
+ * photo), its 1-based position, and the group's total count.
+ */
+export function findAdjacentGalleryPhoto(
+  photos: Array<GalleryPhoto>,
+  yearKey: string,
+  slug: string,
+): AdjacentGalleryPhoto | undefined {
+  const yearGroup = groupGalleryByYear(photos).find(
+    (group) => group.key === yearKey,
+  )
+  if (!yearGroup) return undefined
+
+  const eventGroup = groupPhotosByEvent(yearGroup.photos).find((group) =>
+    group.photos.some((photo) => photo.slug === slug),
+  )
+  if (!eventGroup) return undefined
+
+  // `index` is guaranteed valid (0..length-1): the `.some()` check above
+  // already confirmed a photo with this slug exists in the group.
+  const index = eventGroup.photos.findIndex((photo) => photo.slug === slug)
+  const photo = eventGroup.photos[index]
+
+  const total = eventGroup.photos.length
+  const prevSlug =
+    total > 1 ? eventGroup.photos[(index - 1 + total) % total]?.slug : undefined
+  const nextSlug =
+    total > 1 ? eventGroup.photos[(index + 1) % total]?.slug : undefined
+
+  return {
+    photo,
+    eventLabel: eventGroup.label,
+    prevSlug,
+    nextSlug,
+    index: index + 1,
+    total,
   }
 }
 

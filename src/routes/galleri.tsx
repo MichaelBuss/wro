@@ -68,7 +68,7 @@ function GalleryPage() {
               </Show>
             </div>
 
-            <PhotoGrid items={group.highlights} />
+            <PhotoGrid items={group.highlights} year={group.key} />
           </section>
         )}
       </For>

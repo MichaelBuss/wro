@@ -37,6 +37,7 @@ export const Route = createFileRoute('/galleri_/$year')({
 
 function GalleryYearPage() {
   const data = Route.useLoaderData()
+  const params = Route.useParams()
 
   return (
     <PageShell size="lg">
@@ -60,7 +61,10 @@ function GalleryYearPage() {
             <Show
               when={yearData().eventGroups.length > 1}
               fallback={
-                <PhotoGrid items={yearData().eventGroups[0]?.items ?? []} />
+                <PhotoGrid
+                  items={yearData().eventGroups[0]?.items ?? []}
+                  year={params().year}
+                />
               }
             >
               <For each={yearData().eventGroups}>
@@ -69,7 +73,7 @@ function GalleryYearPage() {
                     <Heading level="h2" class="mb-6">
                       {group.label}
                     </Heading>
-                    <PhotoGrid items={group.items} />
+                    <PhotoGrid items={group.items} year={params().year} />
                   </section>
                 )}
               </For>

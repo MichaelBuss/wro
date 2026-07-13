@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/solid-router'
 import { Show } from 'solid-js'
 import { cx } from '~/cva.config'
 
@@ -13,6 +14,9 @@ interface FigureProps {
   objectPosition?: string
   class?: string
   aspectRatio?: AspectRatio
+  /** Gallery slug + year key, used to link this figure to its lightbox. */
+  slug: string
+  yearKey: string
 }
 
 const aspectClasses: Record<AspectRatio, string> = {
@@ -29,16 +33,25 @@ export function Figure(props: FigureProps) {
       <div
         class={cx('overflow-hidden', aspectClasses[props.aspectRatio ?? '4/3'])}
       >
-        <img
-          src={props.src}
-          srcset={props.srcset}
-          sizes={props.sizes}
-          alt={props.alt}
-          loading="lazy"
-          decoding="async"
-          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-          style={{ 'object-position': props.objectPosition ?? 'center' }}
-        />
+        <Link
+          to="/galleri/$year/$slug"
+          params={{ year: props.yearKey, slug: props.slug }}
+          class="block h-full w-full"
+        >
+          <img
+            src={props.src}
+            srcset={props.srcset}
+            sizes={props.sizes}
+            alt={props.alt}
+            loading="lazy"
+            decoding="async"
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+            style={{
+              'object-position': props.objectPosition ?? 'center',
+              'view-transition-name': `photo-${props.slug}`,
+            }}
+          />
+        </Link>
       </div>
       <Show when={props.caption ?? props.year}>
         <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
