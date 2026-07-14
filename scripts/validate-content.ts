@@ -7,18 +7,26 @@
  * - Every collection key in the registry has a corresponding directory
  * - Every directory in content/ (except pages/) has a corresponding collection key
  * - All frontmatter validates against its Zod schema
+ * - Every gallery photo's image exists in public/uploads, and every upload is
+ *   referenced by exactly one photo (no orphans, no duplicates), at the
+ *   right format/size
  *
  * Run with: npm run validate:content
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { extname, join } from 'node:path'
 import matter from 'gray-matter'
+import sharp from 'sharp'
 import { collectionSchemas, pageSchemas } from '../src/content/registry'
 import { objectKeys } from '../src/lib/utils'
+import { IMAGE_MAX_PX } from './image-settings'
 
 const CONTENT_DIR = join(process.cwd(), 'content')
 const PAGES_DIR = join(CONTENT_DIR, 'pages')
+const GALLERY_DIR = join(CONTENT_DIR, 'gallery')
+const PUBLIC_DIR = join(process.cwd(), 'public')
+const UPLOADS_DIR = join(PUBLIC_DIR, 'uploads')
 
 interface ValidationError {
   type:
@@ -27,6 +35,11 @@ interface ValidationError {
     | 'missing-dir'
     | 'orphaned-dir'
     | 'schema-error'
+    | 'dangling-image'
+    | 'duplicate-image'
+    | 'orphaned-image'
+    | 'invalid-image-format'
+    | 'oversized-image'
   message: string
 }
 
@@ -133,6 +146,90 @@ for (const dir of contentDirs) {
       'orphaned-dir',
       `content/${dir}/ exists but "${dir}" is not defined in collectionSchemas`,
     )
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 3. Validate gallery images stay in sync with public/uploads
+//
+// Every gallery entry must point at a file that exists, every upload must be
+// referenced by exactly one entry (no orphans, no duplicates), and every
+// upload must already be a correctly-sized .webp — catching anything that
+// bypassed npm run images:optimize / the CMS's browser-side transform (e.g.
+// a raw photo committed by hand).
+// ---------------------------------------------------------------------------
+
+console.log('Validating gallery images...')
+
+if (existsSync(GALLERY_DIR)) {
+  const galleryFiles = readdirSync(GALLERY_DIR).filter((f) => f.endsWith('.md'))
+
+  // Upload filename (e.g. "DSC_1689.webp") -> gallery .md files referencing it.
+  const referencingFiles = new Map<string, Array<string>>()
+
+  for (const file of galleryFiles) {
+    const filePath = join(GALLERY_DIR, file)
+    const { data } = matter(readFileSync(filePath, 'utf-8'))
+    const result = collectionSchemas.gallery.safeParse(data)
+
+    // Schema errors are already reported in section 2 above.
+    if (!result.success) continue
+
+    const uploadFilename = result.data.image.replace(/^\/uploads\//, '')
+    const diskPath = join(UPLOADS_DIR, uploadFilename)
+
+    if (!existsSync(diskPath)) {
+      error(
+        'dangling-image',
+        `content/gallery/${file} references "${result.data.image}" but public/uploads/${uploadFilename} does not exist`,
+      )
+      continue
+    }
+
+    const referencedBy = referencingFiles.get(uploadFilename) ?? []
+    referencedBy.push(file)
+    referencingFiles.set(uploadFilename, referencedBy)
+  }
+
+  for (const [uploadFilename, files] of referencingFiles) {
+    if (files.length > 1) {
+      error(
+        'duplicate-image',
+        `public/uploads/${uploadFilename} is referenced by ${files.length} gallery entries (${files.join(', ')}) — each photo should have exactly one entry`,
+      )
+    }
+  }
+
+  if (existsSync(UPLOADS_DIR)) {
+    const uploadFiles = readdirSync(UPLOADS_DIR)
+
+    for (const uploadFile of uploadFiles) {
+      if (!referencingFiles.has(uploadFile)) {
+        error(
+          'orphaned-image',
+          `public/uploads/${uploadFile} is not referenced by any content/gallery entry`,
+        )
+      }
+
+      if (extname(uploadFile).toLowerCase() !== '.webp') {
+        error(
+          'invalid-image-format',
+          `public/uploads/${uploadFile} is not a .webp file — run npm run images:optimize to convert it`,
+        )
+        continue
+      }
+
+      const { width, height } = await sharp(
+        join(UPLOADS_DIR, uploadFile),
+      ).metadata()
+
+      if (width > IMAGE_MAX_PX || height > IMAGE_MAX_PX) {
+        error(
+          'oversized-image',
+          `public/uploads/${uploadFile} is ${width}x${height}px, exceeds the ${IMAGE_MAX_PX}px max — run npm run images:optimize to resize it`,
+        )
+      }
+    }
   }
 }
 
