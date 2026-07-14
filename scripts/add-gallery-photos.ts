@@ -8,15 +8,16 @@
  *
  * For each input image, in argv order, this:
  * - Optimizes it to public/uploads/{slug}.webp (scripts/optimize-images.ts)
- * - Writes a stub content/gallery/{slug}.md with placeholder alt text
+ * - Writes a stub content/gallery/{slug}.md with blank alt text
  * - Skips (with a warning) any image whose .md entry already exists, so
  *   reruns never clobber hand-edited entries
  *
  * Run with:
  *   npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
  *
- * Rewrite the placeholder alt text before publishing — it's a stand-in for
- * accessibility purposes, not a real description.
+ * Alt text is left blank intentionally (not a placeholder) — `npm run lint`
+ * fails on empty alt text, so entries can't reach publishing without a real
+ * description being written in.
  */
 
 import { existsSync, writeFileSync } from 'node:fs'
@@ -25,7 +26,6 @@ import matter from 'gray-matter'
 import { z } from 'zod'
 import { GALLERY_EVENTS } from '~/content/registry'
 import type { GalleryEvent } from '~/content/registry'
-import { EVENT_LABELS } from '~/lib/gallery'
 import { optimizeImage } from './optimize-images'
 
 const GALLERY_DIR = 'content/gallery'
@@ -94,16 +94,6 @@ function parseArgs(argv: Array<string>): ParsedArgs {
   return { year, event, imagePaths }
 }
 
-function buildPlaceholderAlt(options: {
-  year: number
-  event: GalleryEvent | undefined
-  index: number
-}): string {
-  const { year, event, index } = options
-  const eventPart = event === undefined ? '' : ` fra ${EVENT_LABELS[event]}`
-  return `Foto${eventPart} ${year} (${index})`
-}
-
 export interface AddOnePhotoResult {
   status: 'created' | 'skipped'
   mdPath: string
@@ -130,7 +120,7 @@ export async function addOnePhoto(
 
   const frontmatter = {
     image: `/uploads/${slug}.webp`,
-    alt: buildPlaceholderAlt({ year, event, index }),
+    alt: '',
     year,
     ...(event === undefined ? {} : { event }),
     order: index,
@@ -168,7 +158,7 @@ async function main() {
 
   if (created > 0) {
     console.log(
-      'Reminder: rewrite the placeholder alt text in the new entries before publishing — it is not a real accessibility description.',
+      'Reminder: the new entries have blank alt text — fill it in before publishing (npm run lint will fail until you do).',
     )
   }
 }

@@ -165,7 +165,7 @@ async function main() {
   outro(
     `Created ${created} entr${created === 1 ? 'y' : 'ies'}, skipped ${skipped}.` +
       (created > 0
-        ? ' Remember to rewrite the placeholder alt text before publishing.'
+        ? ' The new entries have blank alt text — fill it in before publishing (npm run lint will fail until you do).'
         : ''),
   )
 }

@@ -80,12 +80,12 @@ To add a whole year's (or year+event's) worth of gallery photos at once, skippin
 
 ```bash
 npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
-# Outputs: public/uploads/{name}.webp + content/gallery/{name}.md (with placeholder alt text) for each photo
+# Outputs: public/uploads/{name}.webp + content/gallery/{name}.md (with blank alt text) for each photo
 ```
 
 Or run `npm run gallery:wizard` for an interactive version of the same command — it prompts for the year/event and lets you browse to a folder and pick which photos to add, instead of typing flags and shell globs by hand.
 
-Rewrite the placeholder alt text in the generated entries before publishing.
+Fill in the blank alt text in the generated entries before publishing — `npm run lint` fails on empty alt text, so this can't be forgotten.
 
 ## Validation
 

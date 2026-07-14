@@ -117,7 +117,7 @@ export const collectionSchemas = {
   }),
   gallery: z.object({
     image: z.string(),
-    alt: z.string(),
+    alt: z.string().trim().min(1, 'Alt text is required'),
     description: z.string().optional(),
     position: z.enum(OBJECT_POSITIONS).optional(),
     order: z.number().optional(),
