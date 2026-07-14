@@ -10,13 +10,20 @@ const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
   .validator((data: { year: string; slug: string }) => data)
   .handler(({ data }) => {
     const photos = getCollectionItems('gallery')
-    const adjacent = findAdjacentGalleryPhoto(photos, data.year, data.slug)
+    const editions = getCollectionItems('gallery-editions')
+    const adjacent = findAdjacentGalleryPhoto(
+      photos,
+      data.year,
+      data.slug,
+      editions,
+    )
 
     if (!adjacent) return null
 
     return {
       item: toGalleryDisplayItem(adjacent.photo),
       eventLabel: adjacent.eventLabel,
+      eventLocation: adjacent.eventLocation,
       prevSlug: adjacent.prevSlug,
       nextSlug: adjacent.nextSlug,
       index: adjacent.index,
@@ -57,6 +64,7 @@ function GalleryLightboxPage() {
           year={params().year}
           item={lightboxData().item}
           eventLabel={lightboxData().eventLabel}
+          eventLocation={lightboxData().eventLocation}
           prevSlug={lightboxData().prevSlug}
           nextSlug={lightboxData().nextSlug}
           index={lightboxData().index}

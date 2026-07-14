@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/solid-router'
-import { Show } from 'solid-js'
 import { cx } from '~/cva.config'
 
 type AspectRatio = 'square' | '4/3' | '3/4' | '16/9' | '3/2'
@@ -10,7 +9,7 @@ interface FigureProps {
   sizes?: string
   alt: string
   caption?: string
-  year?: number | string
+  year: number
   objectPosition?: string
   class?: string
   aspectRatio?: AspectRatio
@@ -53,14 +52,10 @@ export function Figure(props: FigureProps) {
           />
         </Link>
       </div>
-      <Show when={props.caption ?? props.year}>
-        <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
-          <Show when={props.year}>
-            <span class="not-italic font-sans mr-1">{props.year} —</span>
-          </Show>
-          {props.caption}
-        </figcaption>
-      </Show>
+      <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
+        <span class="not-italic font-sans mr-1">{props.year} —</span>
+        {props.caption}
+      </figcaption>
     </figure>
   )
 }

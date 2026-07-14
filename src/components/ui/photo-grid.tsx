@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/solid-router'
-import { For, Show } from 'solid-js'
+import { For } from 'solid-js'
 import { cx } from '~/cva.config'
 import type { GalleryItem } from './Gallery'
 
@@ -48,14 +48,10 @@ export function PhotoGrid(props: PhotoGridProps) {
                 }}
               />
             </Link>
-            <Show when={item.caption ?? item.year}>
-              <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
-                <Show when={item.year}>
-                  <span class="not-italic font-sans mr-1">{item.year} —</span>
-                </Show>
-                {item.caption}
-              </figcaption>
-            </Show>
+            <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
+              <span class="not-italic font-sans mr-1">{item.year} —</span>
+              {item.caption}
+            </figcaption>
           </figure>
         )}
       </For>

@@ -8,6 +8,7 @@ interface PhotoLightboxProps {
   year: string
   item: GalleryItem
   eventLabel: string
+  eventLocation: string | undefined
   prevSlug: string | undefined
   nextSlug: string | undefined
   index: number
@@ -130,6 +131,9 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
           <p class="font-serif italic text-sm-copy">
             {props.item.caption ?? props.eventLabel}
           </p>
+        </Show>
+        <Show when={props.eventLocation}>
+          {(location) => <p class="text-caption text-white/50">{location()}</p>}
         </Show>
         <p class="text-caption text-white/60 font-mono">
           {props.index} / {props.total}

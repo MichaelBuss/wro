@@ -83,7 +83,11 @@ npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
 # Outputs: public/uploads/{name}.webp + content/gallery/{name}.md (with blank alt text) for each photo
 ```
 
-Or run `npm run gallery:wizard` for an interactive version of the same command — it prompts for the year/event and lets you browse to a folder and pick which photos to add, instead of typing flags and shell globs by hand.
+Each photo's `date` is read from its EXIF capture date (falling back to the file's modification time, with a warning, if EXIF is missing) — this drives sort order and which year it's grouped under on `/galleri`, so there's no separate "order" field to maintain by hand. The importer also warns if a photo's capture date doesn't match the `--year` you passed.
+
+Add `--location "City, Country"` (requires `--event`) to record where that year's edition was held, written to `content/gallery-editions/`.
+
+Or run `npm run gallery:wizard` for an interactive version of the same command — it prompts for the year/event/location and lets you browse to a folder and pick which photos to add, instead of typing flags and shell globs by hand.
 
 Fill in the blank alt text in the generated entries before publishing — `npm run lint` fails on empty alt text, so this can't be forgotten.
 

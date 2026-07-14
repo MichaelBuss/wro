@@ -33,6 +33,8 @@ import { GALLERY_EVENTS } from '~/content/registry'
 import type { GalleryEvent } from '~/content/registry'
 import { EVENT_LABELS } from '~/lib/gallery'
 import { addOnePhoto } from './add-gallery-photos'
+import { upsertGalleryEdition } from './gallery-editions'
+import { readPhotoDate } from './photo-date'
 
 const IMAGE_EXTENSIONS = new Set([
   '.jpg',
@@ -91,6 +93,21 @@ function listImageFiles(dir: string): Array<string> {
     .map((name) => join(dir, name))
 }
 
+async function promptForLocation(
+  year: number,
+  event: GalleryEvent | undefined,
+): Promise<string | undefined> {
+  if (event === undefined) return undefined
+
+  const value = await promptOrCancel(
+    text({
+      message: `Where was ${EVENT_LABELS[event]} ${year} held?`,
+      placeholder: 'e.g. Panama City, Panama — leave blank to skip',
+    }),
+  )
+  return value === '' ? undefined : value
+}
+
 async function promptForImagePaths(): Promise<Array<string>> {
   for (;;) {
     const folder = await promptOrCancel(
@@ -126,6 +143,7 @@ async function main() {
   const year = await promptForYear()
   const event = await promptForEvent()
   const imagePaths = await promptForImagePaths()
+  const location = await promptForLocation(year, event)
 
   const proceed = await promptOrCancel(
     confirm({
@@ -138,18 +156,31 @@ async function main() {
     process.exit(0)
   }
 
+  log.step('Reading capture dates from EXIF…')
+  const dated = await Promise.all(
+    imagePaths.map(async (inputPath) => ({
+      inputPath,
+      ...(await readPhotoDate(inputPath)),
+    })),
+  )
+  dated.sort((a, b) => a.date.getTime() - b.date.getTime())
+
   let created = 0
   let skipped = 0
+  const warnings: Array<string> = []
 
   await tasks(
-    imagePaths.map((inputPath, i) => ({
+    dated.map(({ inputPath, date, source }) => ({
       title: inputPath,
       task: async () => {
         const result = await addOnePhoto(inputPath, {
           year,
           event,
-          index: i + 1,
+          date,
+          dateSource: source,
         })
+
+        warnings.push(...result.warnings)
 
         if (result.status === 'created') {
           created += 1
@@ -161,6 +192,24 @@ async function main() {
       },
     })),
   )
+
+  for (const warning of warnings) {
+    log.warn(warning)
+  }
+
+  if (location !== undefined && event !== undefined) {
+    const result = upsertGalleryEdition({ year, event, location })
+
+    if (result.status === 'created') {
+      log.success(
+        `Recorded location for ${year} ${EVENT_LABELS[event]}: ${result.mdPath}`,
+      )
+    } else if (result.status === 'conflict') {
+      log.warn(
+        `${result.mdPath} already records a different location ("${result.existingLocation}") — leaving it as-is.`,
+      )
+    }
+  }
 
   outro(
     `Created ${created} entr${created === 1 ? 'y' : 'ies'}, skipped ${skipped}.` +

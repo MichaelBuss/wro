@@ -120,10 +120,14 @@ export const collectionSchemas = {
     alt: z.string().trim().min(1, 'Alt text is required'),
     description: z.string().optional(),
     position: z.enum(OBJECT_POSITIONS).optional(),
-    order: z.number().optional(),
-    year: z.number().optional(),
+    date: z.coerce.date(),
     event: z.enum(GALLERY_EVENTS).optional(),
     favorite: z.boolean().optional(),
+  }),
+  'gallery-editions': z.object({
+    year: z.coerce.number().int(),
+    event: z.enum(GALLERY_EVENTS),
+    location: z.string(),
   }),
   quotes: z.object({
     quote: z.string(),

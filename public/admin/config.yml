@@ -59,11 +59,10 @@ collections:
           required: false,
         }
       - {
-          label: Year,
-          name: year,
-          widget: number,
-          required: false,
-          hint: Groups the photo under this year on the /galleri page. Left blank, it appears under "Andre billeder".,
+          label: Date Taken,
+          name: date,
+          widget: date,
+          hint: Drives sort order and which year this photo appears under on the /galleri page. Use the photo's actual capture date — prefer running `npm run gallery:add`/`npm run gallery:wizard`, which fill this in automatically from the photo's EXIF data.,
         }
       - {
           label: Event,
@@ -87,12 +86,32 @@ collections:
           required: false,
           hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"',
         }
+
+  - name: gallery-editions
+    label: Galleri — Værtsbyer
+    folder: content/gallery-editions
+    create: true
+    slug: '{{year}}-{{event}}'
+    hint: Records where a given year's final was held, shown as a subtitle on that year's /galleri page and in the lightbox. Optional — only add an entry when you want a location shown; leave a year/event pairing without an entry otherwise.
+    fields:
       - {
-          label: Sort Order,
-          name: order,
+          label: Year,
+          name: year,
           widget: number,
-          required: false,
-          hint: Lower numbers appear first,
+          hint: The year this location applies to, e.g. 2024.,
+        }
+      - {
+          label: Event,
+          name: event,
+          widget: select,
+          options: ['Danish Final', 'World Final', 'Panic Weekend', 'Misc'],
+          hint: Which event this location applies to.,
+        }
+      - {
+          label: Location,
+          name: location,
+          widget: string,
+          hint: 'By, land — f.eks. "Panama City, Panama". Behøver ikke være præcist, bruges kun til at vise hvem der var vært det år.',
         }
 
   - name: quotes

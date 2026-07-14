@@ -8,7 +8,7 @@ export interface GalleryItem {
   sizes?: string
   alt: string
   caption?: string
-  year?: number | string
+  year: number
   objectPosition?: string
   slug: string
   yearKey: string

@@ -14,6 +14,7 @@ const getGalleryYear = createServerFn({ method: 'GET' })
   .validator((year: string) => year)
   .handler(({ data: year }) => {
     const photos = getCollectionItems('gallery')
+    const editions = getCollectionItems('gallery-editions')
     const group = groupGalleryByYear(photos).find((g) => g.key === year)
 
     if (!group) {
@@ -22,11 +23,14 @@ const getGalleryYear = createServerFn({ method: 'GET' })
 
     return {
       label: group.label,
-      eventGroups: groupPhotosByEvent(group.photos).map((eventGroup) => ({
-        key: eventGroup.key,
-        label: eventGroup.label,
-        items: eventGroup.photos.map(toGalleryDisplayItem),
-      })),
+      eventGroups: groupPhotosByEvent(group.photos, editions).map(
+        (eventGroup) => ({
+          key: eventGroup.key,
+          label: eventGroup.label,
+          location: eventGroup.location,
+          items: eventGroup.photos.map(toGalleryDisplayItem),
+        }),
+      ),
     }
   })
 
@@ -61,18 +65,36 @@ function GalleryYearPage() {
             <Show
               when={yearData().eventGroups.length > 1}
               fallback={
-                <PhotoGrid
-                  items={yearData().eventGroups[0]?.items ?? []}
-                  year={params().year}
-                />
+                <>
+                  <Show when={yearData().eventGroups[0]?.location}>
+                    {(location) => (
+                      <p class="text-sm-copy text-muted-foreground -mt-6 mb-8">
+                        {location()}
+                      </p>
+                    )}
+                  </Show>
+                  <PhotoGrid
+                    items={yearData().eventGroups[0]?.items ?? []}
+                    year={params().year}
+                  />
+                </>
               }
             >
               <For each={yearData().eventGroups}>
                 {(group) => (
                   <section class="mb-12 last:mb-0">
-                    <Heading level="h2" class="mb-6">
-                      {group.label}
-                    </Heading>
+                    <div class="mb-6">
+                      <Heading level="h2" class="mb-1">
+                        {group.label}
+                      </Heading>
+                      <Show when={group.location}>
+                        {(location) => (
+                          <p class="text-sm-copy text-muted-foreground">
+                            {location()}
+                          </p>
+                        )}
+                      </Show>
+                    </div>
                     <PhotoGrid items={group.items} year={params().year} />
                   </section>
                 )}
