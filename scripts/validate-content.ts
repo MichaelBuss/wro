@@ -10,6 +10,8 @@
  * - Every gallery photo's image exists in public/uploads, and every upload is
  *   referenced by exactly one photo (no orphans, no duplicates), at the
  *   right format/size
+ * - Every gallery-editions entry matches at least one real photo's
+ *   (year, event), with no two editions claiming the same pairing
  *
  * Run with: npm run validate:content
  */
@@ -20,11 +22,13 @@ import matter from 'gray-matter'
 import sharp from 'sharp'
 import { collectionSchemas, pageSchemas } from '../src/content/registry'
 import { objectKeys } from '../src/lib/utils'
+import { slugifyEvent } from './gallery-editions'
 import { IMAGE_MAX_PX } from './image-settings'
 
 const CONTENT_DIR = join(process.cwd(), 'content')
 const PAGES_DIR = join(CONTENT_DIR, 'pages')
 const GALLERY_DIR = join(CONTENT_DIR, 'gallery')
+const EDITIONS_DIR = join(CONTENT_DIR, 'gallery-editions')
 const PUBLIC_DIR = join(process.cwd(), 'public')
 const UPLOADS_DIR = join(PUBLIC_DIR, 'uploads')
 
@@ -40,6 +44,9 @@ interface ValidationError {
     | 'orphaned-image'
     | 'invalid-image-format'
     | 'oversized-image'
+    | 'orphaned-edition'
+    | 'duplicate-edition'
+    | 'edition-filename-mismatch'
   message: string
 }
 
@@ -48,6 +55,59 @@ const errors: Array<ValidationError> = []
 function error(type: ValidationError['type'], message: string) {
   errors.push({ type, message })
   console.error(`  ERROR: ${message}`)
+}
+
+/**
+ * Groups items by a derived string key. Shared building block for both the
+ * gallery-images and gallery-editions consistency checks below, so "group by
+ * key, then check the group" logic can't drift between the two.
+ */
+function groupByKey<T>(
+  items: Array<T>,
+  getKey: (item: T) => string,
+): Map<string, Array<T>> {
+  const groups = new Map<string, Array<T>>()
+
+  for (const item of items) {
+    const key = getKey(item)
+    const existing = groups.get(key)
+
+    if (existing) {
+      existing.push(item)
+    } else {
+      groups.set(key, [item])
+    }
+  }
+
+  return groups
+}
+
+/** Flags any key with more than one item grouped under it. */
+function checkNoDuplicates<T>(
+  groups: Map<string, Array<T>>,
+  type: ValidationError['type'],
+  formatMessage: (items: Array<T>) => string,
+) {
+  for (const items of groups.values()) {
+    if (items.length > 1) {
+      error(type, formatMessage(items))
+    }
+  }
+}
+
+/** Flags any item whose key has no match in `referencedKeys`. */
+function checkAllReferenced<T>(
+  items: Array<T>,
+  getKey: (item: T) => string,
+  referencedKeys: ReadonlySet<string>,
+  type: ValidationError['type'],
+  formatMessage: (item: T) => string,
+) {
+  for (const item of items) {
+    if (!referencedKeys.has(getKey(item))) {
+      error(type, formatMessage(item))
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -161,11 +221,19 @@ for (const dir of contentDirs) {
 
 console.log('Validating gallery images...')
 
+interface GalleryImageRef {
+  file: string
+  uploadFilename: string
+}
+
+// Also collected here for section 4 below: every valid photo's derived
+// (year, event) key, so editions can be checked against real photos without
+// re-parsing content/gallery/*.md a second time.
+const photoEditionKeys = new Set<string>()
+
 if (existsSync(GALLERY_DIR)) {
   const galleryFiles = readdirSync(GALLERY_DIR).filter((f) => f.endsWith('.md'))
-
-  // Upload filename (e.g. "DSC_1689.webp") -> gallery .md files referencing it.
-  const referencingFiles = new Map<string, Array<string>>()
+  const imageRefs: Array<GalleryImageRef> = []
 
   for (const file of galleryFiles) {
     const filePath = join(GALLERY_DIR, file)
@@ -174,6 +242,10 @@ if (existsSync(GALLERY_DIR)) {
 
     // Schema errors are already reported in section 2 above.
     if (!result.success) continue
+
+    photoEditionKeys.add(
+      `${result.data.date.getFullYear()}::${result.data.event ?? 'Misc'}`,
+    )
 
     const uploadFilename = result.data.image.replace(/^\/uploads\//, '')
     const diskPath = join(UPLOADS_DIR, uploadFilename)
@@ -186,31 +258,29 @@ if (existsSync(GALLERY_DIR)) {
       continue
     }
 
-    const referencedBy = referencingFiles.get(uploadFilename) ?? []
-    referencedBy.push(file)
-    referencingFiles.set(uploadFilename, referencedBy)
+    imageRefs.push({ file, uploadFilename })
   }
 
-  for (const [uploadFilename, files] of referencingFiles) {
-    if (files.length > 1) {
-      error(
-        'duplicate-image',
-        `public/uploads/${uploadFilename} is referenced by ${files.length} gallery entries (${files.join(', ')}) — each photo should have exactly one entry`,
-      )
-    }
-  }
+  const refsByUpload = groupByKey(imageRefs, (ref) => ref.uploadFilename)
+
+  checkNoDuplicates(refsByUpload, 'duplicate-image', (refs) => {
+    const files = refs.map((ref) => ref.file)
+    return `public/uploads/${refs[0]?.uploadFilename} is referenced by ${refs.length} gallery entries (${files.join(', ')}) — each photo should have exactly one entry`
+  })
 
   if (existsSync(UPLOADS_DIR)) {
     const uploadFiles = readdirSync(UPLOADS_DIR)
 
-    for (const uploadFile of uploadFiles) {
-      if (!referencingFiles.has(uploadFile)) {
-        error(
-          'orphaned-image',
-          `public/uploads/${uploadFile} is not referenced by any content/gallery entry`,
-        )
-      }
+    checkAllReferenced(
+      uploadFiles,
+      (uploadFile) => uploadFile,
+      new Set(refsByUpload.keys()),
+      'orphaned-image',
+      (uploadFile) =>
+        `public/uploads/${uploadFile} is not referenced by any content/gallery entry`,
+    )
 
+    for (const uploadFile of uploadFiles) {
       if (extname(uploadFile).toLowerCase() !== '.webp') {
         error(
           'invalid-image-format',
@@ -231,6 +301,70 @@ if (existsSync(GALLERY_DIR)) {
       }
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// 4. Validate gallery editions match real photos
+//
+// Editions aren't referenced by photos explicitly — they're matched purely
+// by (year, event), the same way public/uploads files are matched by
+// filename in section 3. So an edition is "orphaned" the same way an upload
+// can be: it exists but nothing points at it, either because the year/event
+// was mistyped or the photos it described got re-dated/re-tagged since.
+// ---------------------------------------------------------------------------
+
+console.log('Validating gallery editions...')
+
+if (existsSync(EDITIONS_DIR)) {
+  interface EditionRef {
+    file: string
+    year: number
+    event: string
+    key: string
+  }
+
+  const editionFiles = readdirSync(EDITIONS_DIR).filter((f) =>
+    f.endsWith('.md'),
+  )
+  const editionRefs: Array<EditionRef> = []
+
+  for (const file of editionFiles) {
+    const filePath = join(EDITIONS_DIR, file)
+    const { data } = matter(readFileSync(filePath, 'utf-8'))
+    const result = collectionSchemas['gallery-editions'].safeParse(data)
+
+    // Schema errors are already reported in section 2 above.
+    if (!result.success) continue
+
+    const { year, event } = result.data
+    editionRefs.push({ file, year, event, key: `${year}::${event}` })
+
+    const expectedFile = `${year}-${slugifyEvent(event)}.md`
+    if (file !== expectedFile) {
+      error(
+        'edition-filename-mismatch',
+        `content/gallery-editions/${file} has year "${year}" + event "${event}" in its frontmatter, but its filename doesn't match (expected ${expectedFile}) — likely hand-edited after creation`,
+      )
+    }
+  }
+
+  checkNoDuplicates(
+    groupByKey(editionRefs, (ref) => ref.key),
+    'duplicate-edition',
+    (refs) => {
+      const files = refs.map((ref) => ref.file)
+      return `Multiple gallery-editions entries declare year "${refs[0]?.year}" + event "${refs[0]?.event}" (${files.join(', ')}) — only one location can win`
+    },
+  )
+
+  checkAllReferenced(
+    editionRefs,
+    (ref) => ref.key,
+    photoEditionKeys,
+    'orphaned-edition',
+    (ref) =>
+      `content/gallery-editions/${ref.file} declares year "${ref.year}" + event "${ref.event}" but no gallery photo has that year/event`,
+  )
 }
 
 // ---------------------------------------------------------------------------
