@@ -465,7 +465,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-.photo-grid-item {
+.photo-grid-frame {
   overflow: hidden;
   aspect-ratio: 4 / 3;
 }
@@ -475,11 +475,20 @@
 }
 
 @supports (display: grid-lanes) {
+  /* Fluid auto-fill columns (the Grid Lanes "go-to" pattern) rather than
+   * fixed breakpoint columns — more columns get added or removed as space
+   * allows, which gives the waterfall more room to stagger tile heights. */
   .photo-grid {
     display: grid-lanes;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
     flow-tolerance: 1lh;
   }
-  .photo-grid-item {
+  @media (max-width: 640px) {
+    .photo-grid {
+      grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    }
+  }
+  .photo-grid-frame {
     aspect-ratio: auto;
   }
   .photo-grid-image {

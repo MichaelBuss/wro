@@ -22,37 +22,35 @@ interface PhotoGridProps {
  * keep their natural aspect ratio and pack tightly. Both paths use native
  * `loading="lazy"` images, so photos below the fold aren't fetched until
  * the visitor scrolls near them.
+ *
+ * Deliberately caption-less — the year + description clutters a dense
+ * grid of tiles. `item.caption` is still shown once the visitor opens a
+ * photo, via `PhotoLightbox`.
  */
 export function PhotoGrid(props: PhotoGridProps) {
   return (
     <div class={cx('photo-grid', props.class)}>
       <For each={props.items}>
         {(item) => (
-          <figure class="photo-grid-item group">
-            <Link
-              to="/galleri/$year/$slug"
-              params={{ year: props.year, slug: item.slug }}
-              class="block h-full w-full"
-            >
-              <img
-                src={item.src}
-                srcset={item.srcset}
-                sizes={item.sizes}
-                alt={item.alt}
-                loading="lazy"
-                decoding="async"
-                class="photo-grid-image w-full transition-transform duration-700 group-hover:scale-[1.02]"
-                style={{
-                  'object-position': item.objectPosition ?? 'center',
-                  'view-transition-name': `photo-${item.slug}`,
-                }}
-              />
-            </Link>
-            <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
-              <span class="not-italic font-sans mr-1">{item.year} —</span>
-              {item.caption}
-            </figcaption>
-          </figure>
+          <Link
+            to="/galleri/$year/$slug"
+            params={{ year: props.year, slug: item.slug }}
+            class="photo-grid-frame group block rounded-lg"
+          >
+            <img
+              src={item.src}
+              srcset={item.srcset}
+              sizes={item.sizes}
+              alt={item.alt}
+              loading="lazy"
+              decoding="async"
+              class="photo-grid-image w-full transition-transform duration-700 group-hover:scale-[1.02]"
+              style={{
+                'object-position': item.objectPosition ?? 'center',
+                'view-transition-name': `photo-${item.slug}`,
+              }}
+            />
+          </Link>
         )}
       </For>
     </div>

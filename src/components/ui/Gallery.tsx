@@ -35,8 +35,6 @@ export function Gallery(props: GalleryProps) {
             srcset={item.srcset}
             sizes={item.sizes}
             alt={item.alt}
-            caption={item.caption}
-            year={item.year}
             objectPosition={item.objectPosition}
             slug={item.slug}
             yearKey={item.yearKey}
