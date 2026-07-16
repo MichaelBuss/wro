@@ -8,6 +8,7 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/solid-router'
+import type { ErrorComponentProps } from '@tanstack/solid-router'
 import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
 import { Suspense } from 'solid-js'
 import { HydrationScript } from 'solid-js/web'
@@ -30,7 +31,30 @@ export const Route = createRootRouteWithContext()({
   }),
   shellComponent: RootComponent,
   notFoundComponent: NotFound,
+  errorComponent: ErrorFallback,
 })
+
+function ErrorFallback(props: ErrorComponentProps) {
+  return (
+    <div class="min-h-screen bg-background flex items-center justify-center">
+      <div class="text-center">
+        <Heading level="display" class="mb-4">
+          Ups
+        </Heading>
+        <Lead class="text-muted-foreground mb-8">
+          Der opstod en uventet fejl
+        </Lead>
+        <button
+          type="button"
+          onClick={() => props.reset()}
+          class="px-6 py-3 bg-primary hover:bg-wro-blue-600 text-primary-foreground font-semibold rounded-lg transition-colors"
+        >
+          Prøv igen
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function NotFound() {
   return (
