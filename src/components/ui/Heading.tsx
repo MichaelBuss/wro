@@ -9,6 +9,7 @@ interface HeadingProps {
   level: HeadingLevel
   as?: HeadingTag
   class?: string
+  style?: JSX.CSSProperties
   children: JSX.Element
 }
 
@@ -38,6 +39,7 @@ export function Heading(props: HeadingProps) {
     <Dynamic
       component={props.as ?? levelDefaultTag[props.level]}
       class={cx(levelClasses[props.level], props.class)}
+      style={props.style}
     >
       {props.children}
     </Dynamic>

@@ -5,6 +5,7 @@ import { GalleryEventGroups } from '~/components/gallery/gallery-event-groups'
 import { BackLink, PageShell } from '~/components/layout'
 import { Heading } from '~/components/ui'
 import {
+  getYearTransitionName,
   groupGalleryByYear,
   groupPhotosByEvent,
   toGalleryDisplayItem,
@@ -60,7 +61,13 @@ function GalleryYearPage() {
       >
         {(yearData) => (
           <>
-            <Heading level="h1" class="mb-8">
+            <Heading
+              level="h1"
+              class="mb-8"
+              style={{
+                'view-transition-name': getYearTransitionName(params().year),
+              }}
+            >
               {yearData().label}
             </Heading>
             <GalleryEventGroups

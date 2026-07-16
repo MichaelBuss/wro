@@ -3,7 +3,7 @@ import { For, Show } from 'solid-js'
 import { Heading, PhotoGrid } from '~/components/ui'
 import type { GalleryItem } from '~/components/ui'
 import type { GalleryEvent } from '~/content/registry'
-import { EVENT_SLUGS } from '~/lib/gallery'
+import { EVENT_SLUGS, getEventTransitionName } from '~/lib/gallery'
 
 export interface GalleryEventGroupData {
   key: GalleryEvent
@@ -62,6 +62,12 @@ export function GalleryEventGroups(props: GalleryEventGroupsProps) {
                     event: EVENT_SLUGS[eventGroup.key],
                   }}
                   class="hover:underline"
+                  style={{
+                    'view-transition-name': getEventTransitionName(
+                      props.year,
+                      EVENT_SLUGS[eventGroup.key],
+                    ),
+                  }}
                 >
                   {eventGroup.label}
                 </Link>

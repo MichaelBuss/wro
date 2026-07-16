@@ -5,6 +5,7 @@ import { BackLink, PageShell } from '~/components/layout'
 import { Heading, PhotoGrid } from '~/components/ui'
 import {
   getEventFromSlug,
+  getEventTransitionName,
   groupGalleryByYear,
   groupPhotosByEvent,
   toGalleryDisplayItem,
@@ -65,7 +66,16 @@ function GalleryEventPage() {
       >
         {(eventData) => (
           <>
-            <Heading level="h1" class="mb-1">
+            <Heading
+              level="h1"
+              class="mb-1"
+              style={{
+                'view-transition-name': getEventTransitionName(
+                  params().year,
+                  params().event,
+                ),
+              }}
+            >
               {eventData().label}
             </Heading>
             <p class="text-sm-copy text-muted-foreground mb-8">

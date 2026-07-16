@@ -24,6 +24,25 @@ export function getEventFromSlug(slug: string): GalleryEvent | undefined {
   return GALLERY_EVENTS.find((event) => EVENT_SLUGS[event] === slug)
 }
 
+/**
+ * Shared `view-transition-name` values for the year/event headings that
+ * appear on both `/galleri` and their respective permalinks
+ * (`/galleri/$year`, `/galleri/$year/event/$event`) — giving each heading a
+ * name here (rather than inlining the string at each call site) keeps the
+ * two sides of every morph in sync. Mirrors the `photo-${slug}` convention
+ * already used for gallery images.
+ */
+export function getYearTransitionName(year: string): string {
+  return `year-${year}`
+}
+
+export function getEventTransitionName(
+  year: string,
+  eventSlug: string,
+): string {
+  return `event-${year}-${eventSlug}`
+}
+
 export type GalleryPhoto = CollectionItem<'gallery'>
 export type GalleryEdition = CollectionItem<'gallery-editions'>
 

@@ -4,6 +4,7 @@ import { For } from 'solid-js'
 import { GalleryEventGroups } from '~/components/gallery/gallery-event-groups'
 import { Heading, Lead } from '~/components/ui'
 import {
+  getYearTransitionName,
   groupGalleryByYear,
   groupPhotosByEvent,
   toGalleryDisplayItem,
@@ -65,6 +66,9 @@ function GalleryPage() {
                 to="/galleri/$year"
                 params={{ year: group.key }}
                 class="hover:underline"
+                style={{
+                  'view-transition-name': getYearTransitionName(group.key),
+                }}
               >
                 {group.label}
               </Link>
