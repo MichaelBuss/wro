@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
-import { For, Show } from 'solid-js'
+import { Show } from 'solid-js'
+import { GalleryEventGroups } from '~/components/gallery/gallery-event-groups'
 import { BackLink, PageShell } from '~/components/layout'
-import { Heading, PhotoGrid } from '~/components/ui'
+import { Heading } from '~/components/ui'
 import {
   groupGalleryByYear,
   groupPhotosByEvent,
@@ -62,44 +63,11 @@ function GalleryYearPage() {
             <Heading level="h1" class="mb-8">
               {yearData().label}
             </Heading>
-            <Show
-              when={yearData().eventGroups.length > 1}
-              fallback={
-                <>
-                  <Show when={yearData().eventGroups[0]?.location}>
-                    {(location) => (
-                      <p class="text-sm-copy text-muted-foreground -mt-6 mb-8">
-                        {location()}
-                      </p>
-                    )}
-                  </Show>
-                  <PhotoGrid
-                    items={yearData().eventGroups[0]?.items ?? []}
-                    year={params().year}
-                  />
-                </>
-              }
-            >
-              <For each={yearData().eventGroups}>
-                {(group) => (
-                  <section class="mb-12 last:mb-0">
-                    <div class="mb-6">
-                      <Heading level="h2" class="mb-1">
-                        {group.label}
-                      </Heading>
-                      <Show when={group.location}>
-                        {(location) => (
-                          <p class="text-sm-copy text-muted-foreground">
-                            {location()}
-                          </p>
-                        )}
-                      </Show>
-                    </div>
-                    <PhotoGrid items={group.items} year={params().year} />
-                  </section>
-                )}
-              </For>
-            </Show>
+            <GalleryEventGroups
+              eventGroups={yearData().eventGroups}
+              year={params().year}
+              eventHeadingLevel="h2"
+            />
           </>
         )}
       </Show>

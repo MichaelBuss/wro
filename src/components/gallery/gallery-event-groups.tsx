@@ -1,0 +1,66 @@
+import { For, Show } from 'solid-js'
+import { Heading, PhotoGrid } from '~/components/ui'
+import type { GalleryItem } from '~/components/ui'
+
+export interface GalleryEventGroupData {
+  key: string
+  label: string
+  location: string | undefined
+  items: Array<GalleryItem>
+}
+
+interface GalleryEventGroupsProps {
+  eventGroups: Array<GalleryEventGroupData>
+  year: string
+  /** Heading level for each event's sub-heading, sized relative to the caller's own year heading. */
+  eventHeadingLevel: 'h2' | 'h3'
+}
+
+/**
+ * Renders a year's photos, split into per-event sections when a year mixes
+ * multiple events (e.g. Danish final vs. world final) — used by both the
+ * gallery overview (`/galleri`) and the isolated year permalink
+ * (`/galleri/$year`), which otherwise duplicated this exact grouping logic.
+ * Skips the sub-heading entirely when there's only one event group, since a
+ * lone group means the year doesn't actually mix events.
+ */
+export function GalleryEventGroups(props: GalleryEventGroupsProps) {
+  return (
+    <Show
+      when={props.eventGroups.length > 1}
+      fallback={
+        <>
+          <Show when={props.eventGroups[0]?.location}>
+            {(location) => (
+              <p class="text-sm-copy text-muted-foreground -mt-6 mb-8">
+                {location()}
+              </p>
+            )}
+          </Show>
+          <PhotoGrid
+            items={props.eventGroups[0]?.items ?? []}
+            year={props.year}
+          />
+        </>
+      }
+    >
+      <For each={props.eventGroups}>
+        {(eventGroup) => (
+          <div class="mb-12 last:mb-0">
+            <div class="mb-6">
+              <Heading level={props.eventHeadingLevel} class="mb-1">
+                {eventGroup.label}
+              </Heading>
+              <Show when={eventGroup.location}>
+                {(location) => (
+                  <p class="text-sm-copy text-muted-foreground">{location()}</p>
+                )}
+              </Show>
+            </div>
+            <PhotoGrid items={eventGroup.items} year={props.year} />
+          </div>
+        )}
+      </For>
+    </Show>
+  )
+}
