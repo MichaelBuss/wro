@@ -7,9 +7,9 @@
  * - Every collection key in the registry has a corresponding directory
  * - Every directory in content/ (except pages/) has a corresponding collection key
  * - All frontmatter validates against its Zod schema
- * - Every gallery photo's image exists in public/uploads, and every upload is
- *   referenced by exactly one photo (no orphans, no duplicates), at the
- *   right format/size
+ * - Every gallery photo's image exists in content/gallery/, and every
+ *   image in that directory is referenced by exactly one photo (no
+ *   orphans, no duplicates), at the right format/size
  * - Every gallery-editions entry matches at least one real photo's
  *   (year, event), with no two editions claiming the same pairing
  *
@@ -29,8 +29,6 @@ const CONTENT_DIR = join(process.cwd(), 'content')
 const PAGES_DIR = join(CONTENT_DIR, 'pages')
 const GALLERY_DIR = join(CONTENT_DIR, 'gallery')
 const EDITIONS_DIR = join(CONTENT_DIR, 'gallery-editions')
-const PUBLIC_DIR = join(process.cwd(), 'public')
-const UPLOADS_DIR = join(PUBLIC_DIR, 'uploads')
 
 interface ValidationError {
   type:
@@ -210,20 +208,14 @@ for (const dir of contentDirs) {
 }
 
 // ---------------------------------------------------------------------------
-// 3. Validate gallery images stay in sync with public/uploads
-//
-// Every gallery entry must point at a file that exists, every upload must be
-// referenced by exactly one entry (no orphans, no duplicates), and every
-// upload must already be a correctly-sized .webp — catching anything that
-// bypassed npm run images:optimize / the CMS's browser-side transform (e.g.
-// a raw photo committed by hand).
+// 3. Validate gallery images
 // ---------------------------------------------------------------------------
 
 console.log('Validating gallery images...')
 
 interface GalleryImageRef {
   file: string
-  uploadFilename: string
+  imageFilename: string
 }
 
 // Also collected here for section 4 below: every valid photo's derived
@@ -247,58 +239,58 @@ if (existsSync(GALLERY_DIR)) {
       `${result.data.date.getFullYear()}::${result.data.event ?? 'Misc'}`,
     )
 
-    const uploadFilename = result.data.image.replace(/^\/uploads\//, '')
-    const diskPath = join(UPLOADS_DIR, uploadFilename)
+    const imageFilename = result.data.image
+    const diskPath = join(GALLERY_DIR, imageFilename)
 
     if (!existsSync(diskPath)) {
       error(
         'dangling-image',
-        `content/gallery/${file} references "${result.data.image}" but public/uploads/${uploadFilename} does not exist`,
+        `content/gallery/${file} references "${imageFilename}" but content/gallery/${imageFilename} does not exist`,
       )
       continue
     }
 
-    imageRefs.push({ file, uploadFilename })
+    imageRefs.push({ file, imageFilename })
   }
 
-  const refsByUpload = groupByKey(imageRefs, (ref) => ref.uploadFilename)
+  const refsByImage = groupByKey(imageRefs, (ref) => ref.imageFilename)
 
-  checkNoDuplicates(refsByUpload, 'duplicate-image', (refs) => {
+  checkNoDuplicates(refsByImage, 'duplicate-image', (refs) => {
     const files = refs.map((ref) => ref.file)
-    return `public/uploads/${refs[0]?.uploadFilename} is referenced by ${refs.length} gallery entries (${files.join(', ')}) — each photo should have exactly one entry`
+    return `content/gallery/${refs[0]?.imageFilename} is referenced by ${refs.length} gallery entries (${files.join(', ')}) — each photo should have exactly one entry`
   })
 
-  if (existsSync(UPLOADS_DIR)) {
-    const uploadFiles = readdirSync(UPLOADS_DIR)
+  const galleryImageFiles = readdirSync(GALLERY_DIR).filter(
+    (f) => !f.endsWith('.md'),
+  )
 
-    checkAllReferenced(
-      uploadFiles,
-      (uploadFile) => uploadFile,
-      new Set(refsByUpload.keys()),
-      'orphaned-image',
-      (uploadFile) =>
-        `public/uploads/${uploadFile} is not referenced by any content/gallery entry`,
-    )
+  checkAllReferenced(
+    galleryImageFiles,
+    (imageFile) => imageFile,
+    new Set(refsByImage.keys()),
+    'orphaned-image',
+    (imageFile) =>
+      `content/gallery/${imageFile} is not referenced by any content/gallery entry`,
+  )
 
-    for (const uploadFile of uploadFiles) {
-      if (extname(uploadFile).toLowerCase() !== '.webp') {
-        error(
-          'invalid-image-format',
-          `public/uploads/${uploadFile} is not a .webp file — run npm run images:optimize to convert it`,
-        )
-        continue
-      }
+  for (const imageFile of galleryImageFiles) {
+    if (extname(imageFile).toLowerCase() !== '.webp') {
+      error(
+        'invalid-image-format',
+        `content/gallery/${imageFile} is not a .webp file — run npm run images:optimize to convert it`,
+      )
+      continue
+    }
 
-      const { width, height } = await sharp(
-        join(UPLOADS_DIR, uploadFile),
-      ).metadata()
+    const { width, height } = await sharp(
+      join(GALLERY_DIR, imageFile),
+    ).metadata()
 
-      if (width > IMAGE_MAX_PX || height > IMAGE_MAX_PX) {
-        error(
-          'oversized-image',
-          `public/uploads/${uploadFile} is ${width}x${height}px, exceeds the ${IMAGE_MAX_PX}px max — run npm run images:optimize to resize it`,
-        )
-      }
+    if (width > IMAGE_MAX_PX || height > IMAGE_MAX_PX) {
+      error(
+        'oversized-image',
+        `content/gallery/${imageFile} is ${width}x${height}px, exceeds the ${IMAGE_MAX_PX}px max — run npm run images:optimize to resize it`,
+      )
     }
   }
 }
@@ -307,10 +299,10 @@ if (existsSync(GALLERY_DIR)) {
 // 4. Validate gallery editions match real photos
 //
 // Editions aren't referenced by photos explicitly — they're matched purely
-// by (year, event), the same way public/uploads files are matched by
-// filename in section 3. So an edition is "orphaned" the same way an upload
-// can be: it exists but nothing points at it, either because the year/event
-// was mistyped or the photos it described got re-dated/re-tagged since.
+// by (year, event), the same way an entry's image is matched by filename in
+// section 3. So an edition is "orphaned" the same way an image can be: it
+// exists but nothing points at it, either because the year/event was
+// mistyped or the photos it described got re-dated/re-tagged since.
 // ---------------------------------------------------------------------------
 
 console.log('Validating gallery editions...')

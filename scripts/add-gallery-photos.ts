@@ -8,7 +8,7 @@
  *
  * For each input image, sorted by capture date (see scripts/photo-date.ts),
  * this:
- * - Optimizes it to public/uploads/{slug}.webp (scripts/optimize-images.ts)
+ * - Optimizes it to content/gallery/{slug}.webp (scripts/optimize-images.ts)
  * - Writes a stub content/gallery/{slug}.md with blank alt text and the
  *   photo's capture date (from EXIF, falling back to file mtime)
  * - Skips (with a warning) any image whose .md entry already exists, so
@@ -163,10 +163,10 @@ export async function addOnePhoto(
     )
   }
 
-  await optimizeImage(inputPath)
+  await optimizeImage(inputPath, GALLERY_DIR)
 
   const frontmatter = {
-    image: `/uploads/${slug}.webp`,
+    image: `${slug}.webp`,
     alt: '',
     date: formatDateOnly(date),
     ...(event === undefined ? {} : { event }),

@@ -27,7 +27,65 @@ export function createContentAccessors(store: ContentStore) {
     return pageSchemas[key].parse(data)
   }
 
+  /**
+   * Resolves a gallery photo's `image` frontmatter value (a bare filename,
+   * e.g. "abu-dhabi-2.webp") to the URL it's actually served from. Gallery
+   * images are co-located with their entry in content/gallery/ rather than
+   * uploaded to the shared public/uploads/ folder, so — unlike every other
+   * collection's frontmatter — this value isn't already a servable path on
+   * its own.
+   *
+   * `public/gallery` is a symlink to `content/gallery` (see repo root), so
+   * the same file is served directly by Vite/Netlify's static handling —
+   * no bundling or asset pipeline involved. (A Vite `import.meta.glob`
+   * asset-URL approach was tried first, but only works for assets reachable
+   * from client-bundled code; these are only ever read server-side during
+   * prerendering, so nothing would copy them into the client build output.)
+   */
+  function resolveGalleryImageUrl(filename: string): string {
+    return `/gallery/${filename}`
+  }
+
+  function getGalleryItems(): Array<CollectionItem<'gallery'>> {
+    const slugs = store.listSlugs('gallery')
+
+    return slugs.flatMap((slug) => {
+      const raw = store.getRaw(`gallery/${slug}.md`)
+
+      if (!raw) {
+        return []
+      }
+
+      const { data } = matter(raw)
+      const parsed = collectionSchemas.gallery.parse(data)
+
+      return [{ ...parsed, image: resolveGalleryImageUrl(parsed.image), slug }]
+    })
+  }
+
+  function getGalleryItem(slug: string) {
+    const raw = store.getRaw(`gallery/${slug}.md`)
+
+    if (!raw) {
+      return null
+    }
+
+    const { data, content } = matter(raw)
+    const parsed = collectionSchemas.gallery.parse(data)
+
+    return {
+      ...parsed,
+      image: resolveGalleryImageUrl(parsed.image),
+      slug,
+      content: marked(content, { async: false }),
+    }
+  }
+
   function getCollectionItems(collection: CollectionName) {
+    if (collection === 'gallery') {
+      return getGalleryItems()
+    }
+
     const slugs = store.listSlugs(collection)
 
     if (slugs.length === 0) {
@@ -51,6 +109,10 @@ export function createContentAccessors(store: ContentStore) {
   }
 
   function getCollectionItem(collection: CollectionName, slug: string) {
+    if (collection === 'gallery') {
+      return getGalleryItem(slug)
+    }
+
     const raw = store.getRaw(`${collection}/${slug}.md`)
 
     if (!raw) {

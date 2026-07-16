@@ -116,6 +116,9 @@ export const collectionSchemas = {
     image: z.string().optional(),
   }),
   gallery: z.object({
+    // Bare filename co-located with this entry in content/gallery/, not a
+    // servable path on its own — resolved to /gallery/{filename} in
+    // src/server/content.ts (served via the public/gallery symlink).
     image: z.string(),
     alt: z.string().trim().min(1, 'Alt text is required'),
     description: z.string().optional(),

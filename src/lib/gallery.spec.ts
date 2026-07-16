@@ -5,8 +5,11 @@ import type { GalleryEdition, GalleryPhoto } from './gallery'
 function makePhoto(
   overrides: Partial<GalleryPhoto> & { slug: string; date: Date },
 ): GalleryPhoto {
+  // `image` is already a resolved URL by the time it reaches lib/gallery.ts
+  // (src/server/content.ts resolves the co-located filename beforehand) —
+  // its exact shape doesn't matter to these tests, which never inspect it.
   return {
-    image: `/uploads/${overrides.slug}.webp`,
+    image: `/resolved/${overrides.slug}.webp`,
     alt: overrides.slug,
     ...overrides,
   }

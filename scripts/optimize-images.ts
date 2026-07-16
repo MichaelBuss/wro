@@ -24,17 +24,20 @@ export interface OptimizedImage {
 /**
  * Converts a single source image to WebP, applying the shared
  * IMAGE_QUALITY/IMAGE_MAX_PX transformation. Shared by the CLI entrypoint
- * below and scripts/add-gallery-photos.ts.
+ * below and scripts/add-gallery-photos.ts, which passes the photo's own
+ * entry folder as `outputDir` instead of the default `public/uploads`
+ * (gallery images are co-located with their entry, not uploaded globally).
  */
 export async function optimizeImage(
   inputPath: string,
+  outputDir: string = OUTPUT_DIR,
 ): Promise<OptimizedImage> {
-  if (!existsSync(OUTPUT_DIR)) {
-    mkdirSync(OUTPUT_DIR, { recursive: true })
+  if (!existsSync(outputDir)) {
+    mkdirSync(outputDir, { recursive: true })
   }
 
   const slug = basename(inputPath, extname(inputPath))
-  const outputPath = join(OUTPUT_DIR, `${slug}.webp`)
+  const outputPath = join(outputDir, `${slug}.webp`)
 
   await sharp(inputPath)
     .resize(IMAGE_MAX_PX, IMAGE_MAX_PX, {
