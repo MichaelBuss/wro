@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { findAdjacentGalleryPhoto, toGalleryDisplayItem } from './gallery'
+import {
+  findAdjacentGalleryPhoto,
+  getEventFromSlug,
+  toGalleryDisplayItem,
+} from './gallery'
 import type { GalleryEdition, GalleryPhoto } from './gallery'
 
 function makePhoto(
@@ -24,6 +28,17 @@ describe('toGalleryDisplayItem', () => {
       yearKey: '2011',
       year: 2011,
     })
+  })
+})
+
+describe('getEventFromSlug', () => {
+  it('resolves a URL slug back to its event, for the /galleri/$year/event/$event permalink', () => {
+    expect(getEventFromSlug('world-final')).toBe('World Final')
+    expect(getEventFromSlug('danish-final')).toBe('Danish Final')
+  })
+
+  it('returns undefined for a slug that matches no known event', () => {
+    expect(getEventFromSlug('not-a-real-event')).toBeUndefined()
   })
 })
 

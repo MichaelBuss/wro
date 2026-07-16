@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/solid-router'
+import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { For } from 'solid-js'
 import { GalleryEventGroups } from '~/components/gallery/gallery-event-groups'
@@ -61,7 +61,13 @@ function GalleryPage() {
             class="py-12 px-6 max-w-5xl mx-auto border-t border-border scroll-mt-6"
           >
             <Heading level="h2" class="mb-8">
-              {group.label}
+              <Link
+                to="/galleri/$year"
+                params={{ year: group.key }}
+                class="hover:underline"
+              >
+                {group.label}
+              </Link>
             </Heading>
 
             <GalleryEventGroups

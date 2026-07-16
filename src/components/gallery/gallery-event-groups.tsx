@@ -1,9 +1,12 @@
+import { Link } from '@tanstack/solid-router'
 import { For, Show } from 'solid-js'
 import { Heading, PhotoGrid } from '~/components/ui'
 import type { GalleryItem } from '~/components/ui'
+import type { GalleryEvent } from '~/content/registry'
+import { EVENT_SLUGS } from '~/lib/gallery'
 
 export interface GalleryEventGroupData {
-  key: string
+  key: GalleryEvent
   label: string
   location: string | undefined
   items: Array<GalleryItem>
@@ -46,10 +49,22 @@ export function GalleryEventGroups(props: GalleryEventGroupsProps) {
     >
       <For each={props.eventGroups}>
         {(eventGroup) => (
-          <div class="mb-12 last:mb-0">
+          <div
+            id={`${props.year}-${EVENT_SLUGS[eventGroup.key]}`}
+            class="mb-12 last:mb-0 scroll-mt-6"
+          >
             <div class="mb-6">
               <Heading level={props.eventHeadingLevel} class="mb-1">
-                {eventGroup.label}
+                <Link
+                  to="/galleri/$year/event/$event"
+                  params={{
+                    year: props.year,
+                    event: EVENT_SLUGS[eventGroup.key],
+                  }}
+                  class="hover:underline"
+                >
+                  {eventGroup.label}
+                </Link>
               </Heading>
               <Show when={eventGroup.location}>
                 {(location) => (

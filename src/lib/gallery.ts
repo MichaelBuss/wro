@@ -8,6 +8,22 @@ export const EVENT_LABELS: Record<GalleryEvent, string> = {
   Misc: 'Diverse',
 }
 
+/**
+ * URL-safe slugs for each event, used by the `/galleri/$year/event/$event`
+ * permalink. Kept as an explicit map (rather than a generic slugify) since
+ * `GALLERY_EVENTS` is a small, fixed set — same approach as `EVENT_LABELS`.
+ */
+export const EVENT_SLUGS: Record<GalleryEvent, string> = {
+  'Danish Final': 'danish-final',
+  'World Final': 'world-final',
+  'Panic Weekend': 'panic-weekend',
+  Misc: 'misc',
+}
+
+export function getEventFromSlug(slug: string): GalleryEvent | undefined {
+  return GALLERY_EVENTS.find((event) => EVENT_SLUGS[event] === slug)
+}
+
 export type GalleryPhoto = CollectionItem<'gallery'>
 export type GalleryEdition = CollectionItem<'gallery-editions'>
 

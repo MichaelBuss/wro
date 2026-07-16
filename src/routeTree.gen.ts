@@ -31,6 +31,7 @@ import { Route as DashboardTeamIdRouteImport } from './routes/dashboard_.$teamId
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as GalleriYearSlugRouteImport } from './routes/galleri_.$year_.$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
+import { Route as GalleriYearEventEventRouteImport } from './routes/galleri_.$year_.event.$event'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -142,6 +143,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleriYearEventEventRoute = GalleriYearEventEventRouteImport.update({
+  id: '/galleri_/$year_/event/$event',
+  path: '/galleri/$year/event/$event',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/galleri/$year/$slug': typeof GalleriYearSlugRoute
+  '/galleri/$year/event/$event': typeof GalleriYearEventEventRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/galleri/$year/$slug': typeof GalleriYearSlugRoute
+  '/galleri/$year/event/$event': typeof GalleriYearEventEventRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/galleri_/$year_/$slug': typeof GalleriYearSlugRoute
+  '/galleri_/$year_/event/$event': typeof GalleriYearEventEventRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/auth/$'
     | '/galleri/$year/$slug'
+    | '/galleri/$year/event/$event'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/api/auth/$'
     | '/galleri/$year/$slug'
+    | '/galleri/$year/event/$event'
   id:
     | '__root__'
     | '/'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/auth/$'
     | '/galleri_/$year_/$slug'
+    | '/galleri_/$year_/event/$event'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   GalleriYearSlugRoute: typeof GalleriYearSlugRoute
+  GalleriYearEventEventRoute: typeof GalleriYearEventEventRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -472,6 +485,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galleri_/$year_/event/$event': {
+      id: '/galleri_/$year_/event/$event'
+      path: '/galleri/$year/event/$event'
+      fullPath: '/galleri/$year/event/$event'
+      preLoaderRoute: typeof GalleriYearEventEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   GalleriYearSlugRoute: GalleriYearSlugRoute,
+  GalleriYearEventEventRoute: GalleriYearEventEventRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
