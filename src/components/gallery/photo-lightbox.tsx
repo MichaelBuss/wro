@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/solid-router'
+import { Link, useNavigate, useRouter } from '@tanstack/solid-router'
 import { ChevronLeft, ChevronRight, X } from 'lucide-solid'
 import { Show, onCleanup, onMount } from 'solid-js'
 import type { GalleryItem } from '~/components/ui'
@@ -27,8 +27,18 @@ interface PhotoLightboxProps {
 export function PhotoLightbox(props: PhotoLightboxProps) {
   let dialogRef: HTMLDivElement | undefined
   const navigate = useNavigate()
+  const router = useRouter()
 
+  // Prefer returning the user to wherever they actually opened the lightbox
+  // from (front page, year grid, ...) rather than a hardcoded destination.
+  // Paging with prev/next below replaces history entries instead of pushing,
+  // so this still lands on that original page after browsing several photos.
+  // Falls back to the year album for direct links with no history to unwind.
   const close = () => {
+    if (router.history.canGoBack()) {
+      router.history.back()
+      return
+    }
     void navigate({ to: '/galleri/$year', params: { year: props.year } })
   }
 
@@ -38,6 +48,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
       to: '/galleri/$year/$slug',
       params: { year: props.year, slug: props.prevSlug },
       viewTransition: { types: () => galleryTransitionTypes(['slide-right']) },
+      replace: true,
     })
   }
 
@@ -47,6 +58,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
       to: '/galleri/$year/$slug',
       params: { year: props.year, slug: props.nextSlug },
       viewTransition: { types: () => galleryTransitionTypes(['slide-left']) },
+      replace: true,
     })
   }
 
@@ -76,14 +88,14 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
       tabIndex={-1}
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 outline-none"
     >
-      <Link
-        to="/galleri/$year"
-        params={{ year: props.year }}
+      <button
+        type="button"
+        onClick={close}
         aria-label="Luk"
         class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
       >
         <X size={28} />
-      </Link>
+      </button>
 
       <Show when={props.prevSlug}>
         {(slug) => (
@@ -93,6 +105,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
             viewTransition={{
               types: () => galleryTransitionTypes(['slide-right']),
             }}
+            replace
             aria-label="Forrige billede"
             class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors"
           >
@@ -109,6 +122,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
             viewTransition={{
               types: () => galleryTransitionTypes(['slide-left']),
             }}
+            replace
             aria-label="Næste billede"
             class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors"
           >
