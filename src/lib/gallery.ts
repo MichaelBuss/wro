@@ -44,7 +44,6 @@ export function getEventTransitionName(
 }
 
 export type GalleryPhoto = CollectionItem<'gallery'>
-export type GalleryEdition = CollectionItem<'gallery-editions'>
 
 export interface GalleryYearGroup {
   key: string
@@ -102,16 +101,15 @@ function getGalleryEventKey(photo: GalleryPhoto): GalleryEvent {
 }
 
 /**
- * Finds the location recorded for a given year + event in the
- * `gallery-editions` collection, if any. Returns `undefined` when no
- * edition entry exists for that pairing — locations are opt-in.
+ * Reads the edition location off a group of photos. Location is opt-in and
+ * denormalized onto each photo, and validate-content.ts guarantees every
+ * photo in a (year, event) group that sets one agrees — so the first photo
+ * that has a non-empty location speaks for the whole group. Returns
+ * `undefined` when none of the group's photos record a location.
  */
-function findEditionLocation(
-  editions: Array<GalleryEdition>,
-  year: number,
-  event: GalleryEvent,
-): string | undefined {
-  return editions.find((e) => e.year === year && e.event === event)?.location
+function findGroupLocation(photos: Array<GalleryPhoto>): string | undefined {
+  const located = photos.find((photo) => (photo.location ?? '') !== '')
+  return located?.location
 }
 
 /**
@@ -123,7 +121,6 @@ function findEditionLocation(
  */
 export function groupPhotosByEvent(
   photos: Array<GalleryPhoto>,
-  editions: Array<GalleryEdition> = [],
 ): Array<GalleryEventGroup> {
   const groups = new Map<GalleryEvent, Array<GalleryPhoto>>()
 
@@ -142,13 +139,12 @@ export function groupPhotosByEvent(
     .sort(([a], [b]) => GALLERY_EVENTS.indexOf(a) - GALLERY_EVENTS.indexOf(b))
     .map(([key, groupPhotos]) => {
       const sortedPhotos = [...groupPhotos].sort(byDate)
-      const year = sortedPhotos[0].date.getFullYear()
 
       return {
         key,
         label: EVENT_LABELS[key],
         photos: sortedPhotos,
-        location: findEditionLocation(editions, year, key),
+        location: findGroupLocation(sortedPhotos),
       }
     })
 }
@@ -192,15 +188,14 @@ export function findAdjacentGalleryPhoto(
   photos: Array<GalleryPhoto>,
   yearKey: string,
   slug: string,
-  editions: Array<GalleryEdition> = [],
 ): AdjacentGalleryPhoto | undefined {
   const yearGroup = groupGalleryByYear(photos).find(
     (group) => group.key === yearKey,
   )
   if (!yearGroup) return undefined
 
-  const eventGroup = groupPhotosByEvent(yearGroup.photos, editions).find(
-    (group) => group.photos.some((photo) => photo.slug === slug),
+  const eventGroup = groupPhotosByEvent(yearGroup.photos).find((group) =>
+    group.photos.some((photo) => photo.slug === slug),
   )
   if (!eventGroup) return undefined
 

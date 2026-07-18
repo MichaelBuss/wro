@@ -16,7 +16,6 @@ const getGalleryYear = createServerFn({ method: 'GET' })
   .validator((year: string) => year)
   .handler(({ data: year }) => {
     const photos = getCollectionItems('gallery')
-    const editions = getCollectionItems('gallery-editions')
     const group = groupGalleryByYear(photos).find((g) => g.key === year)
 
     if (!group) {
@@ -25,7 +24,7 @@ const getGalleryYear = createServerFn({ method: 'GET' })
 
     return {
       label: group.label,
-      eventGroups: groupPhotosByEvent(group.photos, editions).map(
+      eventGroups: groupPhotosByEvent(group.photos).map(
         (eventGroup) => ({
           key: eventGroup.key,
           label: eventGroup.label,

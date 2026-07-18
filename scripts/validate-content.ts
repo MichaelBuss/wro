@@ -10,8 +10,8 @@
  * - Every gallery photo's image exists in content/gallery/, and every
  *   image in that directory is referenced by exactly one photo (no
  *   orphans, no duplicates), at the right format/size
- * - Every gallery-editions entry matches at least one real photo's
- *   (year, event), with no two editions claiming the same pairing
+ * - Every photo sharing a (year, event) records the same edition location,
+ *   so the group heading can read it off any one of them without ambiguity
  *
  * Run with: npm run validate:content
  */
@@ -22,13 +22,11 @@ import matter from 'gray-matter'
 import sharp from 'sharp'
 import { collectionSchemas, pageSchemas } from '../src/content/registry'
 import { objectKeys } from '../src/lib/utils'
-import { slugifyEvent } from './gallery-editions'
 import { IMAGE_MAX_PX } from './image-settings'
 
 const CONTENT_DIR = join(process.cwd(), 'content')
 const PAGES_DIR = join(CONTENT_DIR, 'pages')
 const GALLERY_DIR = join(CONTENT_DIR, 'gallery')
-const EDITIONS_DIR = join(CONTENT_DIR, 'gallery-editions')
 
 interface ValidationError {
   type:
@@ -42,9 +40,7 @@ interface ValidationError {
     | 'orphaned-image'
     | 'invalid-image-format'
     | 'oversized-image'
-    | 'orphaned-edition'
-    | 'duplicate-edition'
-    | 'edition-filename-mismatch'
+    | 'inconsistent-location'
   message: string
 }
 
@@ -57,8 +53,8 @@ function error(type: ValidationError['type'], message: string) {
 
 /**
  * Groups items by a derived string key. Shared building block for both the
- * gallery-images and gallery-editions consistency checks below, so "group by
- * key, then check the group" logic can't drift between the two.
+ * gallery-image and per-edition location consistency checks below, so "group
+ * by key, then check the group" logic can't drift between the two.
  */
 function groupByKey<T>(
   items: Array<T>,
@@ -218,10 +214,16 @@ interface GalleryImageRef {
   imageFilename: string
 }
 
-// Also collected here for section 4 below: every valid photo's derived
-// (year, event) key, so editions can be checked against real photos without
-// re-parsing content/gallery/*.md a second time.
-const photoEditionKeys = new Set<string>()
+// Also collected here for section 4 below: each photo's (year, event) key
+// alongside the location (if any) it records, so the per-edition location
+// consistency check can run without re-parsing content/gallery/*.md.
+interface PhotoLocationRef {
+  file: string
+  key: string
+  event: string
+  location: string | undefined
+}
+const photoLocationRefs: Array<PhotoLocationRef> = []
 
 if (existsSync(GALLERY_DIR)) {
   const galleryFiles = readdirSync(GALLERY_DIR).filter((f) => f.endsWith('.md'))
@@ -235,9 +237,14 @@ if (existsSync(GALLERY_DIR)) {
     // Schema errors are already reported in section 2 above.
     if (!result.success) continue
 
-    photoEditionKeys.add(
-      `${result.data.date.getFullYear()}::${result.data.event ?? 'Misc'}`,
-    )
+    const event = result.data.event ?? 'Misc'
+    photoLocationRefs.push({
+      file,
+      key: `${result.data.date.getFullYear()}::${event}`,
+      event,
+      location:
+        (result.data.location ?? '') === '' ? undefined : result.data.location,
+    })
 
     const imageFilename = result.data.image
     const diskPath = join(GALLERY_DIR, imageFilename)
@@ -296,67 +303,38 @@ if (existsSync(GALLERY_DIR)) {
 }
 
 // ---------------------------------------------------------------------------
-// 4. Validate gallery editions match real photos
+// 4. Validate per-edition location consistency
 //
-// Editions aren't referenced by photos explicitly — they're matched purely
-// by (year, event), the same way an entry's image is matched by filename in
-// section 3. So an edition is "orphaned" the same way an image can be: it
-// exists but nothing points at it, either because the year/event was
-// mistyped or the photos it described got re-dated/re-tagged since.
+// `location` is denormalized onto each photo, but it describes the edition
+// (a year + event), not the individual shot — so every photo sharing a
+// (year, event) that records a location must record the *same* one, or the
+// group heading (which reads it off whichever photo happens to be first)
+// would be ambiguous. Photos that leave location blank are fine — it's
+// opt-in, and one photo in a group can carry the location for all of them.
 // ---------------------------------------------------------------------------
 
-console.log('Validating gallery editions...')
+console.log('Validating gallery edition locations...')
 
-if (existsSync(EDITIONS_DIR)) {
-  interface EditionRef {
-    file: string
-    year: number
-    event: string
-    key: string
+for (const [key, refs] of groupByKey(photoLocationRefs, (ref) => ref.key)) {
+  const distinct = [
+    ...new Set(
+      refs
+        .map((ref) => ref.location)
+        .filter((location): location is string => location !== undefined),
+    ),
+  ]
+
+  if (distinct.length > 1) {
+    const [year, event] = key.split('::')
+    const detail = refs
+      .filter((ref) => ref.location !== undefined)
+      .map((ref) => `${ref.file} → "${ref.location}"`)
+      .join(', ')
+    error(
+      'inconsistent-location',
+      `Photos from ${year} ${event} disagree on location (${detail}) — every photo in the same year + event must record the same location, since it names the edition, not the individual photo`,
+    )
   }
-
-  const editionFiles = readdirSync(EDITIONS_DIR).filter((f) =>
-    f.endsWith('.md'),
-  )
-  const editionRefs: Array<EditionRef> = []
-
-  for (const file of editionFiles) {
-    const filePath = join(EDITIONS_DIR, file)
-    const { data } = matter(readFileSync(filePath, 'utf-8'))
-    const result = collectionSchemas['gallery-editions'].safeParse(data)
-
-    // Schema errors are already reported in section 2 above.
-    if (!result.success) continue
-
-    const { year, event } = result.data
-    editionRefs.push({ file, year, event, key: `${year}::${event}` })
-
-    const expectedFile = `${year}-${slugifyEvent(event)}.md`
-    if (file !== expectedFile) {
-      error(
-        'edition-filename-mismatch',
-        `content/gallery-editions/${file} has year "${year}" + event "${event}" in its frontmatter, but its filename doesn't match (expected ${expectedFile}) — likely hand-edited after creation`,
-      )
-    }
-  }
-
-  checkNoDuplicates(
-    groupByKey(editionRefs, (ref) => ref.key),
-    'duplicate-edition',
-    (refs) => {
-      const files = refs.map((ref) => ref.file)
-      return `Multiple gallery-editions entries declare year "${refs[0]?.year}" + event "${refs[0]?.event}" (${files.join(', ')}) — only one location can win`
-    },
-  )
-
-  checkAllReferenced(
-    editionRefs,
-    (ref) => ref.key,
-    photoEditionKeys,
-    'orphaned-edition',
-    (ref) =>
-      `content/gallery-editions/${ref.file} declares year "${ref.year}" + event "${ref.event}" but no gallery photo has that year/event`,
-  )
 }
 
 // ---------------------------------------------------------------------------

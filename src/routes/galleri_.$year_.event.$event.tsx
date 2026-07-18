@@ -19,13 +19,12 @@ const getGalleryEvent = createServerFn({ method: 'GET' })
     if (!event) return null
 
     const photos = getCollectionItems('gallery')
-    const editions = getCollectionItems('gallery-editions')
     const yearGroup = groupGalleryByYear(photos).find(
       (group) => group.key === data.year,
     )
     if (!yearGroup) return null
 
-    const eventGroup = groupPhotosByEvent(yearGroup.photos, editions).find(
+    const eventGroup = groupPhotosByEvent(yearGroup.photos).find(
       (group) => group.key === event,
     )
     if (!eventGroup) return null

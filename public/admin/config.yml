@@ -81,6 +81,13 @@ collections:
           hint: When a year has photos from both events, this splits that year's page into separate Danish final / world final sections. Leave blank if the year has only one event.,
         }
       - {
+          label: Location,
+          name: location,
+          widget: string,
+          required: false,
+          hint: 'By, land — f.eks. "Panama City, Panama". Where this year''s edition was held, shown as a subtitle on the year/event pages. Give every photo from the same year + event the same location (npm run lint checks this). Leave blank to show no location.',
+        }
+      - {
           label: Favorite,
           name: favorite,
           widget: boolean,
@@ -93,33 +100,6 @@ collections:
           widget: string,
           required: false,
           hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"',
-        }
-
-  - name: gallery-editions
-    label: Galleri — Værtsbyer
-    folder: content/gallery-editions
-    create: true
-    slug: '{{year}}-{{event}}'
-    hint: Records where a given year's final was held, shown as a subtitle on that year's /galleri page and in the lightbox. Optional — only add an entry when you want a location shown; leave a year/event pairing without an entry otherwise.
-    fields:
-      - {
-          label: Year,
-          name: year,
-          widget: number,
-          hint: The year this location applies to, e.g. 2024.,
-        }
-      - {
-          label: Event,
-          name: event,
-          widget: select,
-          options: ['Danish Final', 'World Final', 'Panic Weekend', 'Misc'],
-          hint: Which event this location applies to.,
-        }
-      - {
-          label: Location,
-          name: location,
-          widget: string,
-          hint: 'By, land — f.eks. "Panama City, Panama". Behøver ikke være præcist, bruges kun til at vise hvem der var vært det år.',
         }
 
   - name: quotes

@@ -4,7 +4,7 @@ import {
   getEventFromSlug,
   toGalleryDisplayItem,
 } from './gallery'
-import type { GalleryEdition, GalleryPhoto } from './gallery'
+import type { GalleryPhoto } from './gallery'
 
 function makePhoto(
   overrides: Partial<GalleryPhoto> & { slug: string; date: Date },
@@ -119,20 +119,31 @@ describe('findAdjacentGalleryPhoto', () => {
     expect(result).toMatchObject({ eventLabel: 'Diverse' })
   })
 
-  it('surfaces the matching edition location, when one exists', () => {
-    const editions: Array<GalleryEdition> = [
-      {
-        slug: '2011-world-final',
-        year: 2011,
+  it("surfaces the group's location, read from any photo in the year+event that records one", () => {
+    const located: Array<GalleryPhoto> = [
+      makePhoto({
+        slug: 'wf-a',
+        date: new Date('2011-07-10'),
+        event: 'World Final',
+      }),
+      makePhoto({
+        slug: 'wf-b',
+        date: new Date('2011-07-11'),
         event: 'World Final',
         location: 'Abu Dhabi, UAE',
-      },
+      }),
+      makePhoto({
+        slug: 'df-a',
+        date: new Date('2011-03-01'),
+        event: 'Danish Final',
+      }),
     ]
 
-    const result = findAdjacentGalleryPhoto(photos, '2011', 'wf-1', editions)
+    // wf-a has no location of its own, but its group-mate wf-b does.
+    const result = findAdjacentGalleryPhoto(located, '2011', 'wf-a')
     expect(result?.eventLocation).toBe('Abu Dhabi, UAE')
 
-    const noEdition = findAdjacentGalleryPhoto(photos, '2011', 'df-1', editions)
-    expect(noEdition?.eventLocation).toBeUndefined()
+    const noLocation = findAdjacentGalleryPhoto(located, '2011', 'df-a')
+    expect(noLocation?.eventLocation).toBeUndefined()
   })
 })

@@ -33,7 +33,6 @@ import { GALLERY_EVENTS } from '~/content/registry'
 import type { GalleryEvent } from '~/content/registry'
 import { EVENT_LABELS } from '~/lib/gallery'
 import { addOnePhoto } from './add-gallery-photos'
-import { upsertGalleryEdition } from './gallery-editions'
 import { readPhotoDate } from './photo-date'
 
 const IMAGE_EXTENSIONS = new Set([
@@ -176,6 +175,7 @@ async function main() {
         const result = await addOnePhoto(inputPath, {
           year,
           event,
+          location,
           date,
           dateSource: source,
         })
@@ -197,18 +197,10 @@ async function main() {
     log.warn(warning)
   }
 
-  if (location !== undefined && event !== undefined) {
-    const result = upsertGalleryEdition({ year, event, location })
-
-    if (result.status === 'created') {
-      log.success(
-        `Recorded location for ${year} ${EVENT_LABELS[event]}: ${result.mdPath}`,
-      )
-    } else if (result.status === 'conflict') {
-      log.warn(
-        `${result.mdPath} already records a different location ("${result.existingLocation}") — leaving it as-is.`,
-      )
-    }
+  if (location !== undefined && event !== undefined && skipped > 0) {
+    log.info(
+      `Location was written onto the new entries; ${skipped} existing one${skipped === 1 ? ' was' : 's were'} skipped — set their location via npm run gallery:edit if needed.`,
+    )
   }
 
   outro(

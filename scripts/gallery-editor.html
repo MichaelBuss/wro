@@ -208,7 +208,8 @@
         color: var(--bad);
       }
       textarea,
-      select {
+      select,
+      input[type='text'] {
         width: 100%;
         background: var(--panel-2);
         color: var(--text);
@@ -219,7 +220,8 @@
         resize: vertical;
       }
       textarea:focus,
-      select:focus {
+      select:focus,
+      input[type='text']:focus {
         outline: none;
         border-color: var(--accent);
       }
@@ -671,6 +673,11 @@
         const event = document.createElement('select')
         event.append(...optionEls(state.events, photo.event))
 
+        const location = document.createElement('input')
+        location.type = 'text'
+        location.value = photo.location
+        location.placeholder = 'e.g. Chiang-Mai, Thailand'
+
         const favorite = document.createElement('input')
         favorite.type = 'checkbox'
         favorite.checked = photo.favorite
@@ -694,7 +701,7 @@
           state.dirty = true
           alt.classList.toggle('invalid', alt.value.trim() === '')
         }
-        for (const control of [alt, description, event]) {
+        for (const control of [alt, description, event, location]) {
           control.addEventListener('input', markDirty)
         }
         favorite.addEventListener('change', markDirty)
@@ -735,6 +742,7 @@
           alt: alt.value,
           description: description.value,
           event: event.value === '' ? null : event.value,
+          location: location.value,
           favorite: favorite.checked,
           position: focal.getValue(),
         })
@@ -761,6 +769,11 @@
           ),
           field('Description', description),
           field('Event', event),
+          field(
+            'Location',
+            location,
+            'Where this edition was held — must match every photo in the same year + event (npm run lint checks this).',
+          ),
           field(
             'Focal point',
             focal.element,

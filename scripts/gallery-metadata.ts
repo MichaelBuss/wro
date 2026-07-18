@@ -29,6 +29,7 @@ const rawEntrySchema = z.object({
   position: z.enum(OBJECT_POSITIONS).optional().catch(undefined),
   date: z.coerce.date().optional().catch(undefined),
   event: z.enum(GALLERY_EVENTS).optional().catch(undefined),
+  location: z.string().optional().catch(undefined),
   favorite: z.boolean().optional().catch(undefined),
 })
 
@@ -41,6 +42,7 @@ export interface GalleryEntry {
   alt: string
   description: string
   event: GalleryEvent | undefined
+  location: string
   position: ObjectPosition | undefined
   favorite: boolean
   date: Date | undefined
@@ -62,6 +64,7 @@ function toEntry(slug: string): GalleryEntry {
     alt: (parsed.alt ?? '').trim(),
     description: (parsed.description ?? '').trim(),
     event: parsed.event,
+    location: (parsed.location ?? '').trim(),
     position: parsed.position,
     favorite: parsed.favorite ?? false,
     date: parsed.date,
@@ -127,6 +130,7 @@ export interface GalleryEntryEdit {
   alt: string
   description: string
   event: GalleryEvent | null
+  location: string
   favorite: boolean
   position: ObjectPosition | null
 }
@@ -144,8 +148,9 @@ const preserveSchema = z.object({
  * Writes the editable fields back to a photo's .md file, preserving its
  * `image`/`date` and any body content, and re-emitting frontmatter in the
  * same canonical key order `gallery:add` uses (image, alt, description,
- * position, date, event, favorite). Optional fields left blank are omitted
- * rather than written empty — matching how a hand-authored entry looks.
+ * position, date, event, location, favorite). Optional fields left blank are
+ * omitted rather than written empty — matching how a hand-authored entry
+ * looks.
  * Returns the freshly re-read, re-classified report so callers can reflect
  * the new status without re-scanning the whole directory.
  */
@@ -163,12 +168,14 @@ export function writeGalleryEntry(
 
   const alt = edit.alt.trim()
   const description = edit.description.trim()
+  const location = edit.location.trim()
 
   const frontmatter: Record<string, unknown> = { image: preserved.image, alt }
   if (description !== '') frontmatter.description = description
   if (edit.position !== null) frontmatter.position = edit.position
   frontmatter.date = preserved.date
   if (edit.event !== null) frontmatter.event = edit.event
+  if (location !== '') frontmatter.location = location
   if (edit.favorite) frontmatter.favorite = true
 
   const body = content.trim() === '' ? '' : content

@@ -125,12 +125,13 @@ export const collectionSchemas = {
     position: z.enum(OBJECT_POSITIONS).optional(),
     date: z.coerce.date(),
     event: z.enum(GALLERY_EVENTS).optional(),
+    // Where this photo's edition was held (e.g. "Chiang-Mai, Thailand").
+    // Shown as a subtitle on the year/event pages and lightbox. Opt-in and
+    // denormalized onto each photo — validate-content.ts enforces that all
+    // photos sharing a (year, event) agree, so the group heading can read it
+    // from any one of them.
+    location: z.string().optional(),
     favorite: z.boolean().optional(),
-  }),
-  'gallery-editions': z.object({
-    year: z.coerce.number().int(),
-    event: z.enum(GALLERY_EVENTS),
-    location: z.string(),
   }),
   quotes: z.object({
     quote: z.string(),

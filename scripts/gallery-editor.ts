@@ -40,6 +40,7 @@ const editSchema = z.object({
   alt: z.string(),
   description: z.string(),
   event: z.enum(GALLERY_EVENTS).nullable(),
+  location: z.string(),
   favorite: z.boolean(),
   position: z.enum(OBJECT_POSITIONS).nullable(),
 })
@@ -67,6 +68,7 @@ function toClient(report: GalleryEntryReport) {
     alt: report.alt,
     description: report.description,
     event: report.event ?? null,
+    location: report.location,
     position: report.position ?? null,
     favorite: report.favorite,
     date: report.date === undefined ? null : report.date.toISOString(),

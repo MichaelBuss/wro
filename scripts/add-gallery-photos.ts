@@ -19,8 +19,13 @@
  * Run with:
  *   npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
  *
- * Optionally records where that year+event was held:
+ * Optionally stamps where that year+event was held onto each new photo:
  *   npm run gallery:add -- --year 2024 --event "World Final" --location "Panama City, Panama" photos/*.jpg
+ *
+ * The location is written onto every photo in the batch (it's a per-photo
+ * field; validate-content.ts enforces that all photos sharing a year+event
+ * agree). Existing entries are skipped and so aren't back-filled — set their
+ * location via `npm run gallery:edit` or by hand.
  *
  * Alt text is left blank intentionally (not a placeholder) — `npm run lint`
  * fails on empty alt text, so entries can't reach publishing without a real
@@ -33,7 +38,6 @@ import matter from 'gray-matter'
 import { z } from 'zod'
 import { GALLERY_EVENTS } from '~/content/registry'
 import type { GalleryEvent } from '~/content/registry'
-import { upsertGalleryEdition } from './gallery-editions'
 import { optimizeImage } from './optimize-images'
 import { formatDateOnly, readPhotoDate } from './photo-date'
 
@@ -139,11 +143,12 @@ export async function addOnePhoto(
   options: {
     year: number
     event: GalleryEvent | undefined
+    location: string | undefined
     date: Date
     dateSource: 'exif' | 'mtime'
   },
 ): Promise<AddOnePhotoResult> {
-  const { year, event, date, dateSource } = options
+  const { year, event, location, date, dateSource } = options
   const slug = basename(inputPath, extname(inputPath))
   const mdPath = join(GALLERY_DIR, `${slug}.md`)
 
@@ -170,6 +175,7 @@ export async function addOnePhoto(
     alt: '',
     date: formatDateOnly(date),
     ...(event === undefined ? {} : { event }),
+    ...(location === undefined ? {} : { location }),
   }
 
   writeFileSync(mdPath, `${matter.stringify('', frontmatter).trimEnd()}\n`)
@@ -195,6 +201,7 @@ async function main() {
     const result = await addOnePhoto(inputPath, {
       year,
       event,
+      location,
       date,
       dateSource: source,
     })
@@ -224,16 +231,10 @@ async function main() {
     )
   }
 
-  if (location !== undefined && event !== undefined) {
-    const result = upsertGalleryEdition({ year, event, location })
-
-    if (result.status === 'created') {
-      console.log(`Recorded location for ${year} ${event}: ${result.mdPath}`)
-    } else if (result.status === 'conflict') {
-      console.warn(
-        `Warning: ${result.mdPath} already records a different location ("${result.existingLocation}") — leaving it as-is. Edit it by hand if "${location}" is correct.`,
-      )
-    }
+  if (location !== undefined && event !== undefined && skipped > 0) {
+    console.log(
+      `Note: --location was written onto the ${created} new entr${created === 1 ? 'y' : 'ies'}, but ${skipped} existing one${skipped === 1 ? ' was' : 's were'} skipped — set their location via npm run gallery:edit if needed.`,
+    )
   }
 }
 

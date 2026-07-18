@@ -13,19 +13,16 @@ import { getCollectionItems } from '~/server/content'
 
 const getGalleryYears = createServerFn({ method: 'GET' }).handler(() => {
   const photos = getCollectionItems('gallery')
-  const editions = getCollectionItems('gallery-editions')
 
   return groupGalleryByYear(photos).map((group) => ({
     key: group.key,
     label: group.label,
-    eventGroups: groupPhotosByEvent(group.photos, editions).map(
-      (eventGroup) => ({
-        key: eventGroup.key,
-        label: eventGroup.label,
-        location: eventGroup.location,
-        items: eventGroup.photos.map(toGalleryDisplayItem),
-      }),
-    ),
+    eventGroups: groupPhotosByEvent(group.photos).map((eventGroup) => ({
+      key: eventGroup.key,
+      label: eventGroup.label,
+      location: eventGroup.location,
+      items: eventGroup.photos.map(toGalleryDisplayItem),
+    })),
   }))
 })
 

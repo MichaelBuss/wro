@@ -87,7 +87,7 @@ npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
 
 Each photo's `date` is read from its EXIF capture date (falling back to the file's modification time, with a warning, if EXIF is missing) — this drives sort order and which year it's grouped under on `/galleri`, so there's no separate "order" field to maintain by hand. The importer also warns if a photo's capture date doesn't match the `--year` you passed.
 
-Add `--location "City, Country"` (requires `--event`) to record where that year's edition was held, written to `content/gallery-editions/`.
+Add `--location "City, Country"` (requires `--event`) to record where that year's edition was held. It's a per-photo field (`location:` in the frontmatter), stamped onto every new photo in the batch and shown as a subtitle on the year/event pages. `npm run lint` enforces that all photos sharing a year + event agree on it, so the group heading can read it off any one of them. Existing entries are skipped by the importer, so set their location via `npm run gallery:edit` or by hand.
 
 Or run `npm run gallery:wizard` for an interactive version of the same command — it prompts for the year/event/location and lets you browse to a folder and pick which photos to add, instead of typing flags and shell globs by hand.
 

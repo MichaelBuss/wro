@@ -168,9 +168,6 @@ export function getCollectionItems(
   collection: 'gallery',
 ): Array<CollectionItem<'gallery'>>
 export function getCollectionItems(
-  collection: 'gallery-editions',
-): Array<CollectionItem<'gallery-editions'>>
-export function getCollectionItems(
   collection: 'quotes',
 ): Array<CollectionItem<'quotes'>>
 export function getCollectionItems(
