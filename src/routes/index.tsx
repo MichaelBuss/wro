@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
+import { ArrowRight } from 'lucide-solid'
 import { For, Show } from 'solid-js'
 import { Gallery, Heading, Lead, TipsList } from '~/components/ui'
 import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
@@ -104,16 +105,17 @@ function GallerySection() {
   return (
     <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
       <div class="mb-8">
-        <Link to="/galleri" class="group inline-block">
+        <Link to="/galleri" class="group inline-flex items-center gap-2 mb-1">
           <Heading
             level="h2"
-            class="mb-1 group-hover:text-primary transition-colors"
+            class="group-hover:text-primary transition-colors"
           >
-            Glimt fra tidligere år{' '}
-            <span class="inline-block transition-transform group-hover:translate-x-1">
-              →
-            </span>
+            Glimt fra tidligere år
           </Heading>
+          <ArrowRight
+            size={24}
+            class="shrink-0 text-foreground/50 transition-all duration-200 group-hover:translate-x-1 group-hover:text-primary"
+          />
         </Link>
         <p class="text-sm-copy text-muted-foreground">
           Øjeblikke fra danske WRO-finaler
