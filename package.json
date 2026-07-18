@@ -18,6 +18,8 @@
     "images:optimize": "tsx scripts/optimize-images.ts",
     "gallery:add": "tsx scripts/add-gallery-photos.ts",
     "gallery:wizard": "tsx scripts/add-gallery-photos-wizard.ts",
+    "gallery:status": "tsx scripts/gallery-status.ts",
+    "gallery:edit": "tsx scripts/gallery-editor.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push"

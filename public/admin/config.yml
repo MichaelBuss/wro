@@ -3,6 +3,9 @@ backend:
   repo: MichaelBuss/wro
   branch: main
 
+# Only activates on localhost — lets the CMS read/write your working tree directly.
+local_backend: true
+
 media_folder: public/uploads
 public_folder: /uploads
 
@@ -63,7 +66,10 @@ collections:
       - {
           label: Date Taken,
           name: date,
-          widget: date,
+          widget: datetime,
+          format: 'YYYY-MM-DD',
+          date_format: 'YYYY-MM-DD',
+          time_format: false,
           hint: Drives sort order and which year this photo appears under on the /galleri page. Use the photo's actual capture date — prefer running `npm run gallery:add`/`npm run gallery:wizard`, which fill this in automatically from the photo's EXIF data.,
         }
       - {
