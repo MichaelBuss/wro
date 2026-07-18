@@ -101,12 +101,12 @@ tanstackStart({
   prerender: {
     enabled: true,
     crawlLinks: true,
-    filter: ({ path }) => !path.startsWith('/admin'),
+    filter: ({ path }) => !path.startsWith('/cms'),
   },
 })
 ```
 
-The site is mostly static content, so prerendering is the intended long-term strategy — not a stepping stone to full SSR. The `/admin` path is excluded because it hosts a static Decap CMS single-page app, not a TanStack route.
+The site is mostly static content, so prerendering is the intended long-term strategy — not a stepping stone to full SSR. The `/cms` path is excluded because it hosts a static Sveltia CMS single-page app, not a TanStack route.
 
 ## Alternatives Considered
 

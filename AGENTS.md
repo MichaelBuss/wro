@@ -67,14 +67,14 @@ Before creating a new component, hook, or utility — search the codebase first.
 
 ## Images
 
-Content editors upload images through the CMS at `/admin`, which optimizes them to WebP in the browser before committing. Blog images go to the shared `public/uploads/`; gallery photos are co-located with their entry (see below), since Sveltia CMS supports both layouts per-collection (`public/admin/config.yml`). For batch-adding images from the terminal (e.g. migrating existing files), use:
+Content editors upload images through the CMS at `/cms`, which optimizes them to WebP in the browser before committing. Blog images go to the shared `public/uploads/`; gallery photos are co-located with their entry (see below), since Sveltia CMS supports both layouts per-collection (`public/cms/config.yml`). For batch-adding images from the terminal (e.g. migrating existing files), use:
 
 ```bash
 npm run images:optimize path/to/photo1.jpg path/to/photo2.jpg
 # Outputs: public/uploads/photo1.webp, public/uploads/photo2.webp
 ```
 
-This applies the identical transformation (WebP, quality 85, max 2048px) defined in `scripts/image-settings.ts`, which is the single source of truth shared with the CMS config (`public/admin/config.yml`).
+This applies the identical transformation (WebP, quality 85, max 2048px) defined in `scripts/image-settings.ts`, which is the single source of truth shared with the CMS config (`public/cms/config.yml`).
 
 Gallery photos are a flat `content/gallery/{slug}.md` entry plus its image co-located right beside it, e.g. `content/gallery/{slug}.webp` — rather than being uploaded to the shared `public/uploads/`. The `image` frontmatter field is just that bare filename. `public/gallery` is a symlink to `content/gallery`, so those images are served directly (both in dev and the Netlify build) at `/gallery/{filename}`, the same way `public/uploads/` always worked — `src/server/content.ts` just builds that path string, no separate asset pipeline involved. Deleting an entry through the CMS deletes its image with it — no separate "clean up the upload" step, and no risk of it going orphaned.
 

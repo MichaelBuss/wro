@@ -3,7 +3,7 @@
  *
  * Converts source images to WebP, applying the same transformation Sveltia
  * CMS runs in the browser before committing an upload (see
- * public/admin/config.yml and image-settings.ts).
+ * public/cms/config.yml and image-settings.ts).
  *
  * Run with: npm run images:optimize path/to/photo1.jpg path/to/photo2.jpg
  * Outputs: public/uploads/photo1.webp, public/uploads/photo2.webp

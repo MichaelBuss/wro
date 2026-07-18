@@ -14,7 +14,7 @@
  * Sveltia to edit your just-added, not-yet-committed files in place.
  *
  * Read-only — it never touches content. Override the CMS origin with
- * WRO_ADMIN_URL if you don't dev on the default http://localhost:3000.
+ * WRO_CMS_URL if you don't dev on the default http://localhost:3000.
  *
  * Run with: npm run gallery:status
  */
@@ -22,7 +22,7 @@
 import { readGalleryReports } from './gallery-metadata'
 import type { EntryStatus, GalleryEntryReport } from './gallery-metadata'
 
-const ADMIN_URL = process.env.WRO_ADMIN_URL ?? 'http://localhost:3000/admin'
+const CMS_URL = process.env.WRO_CMS_URL ?? 'http://localhost:3000/cms'
 
 const useColor = process.stdout.isTTY && process.env.NO_COLOR === undefined
 
@@ -40,7 +40,7 @@ const yellow = makePaint('33')
 const cyan = makePaint('36')
 
 function editUrl(slug: string): string {
-  return `${ADMIN_URL}/#/collections/gallery/entries/${slug}`
+  return `${CMS_URL}/#/collections/gallery/entries/${slug}`
 }
 
 /**

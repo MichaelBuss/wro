@@ -32,7 +32,7 @@ TanStack Start uses Vite as its build tool. The pipeline needs to produce preren
 
 **Prerendering as the primary strategy** — with `crawlLinks: true`, the build generates static HTML at build time for all discoverable routes; these serve directly from Netlify's CDN. Server functions handle dynamic requests. `concurrency: 1` keeps the prerender crawl deterministic.
 
-**`/admin` excluded from prerender** — the Decap CMS admin UI at `public/admin/` is a standalone SPA. The prerender filter skips `/admin` paths so TanStack Start doesn't try to render them as routes.
+**`/cms` excluded from prerender** — the Sveltia CMS UI at `public/cms/` is a standalone SPA. The prerender filter skips `/cms` paths so TanStack Start doesn't try to render them as routes.
 
 **Content inlined at build time** — markdown under `content/` is bundled into the build via Vite's `import.meta.glob` (`src/server/content.ts`), so content loading is identical in dev and production and needs no server-runtime storage layer. See [CMS Content Layer](cms-content-layer.md).
 
