@@ -104,24 +104,23 @@ function GallerySection() {
   return (
     <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
       <div class="mb-8">
-        <Heading level="h2" class="mb-1">
-          Glimt fra tidligere år
-        </Heading>
+        <Link to="/galleri" class="group inline-block">
+          <Heading
+            level="h2"
+            class="mb-1 group-hover:text-primary transition-colors"
+          >
+            Glimt fra tidligere år{' '}
+            <span class="inline-block transition-transform group-hover:translate-x-1">
+              →
+            </span>
+          </Heading>
+        </Link>
         <p class="text-sm-copy text-muted-foreground">
           Øjeblikke fra danske WRO-finaler
         </p>
       </div>
 
       <Gallery items={data().galleryItems} />
-
-      <div class="mt-8">
-        <Link
-          to="/galleri"
-          class="text-sm-copy font-medium text-primary hover:underline"
-        >
-          Se alle billeder →
-        </Link>
-      </div>
     </section>
   )
 }

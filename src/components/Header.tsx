@@ -24,6 +24,7 @@ export default function Header() {
               Forside
             </NavLink>
             <NavDropdown />
+            <NavLink to="/galleri">Fotos</NavLink>
             <NavLink to="/blog">Blog</NavLink>
           </div>
 

@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@kobalte/core/dialog'
 import { Link } from '@tanstack/solid-router'
-import { BookOpen, Home, Menu, X } from 'lucide-solid'
+import { BookOpen, Home, Image, Menu, X } from 'lucide-solid'
 import type { ParentProps } from 'solid-js'
 import { For, createSignal } from 'solid-js'
 import { cva, cx } from '~/cva.config'
@@ -77,6 +77,16 @@ export function MobileDrawer() {
             >
               <Home size={18} />
               <span>Forside</span>
+            </Link>
+
+            <Link
+              to="/galleri"
+              onClick={close}
+              class={mobileNavLink({ active: false })}
+              activeProps={{ class: mobileNavLink({ active: true }) }}
+            >
+              <Image size={18} />
+              <span>Fotos</span>
             </Link>
 
             <MobileNavSection title="Information">

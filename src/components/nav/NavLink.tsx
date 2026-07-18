@@ -4,10 +4,10 @@ import { cva, cx } from '~/cva.config'
 import type { FileRoutesByTo } from '~/routeTree.gen'
 
 export const cvaNavLink = cva({
-  base: 'relative px-3 py-2 text-sm font-medium text-foreground/60 hover:text-foreground transition-colors duration-200',
+  base: 'relative px-3 py-2 text-sm font-medium text-foreground/60 rounded-lg transition-colors duration-200 hover:text-foreground hover:bg-accent',
   variants: {
     active: {
-      true: 'text-foreground',
+      true: 'text-foreground bg-accent',
     },
   },
 })
