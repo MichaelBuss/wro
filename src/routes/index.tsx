@@ -2,7 +2,7 @@ import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { ArrowRight } from 'lucide-solid'
 import { For, Show } from 'solid-js'
-import { Gallery, Heading, Lead, TipsList } from '~/components/ui'
+import { ArrowLink, Gallery, Heading, Lead, TipsList } from '~/components/ui'
 import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { pickGalleryHighlights, toGalleryDisplayItem } from '~/lib/gallery'
 import { getCollectionItems, getPageContent } from '~/server/content'
@@ -155,12 +155,7 @@ function DateSection() {
             {data().eventInfo.danish_final_time}
           </p>
           <div class="mt-8">
-            <Link
-              to="/info/date"
-              class="text-sm-copy font-medium text-primary hover:underline"
-            >
-              Se fuldt program →
-            </Link>
+            <ArrowLink to="/info/date">Se fuldt program</ArrowLink>
           </div>
         </div>
 
@@ -224,12 +219,9 @@ function PrizesSection() {
               </For>
             </div>
 
-            <Link
-              to="/info/prizes"
-              class="text-sm-copy font-medium text-white/60 hover:text-white transition-colors"
-            >
-              Se alle præmier →
-            </Link>
+            <ArrowLink to="/info/prizes" variant="onDark">
+              Se alle præmier
+            </ArrowLink>
           </div>
         </section>
       )}
@@ -259,12 +251,7 @@ function CostSection() {
             )}
           </For>
         </div>
-        <Link
-          to="/info/cost"
-          class="text-sm-copy font-medium text-primary hover:underline"
-        >
-          Se prisdetaljer →
-        </Link>
+        <ArrowLink to="/info/cost">Se prisdetaljer</ArrowLink>
       </div>
     </section>
   )
@@ -288,12 +275,7 @@ function MaterialsSection() {
           </Heading>
           <p class="text-lead text-foreground/70">{data().materials.intro}</p>
           <div class="mt-8">
-            <Link
-              to="/info/materials"
-              class="text-sm-copy font-medium text-primary hover:underline"
-            >
-              Se materialedetaljer →
-            </Link>
+            <ArrowLink to="/info/materials">Se materialedetaljer</ArrowLink>
           </div>
         </div>
 
@@ -346,12 +328,7 @@ function TipsSection() {
           <TipsList tips={data().practicalTips} />
         </div>
 
-        <Link
-          to="/info/tips"
-          class="text-sm-copy font-medium text-primary hover:underline"
-        >
-          Læs alle tips →
-        </Link>
+        <ArrowLink to="/info/tips">Læs alle tips</ArrowLink>
       </div>
     </section>
   )

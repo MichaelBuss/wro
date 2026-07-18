@@ -1,3 +1,4 @@
+export { ArrowLink } from './arrow-link'
 export { Button, buttonVariants } from './button'
 export { ContentCard } from './ContentCard'
 export { Figure } from './Figure'
