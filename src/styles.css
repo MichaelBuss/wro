@@ -5,12 +5,59 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Height-constrained viewports (mostly phones rotated to landscape) — chrome
- * that reserves its own dedicated space (gutters, a stacked caption block)
- * wastes most of the available height there. Components can use this to
- * switch to compact/overlay chrome instead, giving that space back to the
- * content. See src/components/gallery/photo-lightbox.tsx for the main use. */
-@custom-variant short (@media (max-height: 500px));
+/* Small viewports (mostly phones) where chrome that reserves its own
+ * dedicated space (gutters, a stacked caption block) wastes most of the
+ * available room. Split by aspect ratio so a phone rotated to landscape
+ * (wide) and a phone held upright (tall) can get differently-shaped
+ * compact chrome. Neither matching counts as "large". See
+ * src/components/gallery/photo-lightbox.tsx for the main use. */
+@custom-variant compact-wide
+  (@media ((max-width: 500px) or (max-height: 500px)) and (min-aspect-ratio: 1/1));
+@custom-variant compact-tall
+  (@media ((max-width: 500px) or (max-height: 500px)) and (max-aspect-ratio: 1/1));
+
+/* Safe-area insets (notches, home indicators, rounded device corners) —
+ * requires `viewport-fit=cover` on the viewport meta (see
+ * src/routes/__root.tsx) to have any effect; the env() values are 0px
+ * otherwise. The `-*` variants combine an inset with a themed spacing
+ * value for call sites that need to add to existing fixed padding rather
+ * than replace it. */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pr-safe {
+  padding-right: env(safe-area-inset-right);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pl-safe {
+  padding-left: env(safe-area-inset-left);
+}
+@utility pt-safe-* {
+  padding-top: calc(env(safe-area-inset-top) + --spacing(--value(integer)));
+  padding-top: calc(env(safe-area-inset-top) + --value([length], [percentage]));
+}
+@utility pr-safe-* {
+  padding-right: calc(env(safe-area-inset-right) + --spacing(--value(integer)));
+  padding-right: calc(
+    env(safe-area-inset-right) + --value([length], [percentage])
+  );
+}
+@utility pb-safe-* {
+  padding-bottom: calc(
+    env(safe-area-inset-bottom) + --spacing(--value(integer))
+  );
+  padding-bottom: calc(
+    env(safe-area-inset-bottom) + --value([length], [percentage])
+  );
+}
+@utility pl-safe-* {
+  padding-left: calc(env(safe-area-inset-left) + --spacing(--value(integer)));
+  padding-left: calc(
+    env(safe-area-inset-left) + --value([length], [percentage])
+  );
+}
 
 :root {
   /* wro-blue color scale - hue 294.52 (violet-blue) */
