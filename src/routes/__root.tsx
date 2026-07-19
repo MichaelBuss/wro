@@ -82,6 +82,12 @@ function RootComponent() {
   return (
     <html>
       <head>
+        {/* Set the window-control side before first paint so the lightbox
+            chrome renders on the OS-native side with no flash — even on
+            prerendered/static pages where the server can't know the visitor's
+            OS. Keep this UA test in sync with `windowControlSide` in
+            src/lib/platform.ts. */}
+        <script>{`try{document.documentElement.setAttribute('data-controls',/mac|iphone|ipad|ipod/i.test(navigator.userAgent)?'left':'right')}catch(e){}`}</script>
         <HeadContent />
         <HydrationScript />
       </head>

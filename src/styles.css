@@ -10,11 +10,27 @@
  * available room. Split by aspect ratio so a phone rotated to landscape
  * (wide) and a phone held upright (tall) can get differently-shaped
  * compact chrome. Neither matching counts as "large". See
- * src/components/gallery/photo-lightbox.tsx for the main use. */
+ * src/components/gallery/photo-lightbox.tsx for the main use.
+ *
+ * The wide/tall crossover sits at 3/2 rather than 1/1: the side-by-side
+ * "wide" chrome only pays off once the viewport is clearly landscape (a
+ * phone lying down is ~16/9+), while near-square viewports look cramped
+ * with a fixed chrome column stealing width, so they fall to the roomier
+ * stacked "tall" layout. */
 @custom-variant compact-wide
-  (@media ((max-width: 500px) or (max-height: 500px)) and (min-aspect-ratio: 1/1));
+  (@media ((max-width: 500px) or (max-height: 500px)) and (min-aspect-ratio: 3/2));
 @custom-variant compact-tall
-  (@media ((max-width: 500px) or (max-height: 500px)) and (max-aspect-ratio: 1/1));
+  (@media ((max-width: 500px) or (max-height: 500px)) and (max-aspect-ratio: 3/2));
+
+/* Which side the host OS puts its window controls on — mirrored for the
+ * lightbox's own chrome so it feels native (macOS left, Windows/Linux
+ * right). Driven by a `data-controls` attribute set on <html> by a tiny
+ * render-blocking script in src/routes/__root.tsx *before* first paint, so
+ * prerendered/static pages pick the visitor's side with no post-hydration
+ * flip. Keep the UA test there in sync with `windowControlSide` in
+ * src/lib/platform.ts. */
+@custom-variant controls-left (&:is([data-controls='left'] *));
+@custom-variant controls-right (&:is([data-controls='right'] *));
 
 /* Safe-area insets (notches, home indicators, rounded device corners) —
  * requires `viewport-fit=cover` on the viewport meta (see

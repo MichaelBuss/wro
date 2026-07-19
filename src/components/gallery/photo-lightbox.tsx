@@ -1,9 +1,7 @@
 import { useNavigate, useRouter } from '@tanstack/solid-router'
-import { createSignal, onCleanup, onMount } from 'solid-js'
+import { onCleanup, onMount } from 'solid-js'
 import type { GalleryItem } from '~/components/ui'
 import { cx } from '~/cva.config'
-import type { WindowControlSide } from '~/lib/platform'
-import { windowControlSide } from '~/lib/platform'
 import { galleryTransitionTypes } from '~/lib/view-transitions'
 import { LightboxCaption } from './lightbox-caption'
 import { LightboxCloseButton } from './lightbox-close-button'
@@ -33,8 +31,6 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
   let dialogRef: HTMLDivElement | undefined
   const navigate = useNavigate()
   const router = useRouter()
-
-  const [controlSide, setControlSide] = createSignal<WindowControlSide>('right')
 
   // Prefer returning the user to wherever they actually opened the lightbox
   // from (front page, year grid, ...) rather than a hardcoded destination.
@@ -72,7 +68,6 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
   onMount(() => {
     dialogRef?.focus()
     document.body.classList.add('overflow-hidden')
-    setControlSide(windowControlSide(navigator.userAgent))
 
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') close()
@@ -94,57 +89,95 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
       aria-modal="true"
       aria-label={props.item.caption ?? props.item.alt}
       tabIndex={-1}
-      class="fixed inset-0 z-50 grid grid-rows-[auto_1fr_auto] bg-black/95 pt-safe pr-safe pb-safe pl-safe outline-none compact-wide:grid-cols-[1fr_auto]"
+      class={cx(
+        'fixed inset-0 z-50 grid grid-rows-[auto_1fr_auto] bg-black/95 pt-safe pr-safe pb-safe pl-safe outline-none',
+        // Fully opaque on the space-tight phone layouts (the page bleeding
+        // through the chrome gutter looked messy there); the roomier large
+        // layout keeps its slightly-translucent scrim.
+        'compact-wide:bg-black compact-tall:bg-black',
+        // compact-wide: a fixed-width chrome column on the window-control side
+        // (macOS left / Windows right, chosen by the <html data-controls>
+        // attribute) + the image on the other. Fixed (not `auto`) so a photo's
+        // aspect ratio can never nudge the chrome sideways between pages.
+        'compact-wide:grid-rows-[auto_1fr]',
+        'controls-left:compact-wide:grid-cols-[11rem_1fr]',
+        'controls-right:compact-wide:grid-cols-[1fr_11rem]',
+      )}
     >
-      {/* Its own top row in the large/compact-tall shapes; in compact-wide
-          it moves into the side chrome column instead, sitting above the
-          pagination+caption block that shares that column. Single instance
-          throughout — only its grid placement changes per mode. */}
+      {/* Its own top row in the large/compact-tall shapes; in compact-wide it
+          moves to the top corner of the chrome column (the window-control
+          side). Single instance throughout — only its grid placement and
+          alignment change per mode. */}
       <LightboxCloseButton
         onClick={close}
         variant="floating"
         class={cx(
-          'row-start-1 col-start-1 z-20 m-4 justify-self-end compact-tall:m-2 compact-wide:col-start-2 compact-wide:row-start-1 compact-wide:self-start compact-wide:justify-self-center',
-          controlSide() === 'left' && 'justify-self-start',
+          'row-start-1 col-start-1 z-20 m-4 compact-tall:m-2 compact-wide:self-start',
+          'controls-left:justify-self-start controls-right:justify-self-end',
+          'controls-right:compact-wide:col-start-2',
         )}
       />
 
-      {/* The image always owns its own grid cell — never shares one with
-          the chrome — so there's no overlap to manage in any mode. In
-          compact-wide it spans all 3 rows of its column since the chrome
-          has moved to the other column entirely. */}
+      {/* The image always owns its own grid cell — never shares one with the
+          chrome — so there's no overlap to manage in any mode. In compact-wide
+          it fills the non-chrome column across both rows. */}
       <img
         src={props.item.src}
         srcset={props.item.srcset}
         sizes={props.item.sizes}
         alt={props.item.alt}
-        class="col-start-1 row-start-2 min-h-0 max-h-full max-w-full justify-self-center self-center object-contain px-4 compact-tall:px-2 compact-wide:row-start-1 compact-wide:row-span-3 compact-wide:px-6"
+        class={cx(
+          'col-start-1 row-start-2 min-h-0 max-h-full max-w-full justify-self-center self-center object-contain px-4 compact-tall:px-2',
+          'compact-wide:row-start-1 compact-wide:row-span-2 compact-wide:px-4',
+          'controls-left:compact-wide:col-start-2',
+          'controls-right:compact-wide:col-start-1',
+        )}
         style={{ 'view-transition-name': `photo-${props.item.slug}` }}
       />
 
       {/* Pagination + caption, always rendered together in the dedicated
-          chrome row (or, in compact-wide, the chrome column) below/beside
-          the image — never an overlay on top of it. An inner grid (not
-          flex) keeps the two stacked. */}
+          chrome row (large/compact-tall) or chrome column (compact-wide) —
+          never an overlay on the image. In compact-wide this becomes a
+          full-height [1fr auto auto] grid: caption + pager are grounded to
+          the bottom of the column (like a native photo viewer's metadata)
+          and edge-aligned to the window-control side. The pager is the last
+          row, so its bottom edge is pinned to the column bottom and never
+          moves across prev/next; a longer caption grows upward into the 1fr
+          spacer above it. */}
       <div
         class={cx(
           'lightbox-caption row-start-3 col-start-1 grid justify-items-center gap-2 px-6 py-6 text-center text-white/90',
           'compact-tall:gap-1 compact-tall:px-4 compact-tall:py-3',
-          'compact-wide:col-start-2 compact-wide:row-start-2 compact-wide:row-span-2 compact-wide:self-center compact-wide:max-w-40 compact-wide:px-3 compact-wide:py-4',
+          'compact-wide:row-start-2 compact-wide:h-full compact-wide:grid-rows-[1fr_auto_1fr_auto] compact-wide:gap-0 compact-wide:px-5 compact-wide:py-6',
+          'controls-left:compact-wide:col-start-1 controls-left:compact-wide:justify-items-start controls-left:compact-wide:text-left',
+          'controls-right:compact-wide:col-start-2 controls-right:compact-wide:justify-items-end controls-right:compact-wide:text-right',
         )}
       >
-        <LightboxCaption
-          caption={props.item.caption ?? props.eventLabel}
-          location={props.eventLocation}
-        />
+        {/* Caption/location floats in the middle band between the close button
+            (top of the column) and the pager (pinned to the bottom); the two
+            1fr spacers keep it centred regardless of caption length. */}
+        <div
+          class={cx(
+            'grid justify-items-center gap-1 compact-wide:row-start-2',
+            'controls-left:compact-wide:justify-items-start',
+            'controls-right:compact-wide:justify-items-end',
+          )}
+        >
+          <LightboxCaption
+            caption={props.item.caption ?? props.eventLabel}
+            location={props.eventLocation}
+          />
+        </div>
 
-        <LightboxPagination
-          year={props.year}
-          prevSlug={props.prevSlug}
-          nextSlug={props.nextSlug}
-          index={props.index}
-          total={props.total}
-        />
+        <div class="compact-wide:row-start-4">
+          <LightboxPagination
+            year={props.year}
+            prevSlug={props.prevSlug}
+            nextSlug={props.nextSlug}
+            index={props.index}
+            total={props.total}
+          />
+        </div>
       </div>
     </div>
   )
