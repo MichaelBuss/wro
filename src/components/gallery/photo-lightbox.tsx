@@ -104,7 +104,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
         onClick={close}
         variant="floating"
         class={cx(
-          'row-start-1 col-start-1 z-20 m-4 justify-self-end compact-tall:m-2 compact-wide:col-start-2 compact-wide:row-span-3 compact-wide:self-start compact-wide:justify-self-center',
+          'row-start-1 col-start-1 z-20 m-4 justify-self-end compact-tall:m-2 compact-wide:col-start-2 compact-wide:row-start-1 compact-wide:self-start compact-wide:justify-self-center',
           controlSide() === 'left' && 'justify-self-start',
         )}
       />
@@ -118,7 +118,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
         srcset={props.item.srcset}
         sizes={props.item.sizes}
         alt={props.item.alt}
-        class="col-start-1 row-start-2 min-h-0 max-h-full max-w-full justify-self-center self-center object-contain px-4 compact-tall:px-2 compact-wide:row-span-3 compact-wide:px-6"
+        class="col-start-1 row-start-2 min-h-0 max-h-full max-w-full justify-self-center self-center object-contain px-4 compact-tall:px-2 compact-wide:row-start-1 compact-wide:row-span-3 compact-wide:px-6"
         style={{ 'view-transition-name': `photo-${props.item.slug}` }}
       />
 
@@ -130,7 +130,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
         class={cx(
           'lightbox-caption row-start-3 col-start-1 grid justify-items-center gap-2 px-6 py-6 text-center text-white/90',
           'compact-tall:gap-1 compact-tall:px-4 compact-tall:py-3',
-          'compact-wide:col-start-2 compact-wide:row-start-3 compact-wide:max-w-40 compact-wide:px-3 compact-wide:py-4',
+          'compact-wide:col-start-2 compact-wide:row-start-2 compact-wide:row-span-2 compact-wide:self-center compact-wide:max-w-40 compact-wide:px-3 compact-wide:py-4',
         )}
       >
         <LightboxCaption
