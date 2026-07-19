@@ -126,7 +126,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
           the padded (outer) edge, leaving the photo's own corners square. */}
       <div
         class={cx(
-          'col-start-1 row-start-2 grid min-h-0 min-w-0 place-items-center px-4 compact-tall:px-2',
+          'col-start-1 row-start-2 flex min-h-0 min-w-0 items-center justify-center px-4 compact-tall:px-2',
           'compact-wide:row-start-1 compact-wide:row-span-2 compact-wide:p-2',
           'controls-left:compact-wide:col-start-2',
           'controls-right:compact-wide:col-start-1',
