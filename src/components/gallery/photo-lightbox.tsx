@@ -120,20 +120,27 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
 
       {/* The image always owns its own grid cell — never shares one with the
           chrome — so there's no overlap to manage in any mode. In compact-wide
-          it fills the non-chrome column across both rows. */}
-      <img
-        src={props.item.src}
-        srcset={props.item.srcset}
-        sizes={props.item.sizes}
-        alt={props.item.alt}
+          it fills the non-chrome column across both rows. The viewport-edge
+          gutter has to live on this wrapper rather than the `<img>` itself —
+          padding and `rounded-lg` on the same box would clip the rounding at
+          the padded (outer) edge, leaving the photo's own corners square. */}
+      <div
         class={cx(
-          'col-start-1 row-start-2 min-h-0 max-h-full max-w-full justify-self-center self-center rounded-lg object-contain px-4 compact-tall:px-2',
-          'compact-wide:row-start-1 compact-wide:row-span-2 compact-wide:px-4 compact-wide:py-4',
+          'col-start-1 row-start-2 grid min-h-0 min-w-0 place-items-center px-4 compact-tall:px-2',
+          'compact-wide:row-start-1 compact-wide:row-span-2 compact-wide:p-2',
           'controls-left:compact-wide:col-start-2',
           'controls-right:compact-wide:col-start-1',
         )}
-        style={{ 'view-transition-name': `photo-${props.item.slug}` }}
-      />
+      >
+        <img
+          src={props.item.src}
+          srcset={props.item.srcset}
+          sizes={props.item.sizes}
+          alt={props.item.alt}
+          class="max-h-full max-w-full rounded-lg object-contain"
+          style={{ 'view-transition-name': `photo-${props.item.slug}` }}
+        />
+      </div>
 
       {/* Pagination + caption, always rendered together in the dedicated
           chrome row (large/compact-tall) or chrome column (compact-wide) —
