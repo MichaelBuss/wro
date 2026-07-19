@@ -169,6 +169,7 @@ export function toGalleryDisplayItem(photo: GalleryPhoto) {
 
 export interface AdjacentGalleryPhoto {
   photo: GalleryPhoto
+  eventKey: GalleryEvent
   eventLabel: string
   eventLocation: string | undefined
   prevSlug: string | undefined
@@ -212,6 +213,7 @@ export function findAdjacentGalleryPhoto(
 
   return {
     photo,
+    eventKey: eventGroup.key,
     eventLabel: eventGroup.label,
     eventLocation: eventGroup.location,
     prevSlug,

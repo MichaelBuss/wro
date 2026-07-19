@@ -81,6 +81,7 @@ describe('findAdjacentGalleryPhoto', () => {
     const result = findAdjacentGalleryPhoto(photos, '2011', 'wf-2')
 
     expect(result).toMatchObject({
+      eventKey: 'World Final',
       eventLabel: 'Verdensfinale',
       index: 2,
       total: 3,
@@ -100,6 +101,7 @@ describe('findAdjacentGalleryPhoto', () => {
     const result = findAdjacentGalleryPhoto(photos, '2011', 'df-1')
 
     expect(result).toMatchObject({
+      eventKey: 'Danish Final',
       eventLabel: 'Dansk finale',
       prevSlug: undefined,
       nextSlug: undefined,
@@ -116,7 +118,7 @@ describe('findAdjacentGalleryPhoto', () => {
   it('groups photos missing an event under the Misc/"Diverse" bucket', () => {
     const result = findAdjacentGalleryPhoto(photos, '2012', 'solo-2012')
 
-    expect(result).toMatchObject({ eventLabel: 'Diverse' })
+    expect(result).toMatchObject({ eventKey: 'Misc', eventLabel: 'Diverse' })
   })
 
   it("surfaces the group's location, read from any photo in the year+event that records one", () => {

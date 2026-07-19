@@ -10,6 +10,7 @@ import { LightboxPagination } from './lightbox-pagination'
 interface PhotoLightboxProps {
   year: string
   item: GalleryItem
+  eventSlug: string
   eventLabel: string
   eventLocation: string | undefined
   prevSlug: string | undefined
@@ -171,7 +172,10 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
           )}
         >
           <LightboxCaption
-            caption={props.item.caption ?? props.eventLabel}
+            year={props.year}
+            eventSlug={props.eventSlug}
+            eventLabel={props.eventLabel}
+            caption={props.item.caption}
             location={props.eventLocation}
           />
         </div>

@@ -3,7 +3,11 @@ import { createServerFn } from '@tanstack/solid-start'
 import { Show } from 'solid-js'
 import { PhotoLightbox } from '~/components/gallery/photo-lightbox'
 import { Heading } from '~/components/ui'
-import { findAdjacentGalleryPhoto, toGalleryDisplayItem } from '~/lib/gallery'
+import {
+  EVENT_SLUGS,
+  findAdjacentGalleryPhoto,
+  toGalleryDisplayItem,
+} from '~/lib/gallery'
 import { getCollectionItems } from '~/server/content'
 
 const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
@@ -16,6 +20,7 @@ const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
 
     return {
       item: toGalleryDisplayItem(adjacent.photo),
+      eventSlug: EVENT_SLUGS[adjacent.eventKey],
       eventLabel: adjacent.eventLabel,
       eventLocation: adjacent.eventLocation,
       prevSlug: adjacent.prevSlug,
@@ -57,6 +62,7 @@ function GalleryLightboxPage() {
         <PhotoLightbox
           year={params().year}
           item={lightboxData().item}
+          eventSlug={lightboxData().eventSlug}
           eventLabel={lightboxData().eventLabel}
           eventLocation={lightboxData().eventLocation}
           prevSlug={lightboxData().prevSlug}
