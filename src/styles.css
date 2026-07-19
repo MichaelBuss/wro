@@ -5,6 +5,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Height-constrained viewports (mostly phones rotated to landscape) — chrome
+ * that reserves its own dedicated space (gutters, a stacked caption block)
+ * wastes most of the available height there. Components can use this to
+ * switch to compact/overlay chrome instead, giving that space back to the
+ * content. See src/components/gallery/photo-lightbox.tsx for the main use. */
+@custom-variant short (@media (max-height: 500px));
+
 :root {
   /* wro-blue color scale - hue 294.52 (violet-blue) */
   --wro-blue-50: oklch(0.97 0.015 294.52);
