@@ -128,7 +128,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
         alt={props.item.alt}
         class={cx(
           'col-start-1 row-start-2 min-h-0 max-h-full max-w-full justify-self-center self-center rounded-lg object-contain px-4 compact-tall:px-2',
-          'compact-wide:row-start-1 compact-wide:row-span-2 compact-wide:px-4',
+          'compact-wide:row-start-1 compact-wide:row-span-2 compact-wide:px-4 compact-wide:py-4',
           'controls-left:compact-wide:col-start-2',
           'controls-right:compact-wide:col-start-1',
         )}
