@@ -4,6 +4,7 @@ import {
   HeartHandshake,
   MapPin,
   PiggyBank,
+  ScrollText,
   Trophy,
 } from 'lucide-solid'
 import type { Component } from 'solid-js'
@@ -80,6 +81,15 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
     title: 'Gode råd fra tidligere deltagere',
     shortTitle: 'Tips & Tricks',
     description: 'Hør hvad andre deltagere har at sige om at deltage i WRO.',
+  },
+  {
+    route: '/info/regler',
+    icon: ScrollText,
+    color: 'yellow',
+    title: 'Hvilke regler gælder for konkurrencen?',
+    shortTitle: 'Regler',
+    description:
+      'Se reglerne for RoboMission og Future Innovators, opdelt efter kategori og aldersgruppe.',
   },
   {
     route: '/info/resources',

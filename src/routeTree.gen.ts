@@ -22,6 +22,7 @@ import { Route as OrganizerRecoveryRouteImport } from './routes/organizer_.recov
 import { Route as OrganizerEventsRouteImport } from './routes/organizer_.events'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
 import { Route as InfoResourcesRouteImport } from './routes/info.resources'
+import { Route as InfoReglerRouteImport } from './routes/info.regler'
 import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
 import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
 import { Route as InfoDateRouteImport } from './routes/info.date'
@@ -98,6 +99,11 @@ const InfoResourcesRoute = InfoResourcesRouteImport.update({
   path: '/info/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InfoReglerRoute = InfoReglerRouteImport.update({
+  id: '/info/regler',
+  path: '/info/regler',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InfoPrizesRoute = InfoPrizesRouteImport.update({
   id: '/info/prizes',
   path: '/info/prizes',
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
   '/info/prizes': typeof InfoPrizesRoute
+  '/info/regler': typeof InfoReglerRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer/events': typeof OrganizerEventsRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
   '/info/prizes': typeof InfoPrizesRoute
+  '/info/regler': typeof InfoReglerRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer/events': typeof OrganizerEventsRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
   '/info/prizes': typeof InfoPrizesRoute
+  '/info/regler': typeof InfoReglerRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer_/events': typeof OrganizerEventsRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/info/date'
     | '/info/materials'
     | '/info/prizes'
+    | '/info/regler'
     | '/info/resources'
     | '/info/tips'
     | '/organizer/events'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/info/date'
     | '/info/materials'
     | '/info/prizes'
+    | '/info/regler'
     | '/info/resources'
     | '/info/tips'
     | '/organizer/events'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/info/date'
     | '/info/materials'
     | '/info/prizes'
+    | '/info/regler'
     | '/info/resources'
     | '/info/tips'
     | '/organizer_/events'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   InfoDateRoute: typeof InfoDateRoute
   InfoMaterialsRoute: typeof InfoMaterialsRoute
   InfoPrizesRoute: typeof InfoPrizesRoute
+  InfoReglerRoute: typeof InfoReglerRoute
   InfoResourcesRoute: typeof InfoResourcesRoute
   InfoTipsRoute: typeof InfoTipsRoute
   OrganizerEventsRoute: typeof OrganizerEventsRoute
@@ -422,6 +435,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof InfoResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/info/regler': {
+      id: '/info/regler'
+      path: '/info/regler'
+      fullPath: '/info/regler'
+      preLoaderRoute: typeof InfoReglerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/info/prizes': {
       id: '/info/prizes'
       path: '/info/prizes'
@@ -510,6 +530,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfoDateRoute: InfoDateRoute,
   InfoMaterialsRoute: InfoMaterialsRoute,
   InfoPrizesRoute: InfoPrizesRoute,
+  InfoReglerRoute: InfoReglerRoute,
   InfoResourcesRoute: InfoResourcesRoute,
   InfoTipsRoute: InfoTipsRoute,
   OrganizerEventsRoute: OrganizerEventsRoute,
