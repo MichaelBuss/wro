@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/solid-router'
 
-// TODO(content): add footer links to /kontakt, /info/regler, and
-// /bestil-en-bane once those routes exist, see docs/content-todo.md
+// TODO(content): add a footer link to /bestil-en-bane once that route
+// exists, see docs/content-todo.md
 export function SiteFooter() {
   return (
     <footer class="border-t border-border py-12 px-6 mt-auto">
@@ -40,11 +40,20 @@ export function SiteFooter() {
           >
             Præmier
           </Link>
+          <Link
+            to="/info/regler"
+            class="hover:text-foreground transition-colors"
+          >
+            Regler
+          </Link>
           <Link to="/blog" class="hover:text-foreground transition-colors">
             Blog
           </Link>
           <Link to="/signup" class="hover:text-foreground transition-colors">
             Tilmeld dig
+          </Link>
+          <Link to="/kontakt" class="hover:text-foreground transition-colors">
+            Kontakt
           </Link>
         </nav>
       </div>

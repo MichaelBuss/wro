@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RecoverRouteImport } from './routes/recover'
 import { Route as OrganizerRouteImport } from './routes/organizer'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as GalleriRouteImport } from './routes/galleri'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -52,6 +53,11 @@ const OrganizerRoute = OrganizerRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontaktRoute = KontaktRouteImport.update({
+  id: '/kontakt',
+  path: '/kontakt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalleriRoute = GalleriRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
+  '/kontakt': typeof KontaktRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
+  '/kontakt': typeof KontaktRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
+  '/kontakt': typeof KontaktRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/galleri'
+    | '/kontakt'
     | '/login'
     | '/organizer'
     | '/recover'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/galleri'
+    | '/kontakt'
     | '/login'
     | '/organizer'
     | '/recover'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/galleri'
+    | '/kontakt'
     | '/login'
     | '/organizer'
     | '/recover'
@@ -319,6 +331,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   GalleriRoute: typeof GalleriRoute
+  KontaktRoute: typeof KontaktRoute
   LoginRoute: typeof LoginRoute
   OrganizerRoute: typeof OrganizerRoute
   RecoverRoute: typeof RecoverRoute
@@ -370,6 +383,13 @@ declare module '@tanstack/solid-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kontakt': {
+      id: '/kontakt'
+      path: '/kontakt'
+      fullPath: '/kontakt'
+      preLoaderRoute: typeof KontaktRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/galleri': {
@@ -519,6 +539,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   GalleriRoute: GalleriRoute,
+  KontaktRoute: KontaktRoute,
   LoginRoute: LoginRoute,
   OrganizerRoute: OrganizerRoute,
   RecoverRoute: RecoverRoute,
