@@ -206,7 +206,8 @@ async function main() {
   outro(
     `Created ${created} entr${created === 1 ? 'y' : 'ies'}, skipped ${skipped}.` +
       (created > 0
-        ? ' The new entries have blank alt text — fill it in before publishing (npm run lint will fail until you do).'
+        ? ' The new entries have blank alt text — fill it in before publishing (npm run lint will fail until you do).' +
+          ' Run npm run gallery:edit to fill in the missing alt text (and any other details) for the new entries.'
         : ''),
   )
 }

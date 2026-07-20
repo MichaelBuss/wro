@@ -229,6 +229,9 @@ async function main() {
     console.log(
       'Reminder: the new entries have blank alt text — fill it in before publishing (npm run lint will fail until you do).',
     )
+    console.log(
+      'Run npm run gallery:edit to fill in the missing alt text (and any other details) for the new entries.',
+    )
   }
 
   if (location !== undefined && event !== undefined && skipped > 0) {
