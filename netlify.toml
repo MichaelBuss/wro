@@ -1,3 +1,22 @@
 [build]
   command = "npm run build"
   publish = "dist/client"
+
+# The Sveltia CMS SPA lives at public/cms/index.html. Without this rewrite,
+# extensionless requests to /cms fall through to the TanStack Start SSR
+# handler (which has no matching route) instead of the static file.
+[[redirects]]
+  from = "/cms"
+  to = "/cms/index.html"
+  status = 200
+
+# Preserve old bookmarks/links to the previous /admin path.
+[[redirects]]
+  from = "/admin"
+  to = "/cms"
+  status = 301
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/cms/:splat"
+  status = 301
