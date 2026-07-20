@@ -2,7 +2,7 @@
 headline: 'GRATIS'
 tagline: 'Du betaler kun for en øvebane'
 homepage_tags:
-  - 'Øvebane ~500–800 kr'
+  - 'Øvebane ~500–800 kr' # TODO(content): unverified figure, see docs/content-todo.md
   - 'Robotsæt varierer'
 free_items:
   - 'Tilmelding til konkurrencen'
@@ -10,7 +10,7 @@ free_items:
   - 'Adgang til online ressourcer og vejledninger'
   - 'Diplom til alle deltagere'
 expenses:
-  - amount: '~500–800 kr'
+  - amount: '~500–800 kr' # TODO(content): unverified figure, see docs/content-todo.md
     description: 'Øvebane (kan også laves selv)'
   - amount: 'Varierer'
     description: 'Robotsæt (hvis I ikke allerede har et)'

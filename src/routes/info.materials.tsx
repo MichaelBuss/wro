@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/solid-router'
+import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { Check, ExternalLink } from 'lucide-solid'
 import { For } from 'solid-js'
@@ -22,7 +22,6 @@ function MaterialsPage() {
 
   return (
     <InfoPageLayout icon={topic.icon} title={topic.title}>
-
       <ContentCard>
         <p class="text-lead text-foreground/70 mb-8">{materials().intro}</p>
 
@@ -62,12 +61,26 @@ function MaterialsPage() {
           <For each={materials().other_items}>
             {(item) => (
               <div class="flex items-center gap-3 text-sm-copy text-foreground/70">
-                <Check class="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
+                <Check
+                  class="w-4 h-4 text-primary shrink-0"
+                  aria-hidden="true"
+                />
                 <span>{item}</span>
               </div>
             )}
           </For>
         </div>
+
+        <p class="text-sm-copy text-foreground/70 mb-8">
+          Skal I bruge en øvebane?{' '}
+          <Link
+            to="/bestil-en-bane"
+            class="text-primary hover:underline underline-offset-4 transition-colors"
+          >
+            Se hvordan I bestiller eller laver jeres egen
+          </Link>
+          .
+        </p>
 
         <div class="border border-border rounded-lg p-6">
           <h3 class="font-sans text-h5 font-medium text-foreground mb-3">

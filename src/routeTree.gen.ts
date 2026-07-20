@@ -13,8 +13,10 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RecoverRouteImport } from './routes/recover'
 import { Route as OrganizerRouteImport } from './routes/organizer'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as GalleriRouteImport } from './routes/galleri'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BestilEnBaneRouteImport } from './routes/bestil-en-bane'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as OrganizerRegistrationsRouteImport } from './routes/organizer_.registrations'
@@ -22,6 +24,7 @@ import { Route as OrganizerRecoveryRouteImport } from './routes/organizer_.recov
 import { Route as OrganizerEventsRouteImport } from './routes/organizer_.events'
 import { Route as InfoTipsRouteImport } from './routes/info.tips'
 import { Route as InfoResourcesRouteImport } from './routes/info.resources'
+import { Route as InfoReglerRouteImport } from './routes/info.regler'
 import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
 import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
 import { Route as InfoDateRouteImport } from './routes/info.date'
@@ -53,6 +56,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KontaktRoute = KontaktRouteImport.update({
+  id: '/kontakt',
+  path: '/kontakt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleriRoute = GalleriRouteImport.update({
   id: '/galleri',
   path: '/galleri',
@@ -61,6 +69,11 @@ const GalleriRoute = GalleriRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BestilEnBaneRoute = BestilEnBaneRouteImport.update({
+  id: '/bestil-en-bane',
+  path: '/bestil-en-bane',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -96,6 +109,11 @@ const InfoTipsRoute = InfoTipsRouteImport.update({
 const InfoResourcesRoute = InfoResourcesRouteImport.update({
   id: '/info/resources',
   path: '/info/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoReglerRoute = InfoReglerRouteImport.update({
+  id: '/info/regler',
+  path: '/info/regler',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InfoPrizesRoute = InfoPrizesRouteImport.update({
@@ -151,8 +169,10 @@ const GalleriYearEventEventRoute = GalleriYearEventEventRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bestil-en-bane': typeof BestilEnBaneRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
+  '/kontakt': typeof KontaktRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -164,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
   '/info/prizes': typeof InfoPrizesRoute
+  '/info/regler': typeof InfoReglerRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer/events': typeof OrganizerEventsRoute
@@ -176,8 +197,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bestil-en-bane': typeof BestilEnBaneRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
+  '/kontakt': typeof KontaktRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -189,6 +212,7 @@ export interface FileRoutesByTo {
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
   '/info/prizes': typeof InfoPrizesRoute
+  '/info/regler': typeof InfoReglerRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer/events': typeof OrganizerEventsRoute
@@ -202,8 +226,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bestil-en-bane': typeof BestilEnBaneRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
+  '/kontakt': typeof KontaktRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -215,6 +241,7 @@ export interface FileRoutesById {
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
   '/info/prizes': typeof InfoPrizesRoute
+  '/info/regler': typeof InfoReglerRoute
   '/info/resources': typeof InfoResourcesRoute
   '/info/tips': typeof InfoTipsRoute
   '/organizer_/events': typeof OrganizerEventsRoute
@@ -229,8 +256,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bestil-en-bane'
     | '/dashboard'
     | '/galleri'
+    | '/kontakt'
     | '/login'
     | '/organizer'
     | '/recover'
@@ -242,6 +271,7 @@ export interface FileRouteTypes {
     | '/info/date'
     | '/info/materials'
     | '/info/prizes'
+    | '/info/regler'
     | '/info/resources'
     | '/info/tips'
     | '/organizer/events'
@@ -254,8 +284,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bestil-en-bane'
     | '/dashboard'
     | '/galleri'
+    | '/kontakt'
     | '/login'
     | '/organizer'
     | '/recover'
@@ -267,6 +299,7 @@ export interface FileRouteTypes {
     | '/info/date'
     | '/info/materials'
     | '/info/prizes'
+    | '/info/regler'
     | '/info/resources'
     | '/info/tips'
     | '/organizer/events'
@@ -279,8 +312,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bestil-en-bane'
     | '/dashboard'
     | '/galleri'
+    | '/kontakt'
     | '/login'
     | '/organizer'
     | '/recover'
@@ -292,6 +327,7 @@ export interface FileRouteTypes {
     | '/info/date'
     | '/info/materials'
     | '/info/prizes'
+    | '/info/regler'
     | '/info/resources'
     | '/info/tips'
     | '/organizer_/events'
@@ -305,8 +341,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BestilEnBaneRoute: typeof BestilEnBaneRoute
   DashboardRoute: typeof DashboardRoute
   GalleriRoute: typeof GalleriRoute
+  KontaktRoute: typeof KontaktRoute
   LoginRoute: typeof LoginRoute
   OrganizerRoute: typeof OrganizerRoute
   RecoverRoute: typeof RecoverRoute
@@ -318,6 +356,7 @@ export interface RootRouteChildren {
   InfoDateRoute: typeof InfoDateRoute
   InfoMaterialsRoute: typeof InfoMaterialsRoute
   InfoPrizesRoute: typeof InfoPrizesRoute
+  InfoReglerRoute: typeof InfoReglerRoute
   InfoResourcesRoute: typeof InfoResourcesRoute
   InfoTipsRoute: typeof InfoTipsRoute
   OrganizerEventsRoute: typeof OrganizerEventsRoute
@@ -359,6 +398,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kontakt': {
+      id: '/kontakt'
+      path: '/kontakt'
+      fullPath: '/kontakt'
+      preLoaderRoute: typeof KontaktRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/galleri': {
       id: '/galleri'
       path: '/galleri'
@@ -371,6 +417,13 @@ declare module '@tanstack/solid-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bestil-en-bane': {
+      id: '/bestil-en-bane'
+      path: '/bestil-en-bane'
+      fullPath: '/bestil-en-bane'
+      preLoaderRoute: typeof BestilEnBaneRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -420,6 +473,13 @@ declare module '@tanstack/solid-router' {
       path: '/info/resources'
       fullPath: '/info/resources'
       preLoaderRoute: typeof InfoResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/regler': {
+      id: '/info/regler'
+      path: '/info/regler'
+      fullPath: '/info/regler'
+      preLoaderRoute: typeof InfoReglerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/info/prizes': {
@@ -497,8 +557,10 @@ declare module '@tanstack/solid-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BestilEnBaneRoute: BestilEnBaneRoute,
   DashboardRoute: DashboardRoute,
   GalleriRoute: GalleriRoute,
+  KontaktRoute: KontaktRoute,
   LoginRoute: LoginRoute,
   OrganizerRoute: OrganizerRoute,
   RecoverRoute: RecoverRoute,
@@ -510,6 +572,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfoDateRoute: InfoDateRoute,
   InfoMaterialsRoute: InfoMaterialsRoute,
   InfoPrizesRoute: InfoPrizesRoute,
+  InfoReglerRoute: InfoReglerRoute,
   InfoResourcesRoute: InfoResourcesRoute,
   InfoTipsRoute: InfoTipsRoute,
   OrganizerEventsRoute: OrganizerEventsRoute,

@@ -26,6 +26,7 @@ export default function Header() {
             <NavDropdown />
             <NavLink to="/galleri">Fotos</NavLink>
             <NavLink to="/blog">Blog</NavLink>
+            <NavLink to="/kontakt">Kontakt</NavLink>
           </div>
 
           <NavAuthLink class="hidden md:inline-flex" />

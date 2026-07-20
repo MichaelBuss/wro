@@ -97,6 +97,31 @@ export const pageSchemas = {
     other_items: z.array(z.string()),
     rules_url: z.string(),
   }),
+  rules: z.object({
+    intro: z.string(),
+    overview: z.string(),
+    theme: z.string(),
+    international_url: z.string(),
+    categories: z
+      .array(
+        z.object({
+          name: z.string(),
+          description: z.string(),
+          material_groups: z.array(
+            z.object({
+              heading: z.string().optional(),
+              materials: z.array(
+                z.object({
+                  label: z.string(),
+                  url: z.string().optional(),
+                }),
+              ),
+            }),
+          ),
+        }),
+      )
+      .min(1),
+  }),
 } as const
 
 export type PageKey = keyof typeof pageSchemas

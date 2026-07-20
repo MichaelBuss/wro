@@ -157,6 +157,7 @@ export function getPageContent(key: 'event-info'): PageContent<'event-info'>
 export function getPageContent(key: 'prizes'): PageContent<'prizes'>
 export function getPageContent(key: 'cost'): PageContent<'cost'>
 export function getPageContent(key: 'materials'): PageContent<'materials'>
+export function getPageContent(key: 'rules'): PageContent<'rules'>
 export function getPageContent(key: PageKey) {
   return prodAccessors.getPageContent(key)
 }
