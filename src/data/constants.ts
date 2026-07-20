@@ -32,3 +32,26 @@ export const DANISH_FINAL_SCHEDULE = [
     description: 'Vindere kåres og præmier uddeles',
   },
 ] as const
+
+// WRO Open Championships — regional finals held between the national final
+// and the world final. Deltagelse kræver interesse-tilmelding inden fristen.
+// Source: live site's Tilmelding page.
+export const OPEN_CHAMPIONSHIPS = [
+  {
+    region: 'Americas',
+    location: 'Ontario, California, USA',
+    dates: '25.–27. september 2026',
+  },
+  {
+    region: 'Asia & Pacific',
+    location: 'India (sted annonceres senere)',
+    dates: '25.–27. september 2026',
+  },
+  {
+    region: 'Europe',
+    location: 'Zagreb, Kroatien',
+    dates: '13.–16. oktober 2026',
+  },
+] as const
+
+export const OPEN_CHAMPIONSHIP_INTEREST_DEADLINE = '14. februar 2026, 12:00'

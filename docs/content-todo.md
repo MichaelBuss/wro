@@ -27,10 +27,11 @@ Tracks unresolved content gaps left as `TODO(content)` markers across the codeba
 - **Rules page rules PDFs**: the live rules page mostly links out to "coming soon" PDFs per
   category/age-group. `content/pages/rules.md` material entries omit `url` for these — once WRO
   Denmark publishes the PDFs, fill in the real links.
-- **Kontakt / newsletter**: the real newsletter signup URL is unknown — needs the actual link once
-  `src/routes/kontakt.tsx` is built.
-- **Tilmelding / Open Championships**: the actual Danish-final registration link is unknown —
-  needs the actual URL once `src/routes/signup.tsx` is updated.
+- **Kontakt / newsletter** (`src/routes/kontakt.tsx`): the real newsletter signup URL is unknown —
+  currently falls back to a mailto link, replace with the actual signup form/URL once known.
+- **Tilmelding / Open Championships** (`src/routes/signup.tsx`): the actual Danish-final
+  registration link/form is unknown — currently the CTA points to `/kontakt` as a fallback,
+  replace with the real registration URL once known.
 - **Bestil en bane**: the real track-mat order URL/process is unknown — needs the actual link once
   `src/routes/bestil-en-bane.tsx` is built.
 
