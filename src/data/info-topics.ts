@@ -46,7 +46,7 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
     title: 'Hvad kan man vinde?',
     shortTitle: 'Præmier',
     description:
-      'Hovedpremien er en fuldtbetalt rejse til WRO-verdensfinalen. Se alle præmier her.',
+      'Vinderne af Junior og Senior får mulighed for at repræsentere Danmark ved WRO-verdensfinalen. Se alle præmier her.',
   },
   {
     route: '/info/date',

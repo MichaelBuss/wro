@@ -1,19 +1,33 @@
 import { Link } from '@tanstack/solid-router'
 
+// TODO(content): add footer links to /kontakt, /info/regler, and
+// /bestil-en-bane once those routes exist, see docs/content-todo.md
 export function SiteFooter() {
   return (
     <footer class="border-t border-border py-12 px-6 mt-auto">
       <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
         <div>
           <p class="font-serif text-sm-copy text-foreground mb-1">
-            WRO Danmark
+            World Robot Olympiad™ Denmark
           </p>
           <p class="text-caption text-muted-foreground">
             World Robot Olympiad — dansk finale
           </p>
+          <p class="text-caption text-muted-foreground mt-2">
+            <a
+              href="mailto:info@wro-denmark.dk"
+              class="hover:text-foreground transition-colors"
+            >
+              info@wro-denmark.dk
+            </a>
+          </p>
+          <p class="text-caption text-muted-foreground">CVR 46103564</p>
         </div>
 
-        <nav aria-label="Footer navigation" class="flex flex-wrap gap-x-8 gap-y-3 text-caption text-muted-foreground">
+        <nav
+          aria-label="Footer navigation"
+          class="flex flex-wrap gap-x-8 gap-y-3 text-caption text-muted-foreground"
+        >
           <Link to="/" class="hover:text-foreground transition-colors">
             Forside
           </Link>

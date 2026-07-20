@@ -1,3 +1,5 @@
+// TODO(content): unverified — exact program/times for the Danish final are not
+// published on the live site yet; see docs/content-todo.md
 export const DANISH_FINAL_SCHEDULE = [
   {
     time: '08:00',
