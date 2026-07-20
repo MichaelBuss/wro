@@ -106,7 +106,7 @@ tanstackStart({
 })
 ```
 
-The site is mostly static content, so prerendering is the intended long-term strategy — not a stepping stone to full SSR. The `/cms` path is excluded because it hosts a static Decap CMS single-page app, not a TanStack route.
+The site is mostly static content, so prerendering is the intended long-term strategy — not a stepping stone to full SSR. The `/cms` path is excluded because it hosts a static Sveltia CMS single-page app, not a TanStack route.
 
 ## Alternatives Considered
 

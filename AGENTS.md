@@ -67,7 +67,7 @@ Before creating a new component, hook, or utility — search the codebase first.
 
 ## Images
 
-Content editors upload images through the CMS at `/cms`, which optimizes them to WebP in the browser before committing to `public/uploads/`. For batch-adding images from the terminal (e.g. migrating existing files), use:
+Content editors upload images through the CMS at `/cms`, which optimizes them to WebP in the browser before committing. Blog images go to the shared `public/uploads/`; gallery photos are co-located with their entry (see below), since Sveltia CMS supports both layouts per-collection (`public/cms/config.yml`). For batch-adding images from the terminal (e.g. migrating existing files), use:
 
 ```bash
 npm run images:optimize path/to/photo1.jpg path/to/photo2.jpg
@@ -75,6 +75,23 @@ npm run images:optimize path/to/photo1.jpg path/to/photo2.jpg
 ```
 
 This applies the identical transformation (WebP, quality 85, max 2048px) defined in `scripts/image-settings.ts`, which is the single source of truth shared with the CMS config (`public/cms/config.yml`).
+
+Gallery photos are a flat `content/gallery/{slug}.md` entry plus its image co-located right beside it, e.g. `content/gallery/{slug}.webp` — rather than being uploaded to the shared `public/uploads/`. The `image` frontmatter field is just that bare filename. `public/gallery` is a symlink to `content/gallery`, so those images are served directly (both in dev and the Netlify build) at `/gallery/{filename}`, the same way `public/uploads/` always worked — `src/server/content.ts` just builds that path string, no separate asset pipeline involved. Deleting an entry through the CMS deletes its image with it — no separate "clean up the upload" step, and no risk of it going orphaned.
+
+To add a whole year's (or year+event's) worth of gallery photos at once, skipping the CMS's one-entry-per-photo click-through:
+
+```bash
+npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
+# Outputs: content/gallery/{name}.md (with blank alt text) + content/gallery/{name}.webp for each photo
+```
+
+Each photo's `date` is read from its EXIF capture date (falling back to the file's modification time, with a warning, if EXIF is missing) — this drives sort order and which year it's grouped under on `/galleri`, so there's no separate "order" field to maintain by hand. The importer also warns if a photo's capture date doesn't match the `--year` you passed.
+
+Add `--location "City, Country"` (requires `--event`) to record where that year's edition was held. It's a per-photo field (`location:` in the frontmatter), stamped onto every new photo in the batch and shown as a subtitle on the year/event pages. `npm run lint` enforces that all photos sharing a year + event agree on it, so the group heading can read it off any one of them. Existing entries are skipped by the importer, so set their location via `npm run gallery:edit` or by hand.
+
+Or run `npm run gallery:wizard` for an interactive version of the same command — it prompts for the year/event/location and lets you browse to a folder and pick which photos to add, instead of typing flags and shell globs by hand.
+
+Fill in the blank alt text in the generated entries before publishing — `npm run lint` fails on empty alt text, so this can't be forgotten.
 
 ## Validation
 

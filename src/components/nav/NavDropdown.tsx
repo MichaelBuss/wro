@@ -1,5 +1,5 @@
 import * as PopoverPrimitive from '@kobalte/core/popover'
-import { Link } from '@tanstack/solid-router'
+import { Link, useLocation } from '@tanstack/solid-router'
 import { ChevronDown } from 'lucide-solid'
 import { For } from 'solid-js'
 import { cx } from '~/cva.config'
@@ -17,10 +17,17 @@ import { cvaNavLink } from './NavLink'
 export function NavDropdown() {
   let contentRef: HTMLElement | undefined
 
+  const pathname = useLocation({ select: (location) => location.pathname })
+  const isActive = () =>
+    INFO_TOPICS.some((topic) => pathname().startsWith(topic.route))
+
   return (
     <PopoverPrimitive.Root placement="bottom" gutter={8}>
       <PopoverPrimitive.Trigger
-        class={cx(cvaNavLink(), 'group flex items-center gap-1')}
+        class={cx(
+          cvaNavLink({ active: isActive() }),
+          'group flex items-center gap-1',
+        )}
       >
         Information
         <ChevronDown

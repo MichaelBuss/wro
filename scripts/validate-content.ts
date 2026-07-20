@@ -7,18 +7,26 @@
  * - Every collection key in the registry has a corresponding directory
  * - Every directory in content/ (except pages/) has a corresponding collection key
  * - All frontmatter validates against its Zod schema
+ * - Every gallery photo's image exists in content/gallery/, and every
+ *   image in that directory is referenced by exactly one photo (no
+ *   orphans, no duplicates), at the right format/size
+ * - Every photo sharing a (year, event) records the same edition location,
+ *   so the group heading can read it off any one of them without ambiguity
  *
  * Run with: npm run validate:content
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { extname, join } from 'node:path'
 import matter from 'gray-matter'
+import sharp from 'sharp'
 import { collectionSchemas, pageSchemas } from '../src/content/registry'
 import { objectKeys } from '../src/lib/utils'
+import { IMAGE_MAX_PX } from './image-settings'
 
 const CONTENT_DIR = join(process.cwd(), 'content')
 const PAGES_DIR = join(CONTENT_DIR, 'pages')
+const GALLERY_DIR = join(CONTENT_DIR, 'gallery')
 
 interface ValidationError {
   type:
@@ -27,6 +35,12 @@ interface ValidationError {
     | 'missing-dir'
     | 'orphaned-dir'
     | 'schema-error'
+    | 'dangling-image'
+    | 'duplicate-image'
+    | 'orphaned-image'
+    | 'invalid-image-format'
+    | 'oversized-image'
+    | 'inconsistent-location'
   message: string
 }
 
@@ -35,6 +49,59 @@ const errors: Array<ValidationError> = []
 function error(type: ValidationError['type'], message: string) {
   errors.push({ type, message })
   console.error(`  ERROR: ${message}`)
+}
+
+/**
+ * Groups items by a derived string key. Shared building block for both the
+ * gallery-image and per-edition location consistency checks below, so "group
+ * by key, then check the group" logic can't drift between the two.
+ */
+function groupByKey<T>(
+  items: Array<T>,
+  getKey: (item: T) => string,
+): Map<string, Array<T>> {
+  const groups = new Map<string, Array<T>>()
+
+  for (const item of items) {
+    const key = getKey(item)
+    const existing = groups.get(key)
+
+    if (existing) {
+      existing.push(item)
+    } else {
+      groups.set(key, [item])
+    }
+  }
+
+  return groups
+}
+
+/** Flags any key with more than one item grouped under it. */
+function checkNoDuplicates<T>(
+  groups: Map<string, Array<T>>,
+  type: ValidationError['type'],
+  formatMessage: (items: Array<T>) => string,
+) {
+  for (const items of groups.values()) {
+    if (items.length > 1) {
+      error(type, formatMessage(items))
+    }
+  }
+}
+
+/** Flags any item whose key has no match in `referencedKeys`. */
+function checkAllReferenced<T>(
+  items: Array<T>,
+  getKey: (item: T) => string,
+  referencedKeys: ReadonlySet<string>,
+  type: ValidationError['type'],
+  formatMessage: (item: T) => string,
+) {
+  for (const item of items) {
+    if (!referencedKeys.has(getKey(item))) {
+      error(type, formatMessage(item))
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -132,6 +199,140 @@ for (const dir of contentDirs) {
     error(
       'orphaned-dir',
       `content/${dir}/ exists but "${dir}" is not defined in collectionSchemas`,
+    )
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 3. Validate gallery images
+// ---------------------------------------------------------------------------
+
+console.log('Validating gallery images...')
+
+interface GalleryImageRef {
+  file: string
+  imageFilename: string
+}
+
+// Also collected here for section 4 below: each photo's (year, event) key
+// alongside the location (if any) it records, so the per-edition location
+// consistency check can run without re-parsing content/gallery/*.md.
+interface PhotoLocationRef {
+  file: string
+  key: string
+  event: string
+  location: string | undefined
+}
+const photoLocationRefs: Array<PhotoLocationRef> = []
+
+if (existsSync(GALLERY_DIR)) {
+  const galleryFiles = readdirSync(GALLERY_DIR).filter((f) => f.endsWith('.md'))
+  const imageRefs: Array<GalleryImageRef> = []
+
+  for (const file of galleryFiles) {
+    const filePath = join(GALLERY_DIR, file)
+    const { data } = matter(readFileSync(filePath, 'utf-8'))
+    const result = collectionSchemas.gallery.safeParse(data)
+
+    // Schema errors are already reported in section 2 above.
+    if (!result.success) continue
+
+    const event = result.data.event ?? 'Misc'
+    photoLocationRefs.push({
+      file,
+      key: `${result.data.date.getFullYear()}::${event}`,
+      event,
+      location:
+        (result.data.location ?? '') === '' ? undefined : result.data.location,
+    })
+
+    const imageFilename = result.data.image
+    const diskPath = join(GALLERY_DIR, imageFilename)
+
+    if (!existsSync(diskPath)) {
+      error(
+        'dangling-image',
+        `content/gallery/${file} references "${imageFilename}" but content/gallery/${imageFilename} does not exist`,
+      )
+      continue
+    }
+
+    imageRefs.push({ file, imageFilename })
+  }
+
+  const refsByImage = groupByKey(imageRefs, (ref) => ref.imageFilename)
+
+  checkNoDuplicates(refsByImage, 'duplicate-image', (refs) => {
+    const files = refs.map((ref) => ref.file)
+    return `content/gallery/${refs[0]?.imageFilename} is referenced by ${refs.length} gallery entries (${files.join(', ')}) — each photo should have exactly one entry`
+  })
+
+  const galleryImageFiles = readdirSync(GALLERY_DIR).filter(
+    (f) => !f.endsWith('.md'),
+  )
+
+  checkAllReferenced(
+    galleryImageFiles,
+    (imageFile) => imageFile,
+    new Set(refsByImage.keys()),
+    'orphaned-image',
+    (imageFile) =>
+      `content/gallery/${imageFile} is not referenced by any content/gallery entry`,
+  )
+
+  for (const imageFile of galleryImageFiles) {
+    if (extname(imageFile).toLowerCase() !== '.webp') {
+      error(
+        'invalid-image-format',
+        `content/gallery/${imageFile} is not a .webp file — run npm run images:optimize to convert it`,
+      )
+      continue
+    }
+
+    const { width, height } = await sharp(
+      join(GALLERY_DIR, imageFile),
+    ).metadata()
+
+    if (width > IMAGE_MAX_PX || height > IMAGE_MAX_PX) {
+      error(
+        'oversized-image',
+        `content/gallery/${imageFile} is ${width}x${height}px, exceeds the ${IMAGE_MAX_PX}px max — run npm run images:optimize to resize it`,
+      )
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 4. Validate per-edition location consistency
+//
+// `location` is denormalized onto each photo, but it describes the edition
+// (a year + event), not the individual shot — so every photo sharing a
+// (year, event) that records a location must record the *same* one, or the
+// group heading (which reads it off whichever photo happens to be first)
+// would be ambiguous. Photos that leave location blank are fine — it's
+// opt-in, and one photo in a group can carry the location for all of them.
+// ---------------------------------------------------------------------------
+
+console.log('Validating gallery edition locations...')
+
+for (const [key, refs] of groupByKey(photoLocationRefs, (ref) => ref.key)) {
+  const distinct = [
+    ...new Set(
+      refs
+        .map((ref) => ref.location)
+        .filter((location): location is string => location !== undefined),
+    ),
+  ]
+
+  if (distinct.length > 1) {
+    const [year, event] = key.split('::')
+    const detail = refs
+      .filter((ref) => ref.location !== undefined)
+      .map((ref) => `${ref.file} → "${ref.location}"`)
+      .join(', ')
+    error(
+      'inconsistent-location',
+      `Photos from ${year} ${event} disagree on location (${detail}) — every photo in the same year + event must record the same location, since it names the edition, not the individual photo`,
     )
   }
 }

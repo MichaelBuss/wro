@@ -26,10 +26,12 @@ import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
 import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
 import { Route as InfoDateRouteImport } from './routes/info.date'
 import { Route as InfoCostRouteImport } from './routes/info.cost'
-import { Route as GalleriYearRouteImport } from './routes/galleri.$year'
+import { Route as GalleriYearRouteImport } from './routes/galleri_.$year'
 import { Route as DashboardTeamIdRouteImport } from './routes/dashboard_.$teamId'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as GalleriYearSlugRouteImport } from './routes/galleri_.$year_.$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
+import { Route as GalleriYearEventEventRouteImport } from './routes/galleri_.$year_.event.$event'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -117,9 +119,9 @@ const InfoCostRoute = InfoCostRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalleriYearRoute = GalleriYearRouteImport.update({
-  id: '/$year',
-  path: '/$year',
-  getParentRoute: () => GalleriRoute,
+  id: '/galleri_/$year',
+  path: '/galleri/$year',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardTeamIdRoute = DashboardTeamIdRouteImport.update({
   id: '/dashboard_/$teamId',
@@ -131,16 +133,26 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleriYearSlugRoute = GalleriYearSlugRouteImport.update({
+  id: '/galleri_/$year_/$slug',
+  path: '/galleri/$year/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleriYearEventEventRoute = GalleriYearEventEventRouteImport.update({
+  id: '/galleri_/$year_/event/$event',
+  path: '/galleri/$year/event/$event',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/galleri': typeof GalleriRouteWithChildren
+  '/galleri': typeof GalleriRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -159,11 +171,13 @@ export interface FileRoutesByFullPath {
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/galleri/$year/$slug': typeof GalleriYearSlugRoute
+  '/galleri/$year/event/$event': typeof GalleriYearEventEventRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/galleri': typeof GalleriRouteWithChildren
+  '/galleri': typeof GalleriRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
@@ -182,19 +196,21 @@ export interface FileRoutesByTo {
   '/organizer/registrations': typeof OrganizerRegistrationsRoute
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/galleri/$year/$slug': typeof GalleriYearSlugRoute
+  '/galleri/$year/event/$event': typeof GalleriYearEventEventRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/galleri': typeof GalleriRouteWithChildren
+  '/galleri': typeof GalleriRoute
   '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRoute
   '/recover': typeof RecoverRoute
   '/signup': typeof SignupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard_/$teamId': typeof DashboardTeamIdRoute
-  '/galleri/$year': typeof GalleriYearRoute
+  '/galleri_/$year': typeof GalleriYearRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -206,6 +222,8 @@ export interface FileRoutesById {
   '/organizer_/registrations': typeof OrganizerRegistrationsRoute
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/galleri_/$year_/$slug': typeof GalleriYearSlugRoute
+  '/galleri_/$year_/event/$event': typeof GalleriYearEventEventRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -231,6 +249,8 @@ export interface FileRouteTypes {
     | '/organizer/registrations'
     | '/blog/'
     | '/api/auth/$'
+    | '/galleri/$year/$slug'
+    | '/galleri/$year/event/$event'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -254,6 +274,8 @@ export interface FileRouteTypes {
     | '/organizer/registrations'
     | '/blog'
     | '/api/auth/$'
+    | '/galleri/$year/$slug'
+    | '/galleri/$year/event/$event'
   id:
     | '__root__'
     | '/'
@@ -265,7 +287,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/blog/$slug'
     | '/dashboard_/$teamId'
-    | '/galleri/$year'
+    | '/galleri_/$year'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -277,18 +299,21 @@ export interface FileRouteTypes {
     | '/organizer_/registrations'
     | '/blog/'
     | '/api/auth/$'
+    | '/galleri_/$year_/$slug'
+    | '/galleri_/$year_/event/$event'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
-  GalleriRoute: typeof GalleriRouteWithChildren
+  GalleriRoute: typeof GalleriRoute
   LoginRoute: typeof LoginRoute
   OrganizerRoute: typeof OrganizerRoute
   RecoverRoute: typeof RecoverRoute
   SignupRoute: typeof SignupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DashboardTeamIdRoute: typeof DashboardTeamIdRoute
+  GalleriYearRoute: typeof GalleriYearRoute
   InfoCostRoute: typeof InfoCostRoute
   InfoDateRoute: typeof InfoDateRoute
   InfoMaterialsRoute: typeof InfoMaterialsRoute
@@ -300,6 +325,8 @@ export interface RootRouteChildren {
   OrganizerRegistrationsRoute: typeof OrganizerRegistrationsRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  GalleriYearSlugRoute: typeof GalleriYearSlugRoute
+  GalleriYearEventEventRoute: typeof GalleriYearEventEventRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -423,12 +450,12 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof InfoCostRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/galleri/$year': {
-      id: '/galleri/$year'
-      path: '/$year'
+    '/galleri_/$year': {
+      id: '/galleri_/$year'
+      path: '/galleri/$year'
       fullPath: '/galleri/$year'
       preLoaderRoute: typeof GalleriYearRouteImport
-      parentRoute: typeof GalleriRoute
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard_/$teamId': {
       id: '/dashboard_/$teamId'
@@ -444,6 +471,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galleri_/$year_/$slug': {
+      id: '/galleri_/$year_/$slug'
+      path: '/galleri/$year/$slug'
+      fullPath: '/galleri/$year/$slug'
+      preLoaderRoute: typeof GalleriYearSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -451,30 +485,27 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galleri_/$year_/event/$event': {
+      id: '/galleri_/$year_/event/$event'
+      path: '/galleri/$year/event/$event'
+      fullPath: '/galleri/$year/event/$event'
+      preLoaderRoute: typeof GalleriYearEventEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
-
-interface GalleriRouteChildren {
-  GalleriYearRoute: typeof GalleriYearRoute
-}
-
-const GalleriRouteChildren: GalleriRouteChildren = {
-  GalleriYearRoute: GalleriYearRoute,
-}
-
-const GalleriRouteWithChildren =
-  GalleriRoute._addFileChildren(GalleriRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
-  GalleriRoute: GalleriRouteWithChildren,
+  GalleriRoute: GalleriRoute,
   LoginRoute: LoginRoute,
   OrganizerRoute: OrganizerRoute,
   RecoverRoute: RecoverRoute,
   SignupRoute: SignupRoute,
   BlogSlugRoute: BlogSlugRoute,
   DashboardTeamIdRoute: DashboardTeamIdRoute,
+  GalleriYearRoute: GalleriYearRoute,
   InfoCostRoute: InfoCostRoute,
   InfoDateRoute: InfoDateRoute,
   InfoMaterialsRoute: InfoMaterialsRoute,
@@ -486,6 +517,8 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizerRegistrationsRoute: OrganizerRegistrationsRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  GalleriYearSlugRoute: GalleriYearSlugRoute,
+  GalleriYearEventEventRoute: GalleriYearEventEventRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

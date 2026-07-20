@@ -5,6 +5,76 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Small viewports (mostly phones) where chrome that reserves its own
+ * dedicated space (gutters, a stacked caption block) wastes most of the
+ * available room. Split by aspect ratio so a phone rotated to landscape
+ * (wide) and a phone held upright (tall) can get differently-shaped
+ * compact chrome. Neither matching counts as "large". See
+ * src/components/gallery/photo-lightbox.tsx for the main use.
+ *
+ * The wide/tall crossover sits at 3/2 rather than 1/1: the side-by-side
+ * "wide" chrome only pays off once the viewport is clearly landscape (a
+ * phone lying down is ~16/9+), while near-square viewports look cramped
+ * with a fixed chrome column stealing width, so they fall to the roomier
+ * stacked "tall" layout. */
+@custom-variant compact-wide
+  (@media ((max-width: 500px) or (max-height: 500px)) and (min-aspect-ratio: 3/2));
+@custom-variant compact-tall
+  (@media ((max-width: 500px) or (max-height: 500px)) and (max-aspect-ratio: 3/2));
+
+/* Which side the host OS puts its window controls on — mirrored for the
+ * lightbox's own chrome so it feels native (macOS left, Windows/Linux
+ * right). Driven by a `data-controls` attribute set on <html> by a tiny
+ * render-blocking script in src/routes/__root.tsx *before* first paint, so
+ * prerendered/static pages pick the visitor's side with no post-hydration
+ * flip. Keep the UA test there in sync with `windowControlSide` in
+ * src/lib/platform.ts. */
+@custom-variant controls-left (&:is([data-controls='left'] *));
+@custom-variant controls-right (&:is([data-controls='right'] *));
+
+/* Safe-area insets (notches, home indicators, rounded device corners) —
+ * requires `viewport-fit=cover` on the viewport meta (see
+ * src/routes/__root.tsx) to have any effect; the env() values are 0px
+ * otherwise. The `-*` variants combine an inset with a themed spacing
+ * value for call sites that need to add to existing fixed padding rather
+ * than replace it. */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pr-safe {
+  padding-right: env(safe-area-inset-right);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pl-safe {
+  padding-left: env(safe-area-inset-left);
+}
+@utility pt-safe-* {
+  padding-top: calc(env(safe-area-inset-top) + --spacing(--value(integer)));
+  padding-top: calc(env(safe-area-inset-top) + --value([length], [percentage]));
+}
+@utility pr-safe-* {
+  padding-right: calc(env(safe-area-inset-right) + --spacing(--value(integer)));
+  padding-right: calc(
+    env(safe-area-inset-right) + --value([length], [percentage])
+  );
+}
+@utility pb-safe-* {
+  padding-bottom: calc(
+    env(safe-area-inset-bottom) + --spacing(--value(integer))
+  );
+  padding-bottom: calc(
+    env(safe-area-inset-bottom) + --value([length], [percentage])
+  );
+}
+@utility pl-safe-* {
+  padding-left: calc(env(safe-area-inset-left) + --spacing(--value(integer)));
+  padding-left: calc(
+    env(safe-area-inset-left) + --value([length], [percentage])
+  );
+}
+
 :root {
   /* wro-blue color scale - hue 294.52 (violet-blue) */
   --wro-blue-50: oklch(0.97 0.015 294.52);
@@ -465,7 +535,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-.photo-grid-item {
+.photo-grid-frame {
   overflow: hidden;
   aspect-ratio: 4 / 3;
 }
@@ -475,15 +545,138 @@
 }
 
 @supports (display: grid-lanes) {
+  /* Fluid auto-fill columns (the Grid Lanes "go-to" pattern) rather than
+   * fixed breakpoint columns — more columns get added or removed as space
+   * allows, which gives the waterfall more room to stagger tile heights. */
   .photo-grid {
     display: grid-lanes;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
     flow-tolerance: 1lh;
   }
-  .photo-grid-item {
+  @media (max-width: 640px) {
+    .photo-grid {
+      grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    }
+  }
+  .photo-grid-frame {
     aspect-ratio: auto;
   }
   .photo-grid-image {
     height: auto;
     object-fit: initial;
+  }
+}
+
+/* Gallery view transitions — homepage teaser ↔ /galleri ↔ /galleri/$year ↔
+ * lightbox (see src/router.tsx's `defaultViewTransition` and
+ * src/lib/view-transitions.ts for the JS-side gating). A short, snappy
+ * duration keeps the shared-element morph reading as a "swoosh" rather than
+ * a stretch when aspect ratios differ between a cropped grid tile and the
+ * lightbox's natural, contained image. */
+::view-transition-group(*) {
+  animation-duration: 250ms;
+}
+
+/* The lightbox's prev/next buttons override the router's default `fade`
+ * with an explicit direction — but only the *photo* should move; the
+ * chrome (scrim/buttons/caption/counter) should stay completely static, not
+ * even cross-fade, since the old/new text swapping under a dissolve reads
+ * as a flicker rather than a clean page-turn.
+ *
+ * The lightbox photo carries its own `view-transition-name`, which pulls it
+ * into its own transition group separate from `root`. `*` is what matches
+ * that group (a named group can't be targeted by name from here since the
+ * name is dynamic per-photo), but `*` also matches `root` — so the second
+ * rule below claws `root` back out with an explicit `(root)` selector
+ * (higher specificity than `*`, so it always wins) and disables animation
+ * on it outright (no slide, no fade — an instant, invisible swap). */
+html:active-view-transition-type(slide-left, slide-right) {
+  &::view-transition-group(root),
+  &::view-transition-old(root),
+  &::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+html:active-view-transition-type(slide-left) {
+  &::view-transition-old(*) {
+    animation: 250ms ease-in-out both gallery-slide-out-left;
+  }
+  &::view-transition-new(*) {
+    animation: 250ms ease-in-out both gallery-slide-in-left;
+  }
+}
+
+html:active-view-transition-type(slide-right) {
+  &::view-transition-old(*) {
+    animation: 250ms ease-in-out both gallery-slide-out-right;
+  }
+  &::view-transition-new(*) {
+    animation: 250ms ease-in-out both gallery-slide-in-right;
+  }
+}
+
+@keyframes gallery-slide-out-left {
+  to {
+    transform: translateX(-8%);
+    opacity: 0;
+  }
+}
+@keyframes gallery-slide-in-left {
+  from {
+    transform: translateX(8%);
+    opacity: 0;
+  }
+}
+@keyframes gallery-slide-out-right {
+  to {
+    transform: translateX(8%);
+    opacity: 0;
+  }
+}
+@keyframes gallery-slide-in-right {
+  from {
+    transform: translateX(-8%);
+    opacity: 0;
+  }
+}
+
+/* Belt-and-suspenders: the JS-level gate in view-transitions.ts is the
+ * primary control (it returns `false` so the browser skips
+ * startViewTransition entirely), but disable the pseudo-elements outright
+ * too in case a transition ever starts under reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Lightbox caption + counter — reveals ~100ms after mount, but *only* when
+ * opening the lightbox from the grid (the router's default `fade` type).
+ * The route re-mounts this element on every `$slug` change too, which would
+ * otherwise replay the reveal on every prev/next page turn — and on a hard
+ * refresh there's no active view transition to gate on at all, so opting
+ * in via `:active-view-transition-type(fade)` (rather than opting out for
+ * slide-left/-right) naturally excludes both. */
+.lightbox-caption {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:active-view-transition-type(fade) .lightbox-caption {
+    opacity: 0;
+    animation: lightbox-caption-in 250ms ease both;
+    animation-delay: 100ms;
+  }
+}
+@keyframes lightbox-caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

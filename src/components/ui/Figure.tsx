@@ -1,4 +1,4 @@
-import { Show } from 'solid-js'
+import { Link } from '@tanstack/solid-router'
 import { cx } from '~/cva.config'
 
 type AspectRatio = 'square' | '4/3' | '3/4' | '16/9' | '3/2'
@@ -8,11 +8,12 @@ interface FigureProps {
   srcset?: string
   sizes?: string
   alt: string
-  caption?: string
-  year?: number | string
   objectPosition?: string
   class?: string
   aspectRatio?: AspectRatio
+  /** Gallery slug + year key, used to link this figure to its lightbox. */
+  slug: string
+  yearKey: string
 }
 
 const aspectClasses: Record<AspectRatio, string> = {
@@ -23,31 +24,35 @@ const aspectClasses: Record<AspectRatio, string> = {
   '3/2': 'aspect-[3/2]',
 }
 
+/**
+ * Caption-less by design — the year + description read as clutter under a
+ * dense teaser grid. The caption still surfaces once the visitor opens the
+ * photo, via `PhotoLightbox`.
+ */
 export function Figure(props: FigureProps) {
   return (
-    <figure class={cx('group', props.class)}>
-      <div
-        class={cx('overflow-hidden', aspectClasses[props.aspectRatio ?? '4/3'])}
-      >
-        <img
-          src={props.src}
-          srcset={props.srcset}
-          sizes={props.sizes}
-          alt={props.alt}
-          loading="lazy"
-          decoding="async"
-          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-          style={{ 'object-position': props.objectPosition ?? 'center' }}
-        />
-      </div>
-      <Show when={props.caption ?? props.year}>
-        <figcaption class="mt-2 text-caption text-muted-foreground font-serif italic leading-snug">
-          <Show when={props.year}>
-            <span class="not-italic font-sans mr-1">{props.year} —</span>
-          </Show>
-          {props.caption}
-        </figcaption>
-      </Show>
-    </figure>
+    <Link
+      to="/galleri/$year/$slug"
+      params={{ year: props.yearKey, slug: props.slug }}
+      class={cx(
+        'group block overflow-hidden rounded-lg',
+        aspectClasses[props.aspectRatio ?? '4/3'],
+        props.class,
+      )}
+    >
+      <img
+        src={props.src}
+        srcset={props.srcset}
+        sizes={props.sizes}
+        alt={props.alt}
+        loading="lazy"
+        decoding="async"
+        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+        style={{
+          'object-position': props.objectPosition ?? 'center',
+          'view-transition-name': `photo-${props.slug}`,
+        }}
+      />
+    </Link>
   )
 }

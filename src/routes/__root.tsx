@@ -8,6 +8,7 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/solid-router'
+import type { ErrorComponentProps } from '@tanstack/solid-router'
 import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
 import { Suspense } from 'solid-js'
 import { HydrationScript } from 'solid-js/web'
@@ -21,7 +22,10 @@ export const Route = createRootRouteWithContext()({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1, viewport-fit=cover',
+      },
     ],
     links: [
       { rel: 'stylesheet', href: styleCss },
@@ -30,7 +34,30 @@ export const Route = createRootRouteWithContext()({
   }),
   shellComponent: RootComponent,
   notFoundComponent: NotFound,
+  errorComponent: ErrorFallback,
 })
+
+function ErrorFallback(props: ErrorComponentProps) {
+  return (
+    <div class="min-h-screen bg-background flex items-center justify-center">
+      <div class="text-center">
+        <Heading level="display" class="mb-4">
+          Ups
+        </Heading>
+        <Lead class="text-muted-foreground mb-8">
+          Der opstod en uventet fejl
+        </Lead>
+        <button
+          type="button"
+          onClick={() => props.reset()}
+          class="px-6 py-3 bg-primary hover:bg-wro-blue-600 text-primary-foreground font-semibold rounded-lg transition-colors"
+        >
+          Prøv igen
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function NotFound() {
   return (
@@ -55,6 +82,12 @@ function RootComponent() {
   return (
     <html>
       <head>
+        {/* Set the window-control side before first paint so the lightbox
+            chrome renders on the OS-native side with no flash — even on
+            prerendered/static pages where the server can't know the visitor's
+            OS. Keep this UA test in sync with `windowControlSide` in
+            src/lib/platform.ts. */}
+        <script>{`try{document.documentElement.setAttribute('data-controls',/mac|iphone|ipad|ipod/i.test(navigator.userAgent)?'left':'right')}catch(e){}`}</script>
         <HeadContent />
         <HydrationScript />
       </head>

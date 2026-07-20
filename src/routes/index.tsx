@@ -1,7 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
+import { ArrowRight } from 'lucide-solid'
 import { For, Show } from 'solid-js'
-import { Gallery, Heading, Lead, TipsList } from '~/components/ui'
+import { ArrowLink, Gallery, Heading, Lead, TipsList } from '~/components/ui'
 import { DANISH_FINAL_SCHEDULE } from '~/data/constants'
 import { pickGalleryHighlights, toGalleryDisplayItem } from '~/lib/gallery'
 import { getCollectionItems, getPageContent } from '~/server/content'
@@ -104,24 +105,24 @@ function GallerySection() {
   return (
     <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
       <div class="mb-8">
-        <Heading level="h2" class="mb-1">
-          Glimt fra tidligere år
-        </Heading>
+        <Link to="/galleri" class="group inline-flex items-center gap-2 mb-1">
+          <Heading
+            level="h2"
+            class="group-hover:text-primary transition-colors"
+          >
+            Glimt fra tidligere år
+          </Heading>
+          <ArrowRight
+            size={24}
+            class="shrink-0 text-foreground/50 transition-all duration-200 group-hover:translate-x-1 group-hover:text-primary"
+          />
+        </Link>
         <p class="text-sm-copy text-muted-foreground">
           Øjeblikke fra danske WRO-finaler
         </p>
       </div>
 
       <Gallery items={data().galleryItems} />
-
-      <div class="mt-8">
-        <Link
-          to="/galleri"
-          class="text-sm-copy font-medium text-primary hover:underline"
-        >
-          Se alle billeder →
-        </Link>
-      </div>
     </section>
   )
 }
@@ -154,12 +155,7 @@ function DateSection() {
             {data().eventInfo.danish_final_time}
           </p>
           <div class="mt-8">
-            <Link
-              to="/info/date"
-              class="text-sm-copy font-medium text-primary hover:underline"
-            >
-              Se fuldt program →
-            </Link>
+            <ArrowLink to="/info/date">Se fuldt program</ArrowLink>
           </div>
         </div>
 
@@ -223,12 +219,9 @@ function PrizesSection() {
               </For>
             </div>
 
-            <Link
-              to="/info/prizes"
-              class="text-sm-copy font-medium text-white/60 hover:text-white transition-colors"
-            >
-              Se alle præmier →
-            </Link>
+            <ArrowLink to="/info/prizes" variant="onDark">
+              Se alle præmier
+            </ArrowLink>
           </div>
         </section>
       )}
@@ -258,12 +251,7 @@ function CostSection() {
             )}
           </For>
         </div>
-        <Link
-          to="/info/cost"
-          class="text-sm-copy font-medium text-primary hover:underline"
-        >
-          Se prisdetaljer →
-        </Link>
+        <ArrowLink to="/info/cost">Se prisdetaljer</ArrowLink>
       </div>
     </section>
   )
@@ -287,12 +275,7 @@ function MaterialsSection() {
           </Heading>
           <p class="text-lead text-foreground/70">{data().materials.intro}</p>
           <div class="mt-8">
-            <Link
-              to="/info/materials"
-              class="text-sm-copy font-medium text-primary hover:underline"
-            >
-              Se materialedetaljer →
-            </Link>
+            <ArrowLink to="/info/materials">Se materialedetaljer</ArrowLink>
           </div>
         </div>
 
@@ -345,12 +328,7 @@ function TipsSection() {
           <TipsList tips={data().practicalTips} />
         </div>
 
-        <Link
-          to="/info/tips"
-          class="text-sm-copy font-medium text-primary hover:underline"
-        >
-          Læs alle tips →
-        </Link>
+        <ArrowLink to="/info/tips">Læs alle tips</ArrowLink>
       </div>
     </section>
   )

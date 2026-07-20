@@ -3,6 +3,9 @@ backend:
   repo: MichaelBuss/wro
   branch: main
 
+# Only activates on localhost — lets the CMS read/write your working tree directly.
+local_backend: true
+
 media_folder: public/uploads
 public_folder: /uploads
 
@@ -48,7 +51,9 @@ collections:
     folder: content/gallery
     create: true
     slug: '{{slug}}'
-    hint: Photos are grouped by year on the /galleri page. Favorited photos appear in the homepage preview and as the highlight teaser for their year.
+    media_folder: ''
+    public_folder: ''
+    hint: Each photo's image is stored alongside its entry in content/gallery/. Photos are grouped by year on the /galleri page. Favorited photos appear in the homepage preview and as the highlight teaser for their year. Adding many photos at once? Use `npm run gallery:add` from the terminal instead of clicking through the CMS one entry at a time.
     fields:
       - { label: Image, name: image, widget: image }
       - { label: Alt Text, name: alt, widget: string }
@@ -59,11 +64,28 @@ collections:
           required: false,
         }
       - {
-          label: Year,
-          name: year,
-          widget: number,
+          label: Date Taken,
+          name: date,
+          widget: datetime,
+          format: 'YYYY-MM-DD',
+          date_format: 'YYYY-MM-DD',
+          time_format: false,
+          hint: Drives sort order and which year this photo appears under on the /galleri page. Use the photo's actual capture date — prefer running `npm run gallery:add`/`npm run gallery:wizard`, which fill this in automatically from the photo's EXIF data.,
+        }
+      - {
+          label: Event,
+          name: event,
+          widget: select,
+          options: ['Danish Final', 'World Final', 'Panic Weekend', 'Misc'],
           required: false,
-          hint: Groups the photo under this year on the /galleri page. Left blank, it appears under "Andre billeder".,
+          hint: When a year has photos from both events, this splits that year's page into separate Danish final / world final sections. Leave blank if the year has only one event.,
+        }
+      - {
+          label: Location,
+          name: location,
+          widget: string,
+          required: false,
+          hint: 'By, land — f.eks. "Panama City, Panama". Where this year''s edition was held, shown as a subtitle on the year/event pages. Give every photo from the same year + event the same location (npm run lint checks this). Leave blank to show no location.',
         }
       - {
           label: Favorite,
@@ -78,13 +100,6 @@ collections:
           widget: string,
           required: false,
           hint: 'CSS object-position value, e.g. "top center", "center", "bottom right"',
-        }
-      - {
-          label: Sort Order,
-          name: order,
-          widget: number,
-          required: false,
-          hint: Lower numbers appear first,
         }
 
   - name: quotes

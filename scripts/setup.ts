@@ -35,7 +35,7 @@ const PATH = [
 
 // Parse .env into a plain object so child processes (drizzle-kit, etc.) get
 // the same variables that Vite would load — without requiring dotenv as a dep.
-function loadDotEnv(): Record<string, string> {
+function loadDotEnv(): Record<string, string | undefined> {
   if (!existsSync(ENV_FILE)) return {}
   return Object.fromEntries(
     readFileSync(ENV_FILE, 'utf8')
@@ -191,9 +191,13 @@ if (!dbUrl || !dbUrl.includes('@')) {
 // Capture drizzle-kit output rather than inheriting — its ANSI spinner erases
 // its own error lines when writing directly to the terminal. Strip ANSI escape
 // codes before printing so the line-erase sequences don't fire again.
+//
+// The ESC (0x1b) byte is built at runtime so the pattern's source carries no
+// literal control character (which ESLint's no-control-regex forbids).
+const ANSI_CSI = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*[A-Za-z]`, 'g')
 const stripAnsi = (s: string) =>
   s
-    .replace(/\x1b\[[0-9;]*[A-Za-z]/g, '') // CSI sequences (colors, cursor, erase)
+    .replace(ANSI_CSI, '') // CSI sequences (colors, cursor, erase)
     .replace(/\r/g, '\n') // carriage returns → newlines
 
 const migrateResult = run('./node_modules/.bin/drizzle-kit migrate')

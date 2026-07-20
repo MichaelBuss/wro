@@ -1,9 +1,15 @@
 import { createFileRoute } from '@tanstack/solid-router'
 import { createServerFn } from '@tanstack/solid-start'
 import { Show } from 'solid-js'
+import { GalleryEventGroups } from '~/components/gallery/gallery-event-groups'
 import { BackLink, PageShell } from '~/components/layout'
-import { Heading, PhotoGrid } from '~/components/ui'
-import { groupGalleryByYear, toGalleryDisplayItem } from '~/lib/gallery'
+import { Heading } from '~/components/ui'
+import {
+  getYearTransitionName,
+  groupGalleryByYear,
+  groupPhotosByEvent,
+  toGalleryDisplayItem,
+} from '~/lib/gallery'
 import { getCollectionItems } from '~/server/content'
 
 const getGalleryYear = createServerFn({ method: 'GET' })
@@ -18,17 +24,25 @@ const getGalleryYear = createServerFn({ method: 'GET' })
 
     return {
       label: group.label,
-      items: group.photos.map(toGalleryDisplayItem),
+      eventGroups: groupPhotosByEvent(group.photos).map(
+        (eventGroup) => ({
+          key: eventGroup.key,
+          label: eventGroup.label,
+          location: eventGroup.location,
+          items: eventGroup.photos.map(toGalleryDisplayItem),
+        }),
+      ),
     }
   })
 
-export const Route = createFileRoute('/galleri/$year')({
+export const Route = createFileRoute('/galleri_/$year')({
   component: GalleryYearPage,
   loader: async ({ params }) => await getGalleryYear({ data: params.year }),
 })
 
 function GalleryYearPage() {
   const data = Route.useLoaderData()
+  const params = Route.useParams()
 
   return (
     <PageShell size="lg">
@@ -46,10 +60,20 @@ function GalleryYearPage() {
       >
         {(yearData) => (
           <>
-            <Heading level="h1" class="mb-8">
+            <Heading
+              level="h1"
+              class="mb-8"
+              style={{
+                'view-transition-name': getYearTransitionName(params().year),
+              }}
+            >
               {yearData().label}
             </Heading>
-            <PhotoGrid items={yearData().items} />
+            <GalleryEventGroups
+              eventGroups={yearData().eventGroups}
+              year={params().year}
+              eventHeadingLevel="h2"
+            />
           </>
         )}
       </Show>

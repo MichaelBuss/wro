@@ -8,7 +8,7 @@ import { Logo, MobileDrawer, NavAuthLink, NavDropdown, NavLink } from './nav'
  */
 export default function Header() {
   return (
-    <header class="header-sticky sticky top-0 z-40 w-full">
+    <header class="header-sticky sticky top-0 z-40 w-full pt-safe">
       <div class="header-surface absolute inset-0 bg-background/90 backdrop-blur-xl border-b border-border" />
 
       <nav
@@ -24,6 +24,7 @@ export default function Header() {
               Forside
             </NavLink>
             <NavDropdown />
+            <NavLink to="/galleri">Fotos</NavLink>
             <NavLink to="/blog">Blog</NavLink>
           </div>
 

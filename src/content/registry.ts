@@ -18,6 +18,15 @@ export const OBJECT_POSITIONS = [
 
 export type ObjectPosition = (typeof OBJECT_POSITIONS)[number]
 
+export const GALLERY_EVENTS = [
+  'Danish Final',
+  'World Final',
+  'Panic Weekend',
+  'Misc',
+] as const
+
+export type GalleryEvent = (typeof GALLERY_EVENTS)[number]
+
 /**
  * Content registry — single source of truth for all CMS-managed content.
  *
@@ -107,12 +116,21 @@ export const collectionSchemas = {
     image: z.string().optional(),
   }),
   gallery: z.object({
+    // Bare filename co-located with this entry in content/gallery/, not a
+    // servable path on its own — resolved to /gallery/{filename} in
+    // src/server/content.ts (served via the public/gallery symlink).
     image: z.string(),
-    alt: z.string(),
+    alt: z.string().trim().min(1, 'Alt text is required'),
     description: z.string().optional(),
     position: z.enum(OBJECT_POSITIONS).optional(),
-    order: z.number().optional(),
-    year: z.number().optional(),
+    date: z.coerce.date(),
+    event: z.enum(GALLERY_EVENTS).optional(),
+    // Where this photo's edition was held (e.g. "Chiang-Mai, Thailand").
+    // Shown as a subtitle on the year/event pages and lightbox. Opt-in and
+    // denormalized onto each photo — validate-content.ts enforces that all
+    // photos sharing a (year, event) agree, so the group heading can read it
+    // from any one of them.
+    location: z.string().optional(),
     favorite: z.boolean().optional(),
   }),
   quotes: z.object({

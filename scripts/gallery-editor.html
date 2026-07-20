@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gallery metadata editor</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --panel: #171a21;
+        --panel-2: #1e222b;
+        --border: #2a2f3a;
+        --text: #e7e9ee;
+        --muted: #9aa3b2;
+        --accent: #6ea8fe;
+        --ok: #4ade80;
+        --warn: #fbbf24;
+        --bad: #f87171;
+        --radius: 10px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font:
+          14px/1.5 system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100vh;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--border);
+        background: var(--panel);
+      }
+      header h1 {
+        font-size: 15px;
+        margin: 0;
+        font-weight: 600;
+      }
+      .progress {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .bar {
+        width: 160px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        overflow: hidden;
+      }
+      .bar > span {
+        display: block;
+        height: 100%;
+        background: var(--ok);
+        width: 0;
+        transition: width 0.25s ease;
+      }
+      .spacer {
+        flex: 1;
+      }
+      .filters {
+        display: flex;
+        gap: 4px;
+      }
+      .filters button {
+        background: var(--panel-2);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 4px 12px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .filters button.active {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+      main {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        min-height: 0;
+      }
+      aside {
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        background: var(--panel);
+      }
+      .item {
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border);
+      }
+      .item:hover {
+        background: var(--panel-2);
+      }
+      .item.selected {
+        background: var(--panel-2);
+        box-shadow: inset 3px 0 0 var(--accent);
+      }
+      .item img {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 6px;
+        background: var(--panel-2);
+      }
+      .item .name {
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .item .sub {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex: none;
+      }
+      .dot.blocked {
+        background: var(--bad);
+      }
+      .dot.sparse {
+        background: var(--warn);
+      }
+      .dot.complete {
+        background: var(--ok);
+      }
+      section.editor {
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        min-height: 0;
+      }
+      .stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: #000;
+        background-image:
+          linear-gradient(45deg, #16181d 25%, transparent 25%),
+          linear-gradient(-45deg, #16181d 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #16181d 75%),
+          linear-gradient(-45deg, transparent 75%, #16181d 75%);
+        background-size: 24px 24px;
+        background-position:
+          0 0,
+          0 12px,
+          12px -12px,
+          -12px 0;
+      }
+      .stage img {
+        max-width: 100%;
+        max-height: calc(100vh - 130px);
+        object-fit: contain;
+        border-radius: 6px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      }
+      .stage .missing {
+        color: var(--bad);
+        font-size: 14px;
+        text-align: center;
+      }
+      form {
+        padding: 20px;
+        border-left: 1px solid var(--border);
+        background: var(--panel);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .field .req {
+        color: var(--bad);
+      }
+      textarea,
+      select,
+      input[type='text'] {
+        width: 100%;
+        background: var(--panel-2);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 9px 10px;
+        font: inherit;
+        resize: vertical;
+      }
+      textarea:focus,
+      select:focus,
+      input[type='text']:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      textarea.invalid {
+        border-color: var(--bad);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 8px;
+      }
+      button.primary,
+      button.ghost {
+        border-radius: 8px;
+        padding: 9px 14px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid var(--border);
+      }
+      button.primary {
+        background: var(--accent);
+        color: #07101f;
+        border-color: var(--accent);
+      }
+      button.ghost {
+        background: var(--panel-2);
+        color: var(--text);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .meta {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        grid-column: 1 / -1;
+      }
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 10px 16px;
+        border-radius: 999px;
+        opacity: 0;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+        pointer-events: none;
+        font-size: 13px;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      .toast.error {
+        border-color: var(--bad);
+        color: var(--bad);
+      }
+      kbd {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        padding: 1px 5px;
+        font-size: 11px;
+      }
+      .focal {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .focal-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        width: 108px;
+        height: 108px;
+        flex: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: var(--panel-2);
+        background-size: cover;
+        background-position: center;
+      }
+      .focal-cell {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+      }
+      .focal-cell:hover {
+        background: rgba(110, 168, 254, 0.18);
+      }
+      .focal-cell::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55);
+        transition:
+          width 0.12s,
+          height 0.12s,
+          background 0.12s;
+      }
+      .focal-cell:hover::after {
+        background: #fff;
+      }
+      .focal-cell.active::after {
+        width: 13px;
+        height: 13px;
+        background: var(--accent);
+        box-shadow:
+          0 0 0 2px #fff,
+          0 0 0 5px rgba(110, 168, 254, 0.5);
+      }
+      .focal-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+      .focal-value {
+        font-size: 13px;
+      }
+      .focal-clear {
+        background: none;
+        border: 0;
+        padding: 0;
+        color: var(--accent);
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+      }
+      .focal-clear:disabled {
+        color: var(--muted);
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Gallery metadata editor</h1>
+      <div class="progress">
+        <div class="bar"><span id="bar"></span></div>
+        <span id="progressText">…</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="filters">
+        <button data-filter="all" class="active">All</button>
+        <button data-filter="todo">Needs work</button>
+        <button data-filter="blocked">Missing alt</button>
+      </div>
+    </header>
+    <main>
+      <aside id="list"></aside>
+      <section class="editor" id="editor">
+        <div class="empty">Select a photo to start.</div>
+      </section>
+    </main>
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const state = {
+        photos: [],
+        events: [],
+        positions: [],
+        filter: 'all',
+        selected: null,
+        dirty: false,
+      }
+
+      const el = {
+        list: document.getElementById('list'),
+        editor: document.getElementById('editor'),
+        bar: document.getElementById('bar'),
+        progressText: document.getElementById('progressText'),
+        toast: document.getElementById('toast'),
+      }
+
+      let toastTimer
+      function toast(message, isError) {
+        el.toast.textContent = message
+        el.toast.classList.toggle('error', Boolean(isError))
+        el.toast.classList.add('show')
+        clearTimeout(toastTimer)
+        toastTimer = setTimeout(() => el.toast.classList.remove('show'), 2200)
+      }
+
+      function statusLabel(photo) {
+        if (photo.missingImage) return 'image missing'
+        if (photo.needsAlt) return 'needs alt text'
+        if (photo.needsDescription) return 'no description'
+        return 'complete'
+      }
+
+      function matchesFilter(photo) {
+        if (state.filter === 'all') return true
+        if (state.filter === 'blocked') return photo.status === 'blocked'
+        return photo.status !== 'complete'
+      }
+
+      function renderProgress() {
+        const total = state.photos.length
+        const complete = state.photos.filter(
+          (p) => p.status === 'complete',
+        ).length
+        const missingAlt = state.photos.filter((p) => p.needsAlt).length
+        el.bar.style.width = total === 0 ? '0%' : `${(complete / total) * 100}%`
+        el.progressText.textContent =
+          `${complete}/${total} complete` +
+          (missingAlt > 0 ? ` · ${missingAlt} missing alt` : '')
+      }
+
+      function renderList() {
+        el.list.textContent = ''
+        const visible = state.photos.filter(matchesFilter)
+
+        if (visible.length === 0) {
+          const empty = document.createElement('div')
+          empty.className = 'item sub'
+          empty.style.color = 'var(--muted)'
+          empty.textContent = 'Nothing here — try another filter.'
+          el.list.append(empty)
+          return
+        }
+
+        for (const photo of visible) {
+          const item = document.createElement('div')
+          item.className =
+            'item' + (photo.slug === state.selected ? ' selected' : '')
+          item.dataset.slug = photo.slug
+
+          const img = document.createElement('img')
+          if (photo.imageUrl) img.src = photo.imageUrl
+          img.alt = ''
+
+          const middle = document.createElement('div')
+          const name = document.createElement('div')
+          name.className = 'name'
+          name.textContent = photo.slug
+          const sub = document.createElement('div')
+          sub.className = 'sub'
+          sub.textContent = statusLabel(photo)
+          middle.append(name, sub)
+
+          const dot = document.createElement('div')
+          dot.className = `dot ${photo.status}`
+          dot.title = statusLabel(photo)
+
+          item.append(img, middle, dot)
+          item.addEventListener('click', () => selectPhoto(photo.slug))
+          el.list.append(item)
+        }
+      }
+
+      function selectPhoto(slug) {
+        if (state.dirty && slug !== state.selected) {
+          const ok = confirm('Discard unsaved changes to this photo?')
+          if (!ok) return
+        }
+        state.selected = slug
+        state.dirty = false
+        renderList()
+        renderEditor()
+      }
+
+      function optionEls(values, current) {
+        const none = document.createElement('option')
+        none.value = ''
+        none.textContent = '— none —'
+        if (!current) none.selected = true
+        const rest = values.map((value) => {
+          const option = document.createElement('option')
+          option.value = value
+          option.textContent = value
+          if (value === current) option.selected = true
+          return option
+        })
+        return [none, ...rest]
+      }
+
+      // The nine cells of the focal-point grid, in row order. These are the
+      // canonical values written on click; the four one-word CSS synonyms
+      // ('top' === 'top center', etc.) map onto the same cells for display.
+      const FOCAL_CELLS = [
+        'top left',
+        'top center',
+        'top right',
+        'center left',
+        'center',
+        'center right',
+        'bottom left',
+        'bottom center',
+        'bottom right',
+      ]
+      const FOCAL_ALIASES = {
+        top: 'top center',
+        bottom: 'bottom center',
+        left: 'center left',
+        right: 'center right',
+      }
+      function focalCellOf(value) {
+        if (!value) return null
+        return FOCAL_ALIASES[value] ?? value
+      }
+
+      /**
+       * A 3×3 focal-point picker overlaid on a thumbnail of the photo: click
+       * the cell where the subject sits and that becomes the object-position.
+       * `getValue()` returns the current value untouched if the user never
+       * clicked, so a saved one-word synonym isn't silently rewritten.
+       */
+      function buildFocalPicker(imageUrl, current, onChange) {
+        let value = current ?? null
+
+        const grid = document.createElement('div')
+        grid.className = 'focal-grid'
+        if (imageUrl) grid.style.backgroundImage = `url("${imageUrl}")`
+
+        const valueLabel = document.createElement('span')
+        valueLabel.className = 'focal-value'
+
+        const clearBtn = document.createElement('button')
+        clearBtn.type = 'button'
+        clearBtn.className = 'focal-clear'
+        clearBtn.textContent = 'Clear'
+
+        const cells = FOCAL_CELLS.map((pos) => {
+          const cell = document.createElement('button')
+          cell.type = 'button'
+          cell.className = 'focal-cell'
+          cell.title = pos
+          cell.addEventListener('click', () => {
+            // Clicking the active cell again clears the focal point.
+            value = focalCellOf(value) === pos ? null : pos
+            sync()
+            onChange()
+          })
+          return { pos, cell }
+        })
+        grid.append(...cells.map((c) => c.cell))
+
+        clearBtn.addEventListener('click', () => {
+          if (value === null) return
+          value = null
+          sync()
+          onChange()
+        })
+
+        function sync() {
+          const active = focalCellOf(value)
+          for (const { pos, cell } of cells) {
+            cell.classList.toggle('active', pos === active)
+          }
+          valueLabel.textContent = value ?? 'None (defaults to center)'
+          clearBtn.disabled = value === null
+        }
+        sync()
+
+        const meta = document.createElement('div')
+        meta.className = 'focal-meta'
+        meta.append(valueLabel, clearBtn)
+
+        const wrap = document.createElement('div')
+        wrap.className = 'focal'
+        wrap.append(grid, meta)
+
+        return { element: wrap, getValue: () => value }
+      }
+
+      function renderEditor() {
+        const photo = state.photos.find((p) => p.slug === state.selected)
+        el.editor.textContent = ''
+        if (!photo) {
+          const empty = document.createElement('div')
+          empty.className = 'empty'
+          empty.textContent = 'Select a photo to start.'
+          el.editor.append(empty)
+          return
+        }
+
+        // Stage (the photo)
+        const stage = document.createElement('div')
+        stage.className = 'stage'
+        if (photo.imageUrl && !photo.missingImage) {
+          const img = document.createElement('img')
+          img.src = photo.imageUrl
+          img.alt = photo.alt
+          stage.append(img)
+        } else {
+          const missing = document.createElement('div')
+          missing.className = 'missing'
+          missing.textContent = photo.image
+            ? `Image file "${photo.image}" is missing on disk`
+            : 'This entry has no image field'
+          stage.append(missing)
+        }
+
+        // Form
+        const form = document.createElement('form')
+
+        const alt = document.createElement('textarea')
+        alt.rows = 3
+        alt.value = photo.alt
+        alt.placeholder =
+          'Describe what is in the photo (shown to screen readers)…'
+
+        const description = document.createElement('textarea')
+        description.rows = 2
+        description.value = photo.description
+        description.placeholder = 'Optional caption shown under the photo…'
+
+        const event = document.createElement('select')
+        event.append(...optionEls(state.events, photo.event))
+
+        const location = document.createElement('input')
+        location.type = 'text'
+        location.value = photo.location
+        location.placeholder = 'e.g. Chiang-Mai, Thailand'
+
+        const favorite = document.createElement('input')
+        favorite.type = 'checkbox'
+        favorite.checked = photo.favorite
+
+        function field(labelHtml, control, hint) {
+          const wrap = document.createElement('div')
+          wrap.className = 'field'
+          const label = document.createElement('label')
+          label.innerHTML = labelHtml
+          wrap.append(label, control)
+          if (hint) {
+            const h = document.createElement('div')
+            h.className = 'hint'
+            h.textContent = hint
+            wrap.append(h)
+          }
+          return wrap
+        }
+
+        function markDirty() {
+          state.dirty = true
+          alt.classList.toggle('invalid', alt.value.trim() === '')
+        }
+        for (const control of [alt, description, event, location]) {
+          control.addEventListener('input', markDirty)
+        }
+        favorite.addEventListener('change', markDirty)
+        alt.classList.toggle('invalid', alt.value.trim() === '')
+
+        const focal = buildFocalPicker(
+          photo.missingImage ? null : photo.imageUrl,
+          photo.position,
+          markDirty,
+        )
+
+        const favWrap = document.createElement('label')
+        favWrap.className = 'checkbox'
+        favWrap.append(favorite, document.createTextNode('Favorite'))
+
+        const saveBtn = document.createElement('button')
+        saveBtn.type = 'submit'
+        saveBtn.className = 'primary'
+        saveBtn.textContent = 'Save'
+
+        const nextBtn = document.createElement('button')
+        nextBtn.type = 'button'
+        nextBtn.className = 'ghost'
+        nextBtn.textContent = 'Save & next'
+
+        const meta = document.createElement('span')
+        meta.className = 'meta'
+        meta.textContent =
+          (photo.date ? photo.date.slice(0, 10) + ' · ' : '') +
+          photo.slug +
+          '.md'
+
+        const actions = document.createElement('div')
+        actions.className = 'actions'
+        actions.append(saveBtn, nextBtn, meta)
+
+        const collect = () => ({
+          alt: alt.value,
+          description: description.value,
+          event: event.value === '' ? null : event.value,
+          location: location.value,
+          favorite: favorite.checked,
+          position: focal.getValue(),
+        })
+
+        async function doSave() {
+          const saved = await save(photo.slug, collect())
+          return saved
+        }
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault()
+          await doSave()
+        })
+        nextBtn.addEventListener('click', async () => {
+          const saved = await doSave()
+          if (saved) selectNext(photo.slug)
+        })
+
+        form.append(
+          field(
+            'Alt text <span class="req">*</span>',
+            alt,
+            'Required — blocks publishing until filled.',
+          ),
+          field('Description', description),
+          field('Event', event),
+          field(
+            'Location',
+            location,
+            'Where this edition was held — must match every photo in the same year + event (npm run lint checks this).',
+          ),
+          field(
+            'Focal point',
+            focal.element,
+            'Click where the subject is — sets how the photo is cropped in thumbnails.',
+          ),
+          field('&nbsp;', favWrap),
+          actions,
+        )
+
+        el.editor.append(stage, form)
+        el.editor.querySelector('textarea')?.focus()
+      }
+
+      function selectNext(fromSlug) {
+        const pool = state.photos.filter(matchesFilter)
+        const remaining = pool.filter(
+          (p) => p.slug !== fromSlug && p.status !== 'complete',
+        )
+        const target = remaining[0] ?? pool.find((p) => p.slug !== fromSlug)
+        if (target) selectPhoto(target.slug)
+        else toast('All done in this filter 🎉')
+      }
+
+      async function save(slug, payload) {
+        try {
+          const res = await fetch(`/api/photos/${encodeURIComponent(slug)}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+          const data = await res.json()
+          if (!res.ok) {
+            toast(data.error ?? 'Save failed', true)
+            return false
+          }
+          const index = state.photos.findIndex((p) => p.slug === slug)
+          if (index !== -1) state.photos[index] = data
+          state.dirty = false
+          renderList()
+          renderProgress()
+          toast(`Saved ${slug}.md`)
+          return true
+        } catch (error) {
+          toast('Could not reach the server', true)
+          return false
+        }
+      }
+
+      document.querySelectorAll('.filters button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.filter = btn.dataset.filter
+          document
+            .querySelectorAll('.filters button')
+            .forEach((b) => b.classList.toggle('active', b === btn))
+          renderList()
+        })
+      })
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+          e.preventDefault()
+          el.editor.querySelector('form')?.requestSubmit()
+        }
+      })
+
+      window.addEventListener('beforeunload', (e) => {
+        if (state.dirty) {
+          e.preventDefault()
+          e.returnValue = ''
+        }
+      })
+
+      async function init() {
+        const res = await fetch('/api/photos')
+        const data = await res.json()
+        state.photos = data.photos
+        state.events = data.events
+        state.positions = data.positions
+        renderProgress()
+        renderList()
+        const firstTodo = state.photos.find((p) => p.status !== 'complete')
+        if (firstTodo) selectPhoto(firstTodo.slug)
+        else if (state.photos[0]) selectPhoto(state.photos[0].slug)
+      }
+
+      init().catch(() => toast('Failed to load photos', true))
+    </script>
+  </body>
+</html>

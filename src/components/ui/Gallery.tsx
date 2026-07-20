@@ -8,8 +8,10 @@ export interface GalleryItem {
   sizes?: string
   alt: string
   caption?: string
-  year?: number | string
+  year: number
   objectPosition?: string
+  slug: string
+  yearKey: string
 }
 
 interface GalleryProps {
@@ -33,9 +35,9 @@ export function Gallery(props: GalleryProps) {
             srcset={item.srcset}
             sizes={item.sizes}
             alt={item.alt}
-            caption={item.caption}
-            year={item.year}
             objectPosition={item.objectPosition}
+            slug={item.slug}
+            yearKey={item.yearKey}
             class={index() === 0 ? 'sm:col-span-2' : undefined}
             aspectRatio={index() === 0 ? '16/9' : '4/3'}
           />
