@@ -278,3 +278,62 @@ collections:
             widget: list
             field: { label: Item, name: item, widget: string }
           - { label: Official Rules URL, name: rules_url, widget: string }
+
+      - name: rules
+        label: Regler
+        file: content/pages/rules.md
+        hint: Regler opdelt efter kategori. Materialer uden URL vises som "kommer snart".
+        fields:
+          - { label: Intro, name: intro, widget: text }
+          - {
+              label: Overview,
+              name: overview,
+              widget: text,
+              hint: 'Hold-størrelse, aldersgrupper og hvem den danske finale er for',
+            }
+          - {
+              label: Tema,
+              name: theme,
+              widget: string,
+              hint: 'e.g. "Robotter og Kultur"',
+            }
+          - {
+              label: International Rules URL,
+              name: international_url,
+              widget: string,
+            }
+          - label: Kategorier
+            name: categories
+            widget: list
+            fields:
+              - {
+                  label: Navn,
+                  name: name,
+                  widget: string,
+                  hint: 'e.g. "RoboMission" eller "Future Innovators"',
+                }
+              - { label: Beskrivelse, name: description, widget: text }
+              - label: Materialegrupper
+                name: material_groups
+                widget: list
+                hint: Brug Overskrift til aldersgrupper (RoboMission). Lad den stå tom for kategorier uden aldersopdeling (Future Innovators).
+                fields:
+                  - {
+                      label: Overskrift,
+                      name: heading,
+                      widget: string,
+                      required: false,
+                      hint: 'e.g. "Elementary (8–12 år)"',
+                    }
+                  - label: Materialer
+                    name: materials
+                    widget: list
+                    fields:
+                      - { label: Label, name: label, widget: string }
+                      - {
+                          label: URL,
+                          name: url,
+                          widget: string,
+                          required: false,
+                          hint: Lad stå tom for at vise "kommer snart",
+                        }
