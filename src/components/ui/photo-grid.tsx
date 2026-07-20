@@ -1,12 +1,23 @@
 import { Link } from '@tanstack/solid-router'
-import { For } from 'solid-js'
+import { For, Show } from 'solid-js'
 import { cx } from '~/cva.config'
 import type { GalleryItem } from './Gallery'
+
+export interface PhotoGridCoverLabel {
+  title: string
+  location: string | undefined
+}
 
 interface PhotoGridProps {
   items: Array<GalleryItem>
   /** Year key shared by every item, used to build each tile's lightbox link. */
   year: string
+  /**
+   * Event name + location, overlaid on the first tile instead of a heading
+   * above the grid — lets a year's multiple events read straight off the
+   * wall of photos rather than breaking it up with text sections.
+   */
+  coverLabel?: PhotoGridCoverLabel
   class?: string
 }
 
@@ -31,11 +42,11 @@ export function PhotoGrid(props: PhotoGridProps) {
   return (
     <div class={cx('photo-grid', props.class)}>
       <For each={props.items}>
-        {(item) => (
+        {(item, index) => (
           <Link
             to="/galleri/$year/$slug"
             params={{ year: props.year, slug: item.slug }}
-            class="photo-grid-frame group block rounded-lg"
+            class="photo-grid-frame group relative block rounded-lg"
           >
             <img
               src={item.src}
@@ -50,6 +61,20 @@ export function PhotoGrid(props: PhotoGridProps) {
                 'view-transition-name': `photo-${item.slug}`,
               }}
             />
+            <Show when={index() === 0 && props.coverLabel}>
+              {(coverLabel) => (
+                <div class="absolute inset-x-0 bottom-0 rounded-b-lg bg-gradient-to-t from-black/70 via-black/20 to-transparent px-3 pt-8 pb-2.5 text-white">
+                  <p class="text-sm-copy font-medium leading-tight">
+                    {coverLabel().title}
+                  </p>
+                  <Show when={coverLabel().location}>
+                    {(location) => (
+                      <p class="text-caption text-white/70">{location()}</p>
+                    )}
+                  </Show>
+                </div>
+              )}
+            </Show>
           </Link>
         )}
       </For>

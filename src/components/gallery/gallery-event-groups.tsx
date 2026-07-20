@@ -1,9 +1,8 @@
-import { Link } from '@tanstack/solid-router'
 import { For, Show } from 'solid-js'
 import { Heading, PhotoGrid } from '~/components/ui'
 import type { GalleryItem } from '~/components/ui'
 import type { GalleryEvent } from '~/content/registry'
-import { EVENT_SLUGS, getEventTransitionName } from '~/lib/gallery'
+import { EVENT_SLUGS } from '~/lib/gallery'
 
 export interface GalleryEventGroupData {
   key: GalleryEvent
@@ -26,6 +25,14 @@ interface GalleryEventGroupsProps {
  * (`/galleri/$year`), which otherwise duplicated this exact grouping logic.
  * Skips the sub-heading entirely when there's only one event group, since a
  * lone group means the year doesn't actually mix events.
+ *
+ * Multi-event years identify each group via a label overlaid on its first
+ * photo (see `PhotoGrid`'s `coverLabel`) rather than a heading sitting above
+ * the grid — keeps the page reading as a wall of photos instead of being
+ * broken up into text sections. The heading itself still renders, visually
+ * hidden, so the document outline and screen readers still see a real
+ * per-event heading; the event permalink stays reachable via the lightbox
+ * breadcrumb (`LightboxCaption`).
  */
 export function GalleryEventGroups(props: GalleryEventGroupsProps) {
   return (
@@ -53,32 +60,17 @@ export function GalleryEventGroups(props: GalleryEventGroupsProps) {
             id={`${props.year}-${EVENT_SLUGS[eventGroup.key]}`}
             class="mb-12 last:mb-0 scroll-mt-6"
           >
-            <div class="mb-6">
-              <Heading level={props.eventHeadingLevel} class="mb-1">
-                <Link
-                  to="/galleri/$year/event/$event"
-                  params={{
-                    year: props.year,
-                    event: EVENT_SLUGS[eventGroup.key],
-                  }}
-                  class="hover:underline"
-                  style={{
-                    'view-transition-name': getEventTransitionName(
-                      props.year,
-                      EVENT_SLUGS[eventGroup.key],
-                    ),
-                  }}
-                >
-                  {eventGroup.label}
-                </Link>
-              </Heading>
-              <Show when={eventGroup.location}>
-                {(location) => (
-                  <p class="text-sm-copy text-muted-foreground">{location()}</p>
-                )}
-              </Show>
-            </div>
-            <PhotoGrid items={eventGroup.items} year={props.year} />
+            <Heading level={props.eventHeadingLevel} class="sr-only">
+              {eventGroup.label}
+            </Heading>
+            <PhotoGrid
+              items={eventGroup.items}
+              year={props.year}
+              coverLabel={{
+                title: eventGroup.label,
+                location: eventGroup.location,
+              }}
+            />
           </div>
         )}
       </For>
