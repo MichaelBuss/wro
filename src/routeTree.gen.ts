@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as GalleriRouteImport } from './routes/galleri'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BestilEnBaneRouteImport } from './routes/bestil-en-bane'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as OrganizerRegistrationsRouteImport } from './routes/organizer_.registrations'
@@ -68,6 +69,11 @@ const GalleriRoute = GalleriRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BestilEnBaneRoute = BestilEnBaneRouteImport.update({
+  id: '/bestil-en-bane',
+  path: '/bestil-en-bane',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -163,6 +169,7 @@ const GalleriYearEventEventRoute = GalleriYearEventEventRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bestil-en-bane': typeof BestilEnBaneRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
   '/kontakt': typeof KontaktRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bestil-en-bane': typeof BestilEnBaneRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
   '/kontakt': typeof KontaktRoute
@@ -218,6 +226,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bestil-en-bane': typeof BestilEnBaneRoute
   '/dashboard': typeof DashboardRoute
   '/galleri': typeof GalleriRoute
   '/kontakt': typeof KontaktRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bestil-en-bane'
     | '/dashboard'
     | '/galleri'
     | '/kontakt'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bestil-en-bane'
     | '/dashboard'
     | '/galleri'
     | '/kontakt'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bestil-en-bane'
     | '/dashboard'
     | '/galleri'
     | '/kontakt'
@@ -329,6 +341,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BestilEnBaneRoute: typeof BestilEnBaneRoute
   DashboardRoute: typeof DashboardRoute
   GalleriRoute: typeof GalleriRoute
   KontaktRoute: typeof KontaktRoute
@@ -404,6 +417,13 @@ declare module '@tanstack/solid-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bestil-en-bane': {
+      id: '/bestil-en-bane'
+      path: '/bestil-en-bane'
+      fullPath: '/bestil-en-bane'
+      preLoaderRoute: typeof BestilEnBaneRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -537,6 +557,7 @@ declare module '@tanstack/solid-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BestilEnBaneRoute: BestilEnBaneRoute,
   DashboardRoute: DashboardRoute,
   GalleriRoute: GalleriRoute,
   KontaktRoute: KontaktRoute,
