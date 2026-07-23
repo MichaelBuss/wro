@@ -2,6 +2,7 @@ import { useNavigate, useRouter } from '@tanstack/solid-router'
 import { onCleanup, onMount } from 'solid-js'
 import type { GalleryItem } from '~/components/ui'
 import { cx } from '~/cva.config'
+import { useSwipeNavigation } from '~/lib/use-swipe-navigation'
 import { galleryTransitionTypes } from '~/lib/view-transitions'
 import { LightboxCaption } from './lightbox-caption'
 import { LightboxCloseButton } from './lightbox-close-button'
@@ -46,25 +47,40 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
     void navigate({ to: '/galleri/$year', params: { year: props.year } })
   }
 
-  const goToPrev = () => {
+  // `skipViewTransition` is for the swipe gesture below: its own drag-to-exit
+  // animation *is* the transition, so layering the router's slide+fade swoosh
+  // on top would double up (and jump, since the swoosh only nudges 8% from
+  // wherever the swipe already dragged the image to).
+  const goToPrev = (options?: { skipViewTransition?: boolean }) => {
     if (!props.prevSlug) return
     void navigate({
       to: '/galleri/$year/$slug',
       params: { year: props.year, slug: props.prevSlug },
-      viewTransition: { types: () => galleryTransitionTypes(['slide-right']) },
+      viewTransition: options?.skipViewTransition
+        ? false
+        : { types: () => galleryTransitionTypes(['slide-right']) },
       replace: true,
     })
   }
 
-  const goToNext = () => {
+  const goToNext = (options?: { skipViewTransition?: boolean }) => {
     if (!props.nextSlug) return
     void navigate({
       to: '/galleri/$year/$slug',
       params: { year: props.year, slug: props.nextSlug },
-      viewTransition: { types: () => galleryTransitionTypes(['slide-left']) },
+      viewTransition: options?.skipViewTransition
+        ? false
+        : { types: () => galleryTransitionTypes(['slide-left']) },
       replace: true,
     })
   }
+
+  const swipe = useSwipeNavigation({
+    canGoPrev: () => props.prevSlug !== undefined,
+    canGoNext: () => props.nextSlug !== undefined,
+    onCommitPrev: () => goToPrev({ skipViewTransition: true }),
+    onCommitNext: () => goToNext({ skipViewTransition: true }),
+  })
 
   onMount(() => {
     dialogRef?.focus()
@@ -126,20 +142,33 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
           padding and `rounded-lg` on the same box would clip the rounding at
           the padded (outer) edge, leaving the photo's own corners square. */}
       <div
+        ref={swipe.setContainer}
         class={cx(
-          'col-start-1 row-start-2 flex min-h-0 min-w-0 items-center justify-center px-4 compact-tall:px-2',
+          'col-start-1 row-start-2 flex min-h-0 min-w-0 touch-none items-center justify-center px-4 select-none compact-tall:px-2',
           'compact-wide:row-start-1 compact-wide:row-span-2 compact-wide:p-2',
           'controls-left:compact-wide:col-start-2',
           'controls-right:compact-wide:col-start-1',
         )}
+        onPointerDown={swipe.onPointerDown}
+        onPointerMove={swipe.onPointerMove}
+        onPointerUp={swipe.onPointerUp}
+        onPointerCancel={swipe.onPointerUp}
       >
         <img
           src={props.item.src}
           srcset={props.item.srcset}
           sizes={props.item.sizes}
           alt={props.item.alt}
+          draggable={false}
+          onTransitionEnd={swipe.onTransitionEnd}
           class="max-h-full max-w-full rounded-lg object-contain"
-          style={{ 'view-transition-name': `photo-${props.item.slug}` }}
+          style={{
+            'view-transition-name': `photo-${props.item.slug}`,
+            transform: `translateX(${swipe.offset()}px)`,
+            transition: swipe.isDragging()
+              ? 'none'
+              : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+          }}
         />
       </div>
 
