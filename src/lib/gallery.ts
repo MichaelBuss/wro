@@ -158,6 +158,9 @@ export function groupPhotosByEvent(
 export function toGalleryDisplayItem(photo: GalleryPhoto) {
   return {
     src: photo.image,
+    width: photo.width,
+    height: photo.height,
+    color: photo.color,
     alt: photo.alt,
     caption: photo.description,
     year: photo.date.getFullYear(),
@@ -174,6 +177,12 @@ export interface AdjacentGalleryPhoto {
   eventLocation: string | undefined
   prevSlug: string | undefined
   nextSlug: string | undefined
+  // Full neighbours, not just their slugs — the lightbox's swipe gesture
+  // peeks at them (a colour placeholder immediately, the real photo once
+  // loaded), which needs their src/dimensions/color up front, not just
+  // something to link to.
+  prevPhoto: GalleryPhoto | undefined
+  nextPhoto: GalleryPhoto | undefined
   index: number
   total: number
 }
@@ -206,18 +215,20 @@ export function findAdjacentGalleryPhoto(
   const photo = eventGroup.photos[index]
 
   const total = eventGroup.photos.length
-  const prevSlug =
-    total > 1 ? eventGroup.photos[(index - 1 + total) % total]?.slug : undefined
-  const nextSlug =
-    total > 1 ? eventGroup.photos[(index + 1) % total]?.slug : undefined
+  const prevPhoto =
+    total > 1 ? eventGroup.photos[(index - 1 + total) % total] : undefined
+  const nextPhoto =
+    total > 1 ? eventGroup.photos[(index + 1) % total] : undefined
 
   return {
     photo,
     eventKey: eventGroup.key,
     eventLabel: eventGroup.label,
     eventLocation: eventGroup.location,
-    prevSlug,
-    nextSlug,
+    prevSlug: prevPhoto?.slug,
+    nextSlug: nextPhoto?.slug,
+    prevPhoto,
+    nextPhoto,
     index: index + 1,
     total,
   }

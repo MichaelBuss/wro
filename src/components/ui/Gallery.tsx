@@ -6,6 +6,10 @@ export interface GalleryItem {
   src: string
   srcset?: string
   sizes?: string
+  width: number
+  height: number
+  /** Dominant color as `#rrggbb` — see src/content/registry.ts. */
+  color: string
   alt: string
   caption?: string
   year: number
