@@ -135,20 +135,28 @@ export interface GalleryEntryEdit {
   position: ObjectPosition | null
 }
 
-// Only `image` and `date` are round-tripped untouched. `date` is read as
-// `unknown` (not coerced) so its on-disk form — a quoted 'YYYY-MM-DD' string
-// or a bare YAML timestamp — is re-emitted exactly as gray-matter parsed it,
-// rather than being reformatted every save.
+// `image`, `width`/`height`/`color`, and `date` are round-tripped untouched
+// — none of them are part of `GalleryEntryEdit` (the CMS-form-editable
+// subset), so if this schema didn't explicitly carry them through, saving
+// any other field via `gallery:edit` would silently drop them, and
+// npm run lint's width/height/color check would start failing. `date` is
+// read as `unknown` (not coerced) so its on-disk form — a quoted
+// 'YYYY-MM-DD' string or a bare YAML timestamp — is re-emitted exactly as
+// gray-matter parsed it, rather than being reformatted every save.
 const preserveSchema = z.object({
   image: z.string(),
+  width: z.number(),
+  height: z.number(),
+  color: z.string(),
   date: z.unknown(),
 })
 
 /**
  * Writes the editable fields back to a photo's .md file, preserving its
- * `image`/`date` and any body content, and re-emitting frontmatter in the
- * same canonical key order `gallery:add` uses (image, alt, description,
- * position, date, event, location, favorite). Optional fields left blank are
+ * `image`/`width`/`height`/`color`/`date` and any body content, and
+ * re-emitting frontmatter in the same canonical key order `gallery:add`
+ * uses (image, width, height, color, alt, description, position, date,
+ * event, location, favorite). Optional fields left blank are
  * omitted rather than written empty — matching how a hand-authored entry
  * looks.
  * Returns the freshly re-read, re-classified report so callers can reflect
@@ -170,7 +178,13 @@ export function writeGalleryEntry(
   const description = edit.description.trim()
   const location = edit.location.trim()
 
-  const frontmatter: Record<string, unknown> = { image: preserved.image, alt }
+  const frontmatter: Record<string, unknown> = {
+    image: preserved.image,
+    width: preserved.width,
+    height: preserved.height,
+    color: preserved.color,
+    alt,
+  }
   if (description !== '') frontmatter.description = description
   if (edit.position !== null) frontmatter.position = edit.position
   frontmatter.date = preserved.date

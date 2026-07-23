@@ -9,7 +9,8 @@
  * - All frontmatter validates against its Zod schema
  * - Every gallery photo's image exists in content/gallery/, and every
  *   image in that directory is referenced by exactly one photo (no
- *   orphans, no duplicates), at the right format/size
+ *   orphans, no duplicates), at the right format/size, with frontmatter's
+ *   width/height/color still matching the actual file
  * - Every photo sharing a (year, event) records the same edition location,
  *   so the group heading can read it off any one of them without ambiguity
  *
@@ -19,9 +20,9 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import matter from 'gray-matter'
-import sharp from 'sharp'
 import { collectionSchemas, pageSchemas } from '../src/content/registry'
 import { objectKeys } from '../src/lib/utils'
+import { readImageMetadata } from './image-metadata'
 import { IMAGE_MAX_PX } from './image-settings'
 
 const CONTENT_DIR = join(process.cwd(), 'content')
@@ -40,6 +41,7 @@ interface ValidationError {
     | 'orphaned-image'
     | 'invalid-image-format'
     | 'oversized-image'
+    | 'image-metadata-mismatch'
     | 'inconsistent-location'
   message: string
 }
@@ -212,6 +214,9 @@ console.log('Validating gallery images...')
 interface GalleryImageRef {
   file: string
   imageFilename: string
+  declaredWidth: number
+  declaredHeight: number
+  declaredColor: string
 }
 
 // Also collected here for section 4 below: each photo's (year, event) key
@@ -257,7 +262,13 @@ if (existsSync(GALLERY_DIR)) {
       continue
     }
 
-    imageRefs.push({ file, imageFilename })
+    imageRefs.push({
+      file,
+      imageFilename,
+      declaredWidth: result.data.width,
+      declaredHeight: result.data.height,
+      declaredColor: result.data.color,
+    })
   }
 
   const refsByImage = groupByKey(imageRefs, (ref) => ref.imageFilename)
@@ -289,14 +300,30 @@ if (existsSync(GALLERY_DIR)) {
       continue
     }
 
-    const { width, height } = await sharp(
-      join(GALLERY_DIR, imageFile),
-    ).metadata()
+    const metadata = await readImageMetadata(join(GALLERY_DIR, imageFile))
 
-    if (width > IMAGE_MAX_PX || height > IMAGE_MAX_PX) {
+    if (metadata.width > IMAGE_MAX_PX || metadata.height > IMAGE_MAX_PX) {
       error(
         'oversized-image',
-        `content/gallery/${imageFile} is ${width}x${height}px, exceeds the ${IMAGE_MAX_PX}px max — run npm run images:optimize to resize it`,
+        `content/gallery/${imageFile} is ${metadata.width}x${metadata.height}px, exceeds the ${IMAGE_MAX_PX}px max — run npm run images:optimize to resize it`,
+      )
+    }
+
+    // The lightbox swipe gesture uses the frontmatter's width/height/color
+    // to render a same-shaped, same-tinted placeholder before the actual
+    // photo bytes have loaded — so if it's ever out of sync with the real
+    // file (a hand-replaced image, an entry added by hand through the CMS
+    // without these fields, ...), that placeholder would look wrong.
+    const ref = refsByImage.get(imageFile)?.[0]
+    if (
+      ref &&
+      (ref.declaredWidth !== metadata.width ||
+        ref.declaredHeight !== metadata.height ||
+        ref.declaredColor !== metadata.color)
+    ) {
+      error(
+        'image-metadata-mismatch',
+        `content/gallery/${ref.file} declares width=${ref.declaredWidth} height=${ref.declaredHeight} color=${ref.declaredColor}, but content/gallery/${imageFile} is actually ${metadata.width}x${metadata.height} ${metadata.color} — run npm run gallery:sync-dimensions to fix`,
       )
     }
   }

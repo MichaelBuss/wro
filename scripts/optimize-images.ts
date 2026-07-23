@@ -12,6 +12,7 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { basename, extname, join } from 'node:path'
 import sharp from 'sharp'
+import { readImageMetadata } from './image-metadata'
 import { IMAGE_MAX_PX, IMAGE_QUALITY } from './image-settings'
 
 const OUTPUT_DIR = 'public/uploads'
@@ -19,6 +20,9 @@ const OUTPUT_DIR = 'public/uploads'
 export interface OptimizedImage {
   slug: string
   outputPath: string
+  width: number
+  height: number
+  color: string
 }
 
 /**
@@ -47,7 +51,12 @@ export async function optimizeImage(
     .webp({ quality: IMAGE_QUALITY })
     .toFile(outputPath)
 
-  return { slug, outputPath }
+  // Read back off the resized *output*, not the source — the dimensions
+  // and dominant color callers store in frontmatter must describe what's
+  // actually served.
+  const { width, height, color } = await readImageMetadata(outputPath)
+
+  return { slug, outputPath, width, height, color }
 }
 
 async function main() {

@@ -14,6 +14,9 @@ function makePhoto(
   // its exact shape doesn't matter to these tests, which never inspect it.
   return {
     image: `/resolved/${overrides.slug}.webp`,
+    width: 1600,
+    height: 1200,
+    color: '#808080',
     alt: overrides.slug,
     ...overrides,
   }

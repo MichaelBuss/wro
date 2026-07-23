@@ -9,8 +9,10 @@
  * For each input image, sorted by capture date (see scripts/photo-date.ts),
  * this:
  * - Optimizes it to content/gallery/{slug}.webp (scripts/optimize-images.ts)
- * - Writes a stub content/gallery/{slug}.md with blank alt text and the
- *   photo's capture date (from EXIF, falling back to file mtime)
+ * - Writes a stub content/gallery/{slug}.md with blank alt text, the
+ *   photo's capture date (from EXIF, falling back to file mtime), and its
+ *   width/height/dominant color read straight off the optimized file
+ *   (scripts/image-metadata.ts)
  * - Skips (with a warning) any image whose .md entry already exists, so
  *   reruns never clobber hand-edited entries
  * - Warns if a photo's capture date doesn't match the selected --year, or
@@ -168,10 +170,13 @@ export async function addOnePhoto(
     )
   }
 
-  await optimizeImage(inputPath, GALLERY_DIR)
+  const { width, height, color } = await optimizeImage(inputPath, GALLERY_DIR)
 
   const frontmatter = {
     image: `${slug}.webp`,
+    width,
+    height,
+    color,
     alt: '',
     date: formatDateOnly(date),
     ...(event === undefined ? {} : { event }),

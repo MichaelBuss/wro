@@ -93,6 +93,8 @@ Or run `npm run gallery:wizard` for an interactive version of the same command �
 
 Fill in the blank alt text in the generated entries before publishing — `npm run lint` fails on empty alt text, so this can't be forgotten.
 
+Every gallery photo also carries `width`/`height`/`color` (a dominant-color hex swatch) in frontmatter, computed straight from the file by `gallery:add`/`gallery:wizard`/`images:optimize` — used to size and tint the lightbox's loading placeholder before the actual photo has loaded. Adding a photo directly through the CMS (rather than the terminal importer) skips this, so run `npm run gallery:sync-dimensions` afterwards; `npm run lint` fails if any entry's stored width/height/color drifts from its actual file (a hand-replaced image, a CMS-added entry that hasn't been synced yet, ...).
+
 ## Validation
 
 After making changes, always run:

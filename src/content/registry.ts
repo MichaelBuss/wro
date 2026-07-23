@@ -145,6 +145,15 @@ export const collectionSchemas = {
     // servable path on its own — resolved to /gallery/{filename} in
     // src/server/content.ts (served via the public/gallery symlink).
     image: z.string(),
+    // Computed straight from the file by scripts/optimize-images.ts (or
+    // backfilled by `npm run gallery:sync-dimensions` for entries added by
+    // hand through the CMS) — never hand-authored. `npm run lint` checks
+    // these still match the actual file via validate-content.ts.
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+    color: z
+      .string()
+      .regex(/^#[0-9a-f]{6}$/, 'Must be a lowercase #rrggbb hex color'),
     alt: z.string().trim().min(1, 'Alt text is required'),
     description: z.string().optional(),
     position: z.enum(OBJECT_POSITIONS).optional(),
