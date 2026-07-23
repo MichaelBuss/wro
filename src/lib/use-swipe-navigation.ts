@@ -27,6 +27,10 @@ export interface SwipeNavigationOptions {
  * and its end fires the matching `onCommit*` via `onTransitionEnd`, which
  * must be wired to that same element's `ontransitionend`.
  *
+ * `commitPrev`/`commitNext` run that same glide-then-navigate without a
+ * pointer, so buttons and arrow keys page with the exact animation a drag
+ * does rather than a separate one.
+ *
  * Dragging toward a side with nowhere to go is damped (`EDGE_RESISTANCE`)
  * rather than ignored outright, so the gesture still feels alive without
  * ever being able to commit.
@@ -45,6 +49,33 @@ export function useSwipeNavigation(options: SwipeNavigationOptions) {
 
   const setContainer = (el: HTMLElement) => {
     container = el
+  }
+
+  // How far the track travels to swap one slide for the next: the pane's own
+  // width *plus* the gap between panes. Measured off the panes directly (the
+  // distance between the first two) rather than the container's width, so a
+  // committed slide lands exactly where the next route's freshly-centred pane
+  // will sit — using the container width instead leaves it a gap short, and
+  // the pane visibly snaps back that gap the moment navigation remounts it.
+  const slideStride = (): number => {
+    const track = container?.firstElementChild
+    const first = track?.children[0]
+    const second = track?.children[1]
+    if (first instanceof HTMLElement && second instanceof HTMLElement) {
+      return second.offsetLeft - first.offsetLeft
+    }
+    return container?.clientWidth ?? window.innerWidth
+  }
+
+  // Glide fully to the neighbouring pane in `direction`; the transition end
+  // (below) is what actually navigates. Guarded so nothing re-triggers it
+  // mid-flight — a key repeat, a button tap during the glide, or a fresh
+  // drag while a committed one is still animating off.
+  const startExit = (direction: 'prev' | 'next') => {
+    if (exitDirection !== undefined || pointerId !== undefined) return
+    exitDirection = direction
+    const stride = slideStride()
+    setOffset(direction === 'prev' ? stride : -stride)
   }
 
   const onPointerDown = (event: PointerEvent) => {
@@ -95,16 +126,23 @@ export function useSwipeNavigation(options: SwipeNavigationOptions) {
         velocity < -COMMIT_VELOCITY_PX_MS)
 
     if (wantsPrev) {
-      exitDirection = 'prev'
-      setOffset(width)
+      startExit('prev')
       return
     }
     if (wantsNext) {
-      exitDirection = 'next'
-      setOffset(-width)
+      startExit('next')
       return
     }
     setOffset(0)
+  }
+
+  // The keyboard/button entry points into the same commit path a released
+  // swipe takes — no-ops at the ends of the album (nothing to land on).
+  const commitPrev = () => {
+    if (options.canGoPrev()) startExit('prev')
+  }
+  const commitNext = () => {
+    if (options.canGoNext()) startExit('next')
   }
 
   const onTransitionEnd = (event: TransitionEvent) => {
@@ -122,5 +160,7 @@ export function useSwipeNavigation(options: SwipeNavigationOptions) {
     onPointerMove,
     onPointerUp,
     onTransitionEnd,
+    commitPrev,
+    commitNext,
   }
 }

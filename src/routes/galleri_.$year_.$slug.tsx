@@ -25,6 +25,14 @@ const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
       eventLocation: adjacent.eventLocation,
       prevSlug: adjacent.prevSlug,
       nextSlug: adjacent.nextSlug,
+      prevItem:
+        adjacent.prevPhoto === undefined
+          ? undefined
+          : toGalleryDisplayItem(adjacent.prevPhoto),
+      nextItem:
+        adjacent.nextPhoto === undefined
+          ? undefined
+          : toGalleryDisplayItem(adjacent.nextPhoto),
       index: adjacent.index,
       total: adjacent.total,
     }
@@ -67,6 +75,8 @@ function GalleryLightboxPage() {
           eventLocation={lightboxData().eventLocation}
           prevSlug={lightboxData().prevSlug}
           nextSlug={lightboxData().nextSlug}
+          prevItem={lightboxData().prevItem}
+          nextItem={lightboxData().nextItem}
           index={lightboxData().index}
           total={lightboxData().total}
         />
