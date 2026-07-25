@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal, on } from 'solid-js'
 
 const COMMIT_DISTANCE_RATIO = 0.22
 const COMMIT_VELOCITY_PX_MS = 0.5
@@ -11,6 +11,13 @@ export interface SwipeNavigationOptions {
   canGoNext: () => boolean
   onCommitPrev: () => void
   onCommitNext: () => void
+  /**
+   * A key that changes whenever the routed photo does (e.g. its slug). The
+   * track is snapped back to centre in lock-step with this changing — see the
+   * effect at the bottom of the hook — so committing never re-centres against
+   * stale content.
+   */
+  currentKey: () => string
 }
 
 /**
@@ -38,6 +45,13 @@ export interface SwipeNavigationOptions {
 export function useSwipeNavigation(options: SwipeNavigationOptions) {
   const [offset, setOffset] = createSignal(0)
   const [isDragging, setIsDragging] = createSignal(false)
+  // Set for the one frame in which the track snaps back to centre after a
+  // committed page turn: the route only swaps `$slug` (the lightbox never
+  // remounts), so once the new photo has slid into the centre pane we have to
+  // re-centre `offset` ourselves — but *without* animating, or the track
+  // would visibly slide back a full pane. Bind it alongside `isDragging` when
+  // deciding whether the track transitions.
+  const [snapping, setSnapping] = createSignal(false)
 
   let container: HTMLElement | undefined
   let pointerId: number | undefined
@@ -67,6 +81,24 @@ export function useSwipeNavigation(options: SwipeNavigationOptions) {
     return container?.clientWidth ?? window.innerWidth
   }
 
+  // Kick off navigation to the committed neighbour, leaving the track parked
+  // at ±stride (the neighbour pane sitting dead-centre) so it keeps showing
+  // the photo we slid to. `offset` is *not* reset here: navigation is async
+  // (a server-fn loader), and re-centring now — while the panes still hold
+  // the old prev/current/next — would yank the photo we just landed on off to
+  // the side for those in-between frames. The re-centre instead happens in
+  // lock-step with `currentKey` changing (effect at the bottom), so the new
+  // photo swaps into the centre pane and `offset` returns to 0 in the same
+  // frame, staying pinned in place. Called from the glide's `transitionend`,
+  // or directly when no glide runs (see `startExit`).
+  const finishExit = () => {
+    const direction = exitDirection
+    if (direction === undefined) return
+    exitDirection = undefined
+    if (direction === 'prev') options.onCommitPrev()
+    else options.onCommitNext()
+  }
+
   // Glide fully to the neighbouring pane in `direction`; the transition end
   // (below) is what actually navigates. Guarded so nothing re-triggers it
   // mid-flight — a key repeat, a button tap during the glide, or a fresh
@@ -75,7 +107,16 @@ export function useSwipeNavigation(options: SwipeNavigationOptions) {
     if (exitDirection !== undefined || pointerId !== undefined) return
     exitDirection = direction
     const stride = slideStride()
-    setOffset(direction === 'prev' ? stride : -stride)
+    const target = direction === 'prev' ? stride : -stride
+    // A drag released exactly at the target offset wouldn't change `offset`,
+    // so no `transform` transition — and thus no `transitionend` — would ever
+    // fire. Commit straight away in that case, or the lightbox would wedge
+    // (with `exitDirection` set, every later gesture is ignored too).
+    if (offset() === target) {
+      finishExit()
+      return
+    }
+    setOffset(target)
   }
 
   const onPointerDown = (event: PointerEvent) => {
@@ -115,13 +156,19 @@ export function useSwipeNavigation(options: SwipeNavigationOptions) {
     const width = container?.clientWidth ?? window.innerWidth
     const delta = offset()
     // A commit needs either enough distance or enough speed (a quick flick
-    // that hasn't travelled far yet still counts) in the matching direction.
+    // that hasn't travelled far yet still counts) — but always in the same
+    // direction the track was actually dragged. Gating the velocity path on
+    // `delta`'s sign stops a last-moment flick back the other way (positive
+    // velocity at the end of a leftward drag, say) from committing the
+    // opposite way to the one the photo visibly moved.
     const wantsPrev =
       options.canGoPrev() &&
+      delta > 0 &&
       (delta > width * COMMIT_DISTANCE_RATIO ||
         velocity > COMMIT_VELOCITY_PX_MS)
     const wantsNext =
       options.canGoNext() &&
+      delta < 0 &&
       (delta < -width * COMMIT_DISTANCE_RATIO ||
         velocity < -COMMIT_VELOCITY_PX_MS)
 
@@ -145,16 +192,37 @@ export function useSwipeNavigation(options: SwipeNavigationOptions) {
     if (options.canGoNext()) startExit('next')
   }
 
+  // Fires for the committed glide (→ navigate) as well as for a cancelled
+  // swipe springing back to 0; `finishExit` no-ops in the latter since
+  // `exitDirection` is unset.
   const onTransitionEnd = (event: TransitionEvent) => {
     if (event.propertyName !== 'transform') return
-    if (exitDirection === 'prev') options.onCommitPrev()
-    else if (exitDirection === 'next') options.onCommitNext()
-    exitDirection = undefined
+    finishExit()
   }
+
+  // The committed glide parks the track at ±stride with the neighbour pane
+  // centred; navigation then swaps that neighbour into the *centre* pane.
+  // Snap `offset` back to 0 the moment that swap lands (this key changing is
+  // the signal it has) so the photo stays put — same pane content, same
+  // screen position — instead of jumping. `defer` skips the initial run, and
+  // transitions are suppressed for the snap so it doesn't slide; re-enabled a
+  // frame later, by when `offset` is unchanged so nothing animates.
+  createEffect(
+    on(
+      options.currentKey,
+      () => {
+        setSnapping(true)
+        setOffset(0)
+        requestAnimationFrame(() => setSnapping(false))
+      },
+      { defer: true },
+    ),
+  )
 
   return {
     offset,
     isDragging,
+    snapping,
     setContainer,
     onPointerDown,
     onPointerMove,

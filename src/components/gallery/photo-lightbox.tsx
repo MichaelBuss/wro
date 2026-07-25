@@ -83,6 +83,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
   }
 
   const swipe = useSwipeNavigation({
+    currentKey: () => props.item.slug,
     canGoPrev: () => props.prevSlug !== undefined,
     canGoNext: () => props.nextSlug !== undefined,
     onCommitPrev: () => {
@@ -214,9 +215,10 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
           style={{
             gap: `${SWIPE_TRACK_GAP_PX}px`,
             transform: `translateX(calc(-100% - ${SWIPE_TRACK_GAP_PX}px + ${swipe.offset()}px))`,
-            transition: swipe.isDragging()
-              ? 'none'
-              : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+            transition:
+              swipe.isDragging() || swipe.snapping()
+                ? 'none'
+                : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
           }}
           onTransitionEnd={swipe.onTransitionEnd}
         >
