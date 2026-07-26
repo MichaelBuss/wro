@@ -25,12 +25,20 @@ const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
       eventLocation: adjacent.eventLocation,
       prevSlug: adjacent.prevSlug,
       nextSlug: adjacent.nextSlug,
+      prevItem:
+        adjacent.prevPhoto === undefined
+          ? undefined
+          : toGalleryDisplayItem(adjacent.prevPhoto),
+      nextItem:
+        adjacent.nextPhoto === undefined
+          ? undefined
+          : toGalleryDisplayItem(adjacent.nextPhoto),
       index: adjacent.index,
       total: adjacent.total,
     }
   })
 
-export const Route = createFileRoute('/galleri_/$year_/$slug')({
+export const Route = createFileRoute('/gallery_/$year_/$slug')({
   component: GalleryLightboxPage,
   loader: async ({ params }) =>
     await getGalleryLightboxPhoto({
@@ -49,7 +57,7 @@ function GalleryLightboxPage() {
         <div class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background px-6 text-center">
           <Heading level="h1">Billede ikke fundet</Heading>
           <Link
-            to="/galleri/$year"
+            to="/gallery/$year"
             params={{ year: params().year }}
             class="text-sm-copy font-medium text-primary hover:underline"
           >
@@ -60,13 +68,15 @@ function GalleryLightboxPage() {
     >
       {(lightboxData) => (
         <PhotoLightbox
-          year={params().year}
+          album={{ kind: 'year', year: params().year }}
           item={lightboxData().item}
           eventSlug={lightboxData().eventSlug}
           eventLabel={lightboxData().eventLabel}
           eventLocation={lightboxData().eventLocation}
           prevSlug={lightboxData().prevSlug}
           nextSlug={lightboxData().nextSlug}
+          prevItem={lightboxData().prevItem}
+          nextItem={lightboxData().nextItem}
           index={lightboxData().index}
           total={lightboxData().total}
         />

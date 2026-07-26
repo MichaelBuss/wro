@@ -24,9 +24,9 @@ export default function Header() {
               Forside
             </NavLink>
             <NavDropdown />
-            <NavLink to="/galleri">Fotos</NavLink>
+            <NavLink to="/gallery">Fotos</NavLink>
             <NavLink to="/blog">Blog</NavLink>
-            <NavLink to="/kontakt">Kontakt</NavLink>
+            <NavLink to="/contact">Kontakt</NavLink>
           </div>
 
           <NavAuthLink class="hidden md:inline-flex" />

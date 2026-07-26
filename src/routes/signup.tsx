@@ -83,7 +83,7 @@ function SignupPage() {
         {/* TODO(content): the real Danish-final registration link/form is
           unknown, see docs/content-todo.md */}
         <a
-          href="/kontakt"
+          href="/contact"
           class="inline-flex items-center justify-center gap-2 h-11 px-8 bg-primary text-primary-foreground font-medium rounded-md hover:bg-wro-blue-600 transition-colors"
         >
           Kontakt os for at tilmelde dit hold

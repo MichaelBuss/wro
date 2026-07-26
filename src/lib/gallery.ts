@@ -9,7 +9,7 @@ export const EVENT_LABELS: Record<GalleryEvent, string> = {
 }
 
 /**
- * URL-safe slugs for each event, used by the `/galleri/$year/event/$event`
+ * URL-safe slugs for each event, used by the `/gallery/$year/event/$event`
  * permalink. Kept as an explicit map (rather than a generic slugify) since
  * `GALLERY_EVENTS` is a small, fixed set — same approach as `EVENT_LABELS`.
  */
@@ -26,8 +26,8 @@ export function getEventFromSlug(slug: string): GalleryEvent | undefined {
 
 /**
  * Shared `view-transition-name` values for the year/event headings that
- * appear on both `/galleri` and their respective permalinks
- * (`/galleri/$year`, `/galleri/$year/event/$event`) — giving each heading a
+ * appear on both `/gallery` and their respective permalinks
+ * (`/gallery/$year`, `/gallery/$year/event/$event`) — giving each heading a
  * name here (rather than inlining the string at each call site) keeps the
  * two sides of every morph in sync. Mirrors the `photo-${slug}` convention
  * already used for gallery images.
@@ -44,6 +44,32 @@ export function getEventTransitionName(
 }
 
 export type GalleryPhoto = CollectionItem<'gallery'>
+
+/**
+ * Which set of photos the lightbox pages through — and, in turn, which route
+ * its prev/next/close links point at. A photo belongs to exactly one year
+ * (`/gallery/$year/$slug`), but the cross-year favourites collection
+ * (`/gallery/favorites/$slug`) is its own album with its own permalink.
+ */
+export type LightboxAlbum =
+  | { kind: 'year'; year: string }
+  | { kind: 'favorites' }
+
+/**
+ * The route target (for both `<Link>` and imperative `navigate`) of a single
+ * photo's lightbox within a given album. Centralised so the pagination
+ * links, the swipe/keyboard navigation, and the grid tiles all agree on
+ * where a photo opens rather than hardcoding the route in each spot.
+ */
+export function getPhotoLinkTarget(album: LightboxAlbum, slug: string) {
+  if (album.kind === 'favorites') {
+    return { to: '/gallery/favorites/$slug', params: { slug } } as const
+  }
+  return {
+    to: '/gallery/$year/$slug',
+    params: { year: album.year, slug },
+  } as const
+}
 
 export interface GalleryYearGroup {
   key: string
@@ -153,11 +179,14 @@ export function groupPhotosByEvent(
  * Maps a validated gallery content item onto the plain shape consumed by
  * the `Gallery` and `PhotoGrid` display components, decoupling them from
  * the content schema. `slug` and `yearKey` are included so callers can link
- * each tile to its lightbox route (`/galleri/$year/$slug`).
+ * each tile to its lightbox route (`/gallery/$year/$slug`).
  */
 export function toGalleryDisplayItem(photo: GalleryPhoto) {
   return {
     src: photo.image,
+    width: photo.width,
+    height: photo.height,
+    color: photo.color,
     alt: photo.alt,
     caption: photo.description,
     year: photo.date.getFullYear(),
@@ -174,6 +203,12 @@ export interface AdjacentGalleryPhoto {
   eventLocation: string | undefined
   prevSlug: string | undefined
   nextSlug: string | undefined
+  // Full neighbours, not just their slugs — the lightbox's swipe gesture
+  // peeks at them (a colour placeholder immediately, the real photo once
+  // loaded), which needs their src/dimensions/color up front, not just
+  // something to link to.
+  prevPhoto: GalleryPhoto | undefined
+  nextPhoto: GalleryPhoto | undefined
   index: number
   total: number
 }
@@ -206,18 +241,73 @@ export function findAdjacentGalleryPhoto(
   const photo = eventGroup.photos[index]
 
   const total = eventGroup.photos.length
-  const prevSlug =
-    total > 1 ? eventGroup.photos[(index - 1 + total) % total]?.slug : undefined
-  const nextSlug =
-    total > 1 ? eventGroup.photos[(index + 1) % total]?.slug : undefined
+  const prevPhoto =
+    total > 1 ? eventGroup.photos[(index - 1 + total) % total] : undefined
+  const nextPhoto =
+    total > 1 ? eventGroup.photos[(index + 1) % total] : undefined
 
   return {
     photo,
     eventKey: eventGroup.key,
     eventLabel: eventGroup.label,
     eventLocation: eventGroup.location,
-    prevSlug,
-    nextSlug,
+    prevSlug: prevPhoto?.slug,
+    nextSlug: nextPhoto?.slug,
+    prevPhoto,
+    nextPhoto,
+    index: index + 1,
+    total,
+  }
+}
+
+/**
+ * The favourites album: every photo flagged `favorite`, newest first — the
+ * same ordering the homepage highlight grid uses, so paging through the
+ * lightbox continues in the direction the visitor was reading the tiles.
+ */
+export function getFavoritePhotos(
+  photos: Array<GalleryPhoto>,
+): Array<GalleryPhoto> {
+  return photos
+    .filter((photo) => photo.favorite)
+    .sort(byDate)
+    .reverse()
+}
+
+/**
+ * Locates a photo within the cross-year favourites album (mirroring
+ * `findAdjacentGalleryPhoto`, but over `getFavoritePhotos` rather than a
+ * single year+event group). Returns enough context to drive the lightbox:
+ * the photo, its wrap-around neighbours for prev/next, its 1-based position,
+ * and the album total. The event breadcrumb fields describe the photo's own
+ * year/event (each favourite still links back to where it lives), not the
+ * album as a whole. Returns `undefined` when the slug isn't a favourite.
+ */
+export function findAdjacentFavoritePhoto(
+  photos: Array<GalleryPhoto>,
+  slug: string,
+): AdjacentGalleryPhoto | undefined {
+  const favorites = getFavoritePhotos(photos)
+  const index = favorites.findIndex((photo) => photo.slug === slug)
+  if (index === -1) return undefined
+
+  const photo = favorites[index]
+  const total = favorites.length
+  const prevPhoto =
+    total > 1 ? favorites[(index - 1 + total) % total] : undefined
+  const nextPhoto = total > 1 ? favorites[(index + 1) % total] : undefined
+
+  const eventKey = photo.event ?? 'Misc'
+
+  return {
+    photo,
+    eventKey,
+    eventLabel: EVENT_LABELS[eventKey],
+    eventLocation: photo.location,
+    prevSlug: prevPhoto?.slug,
+    nextSlug: nextPhoto?.slug,
+    prevPhoto,
+    nextPhoto,
     index: index + 1,
     total,
   }

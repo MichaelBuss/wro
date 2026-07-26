@@ -25,12 +25,12 @@ Tracks unresolved content gaps left as `TODO(content)` markers across the codeba
 - **Rules page rules PDFs**: the live rules page mostly links out to "coming soon" PDFs per
   category/age-group. `content/pages/rules.md` material entries omit `url` for these — once WRO
   Denmark publishes the PDFs, fill in the real links.
-- **Kontakt / newsletter** (`src/routes/kontakt.tsx`): the real newsletter signup URL is unknown —
+- **Kontakt / newsletter** (`src/routes/contact.tsx`): the real newsletter signup URL is unknown —
   currently falls back to a mailto link, replace with the actual signup form/URL once known.
 - **Tilmelding / Open Championships** (`src/routes/signup.tsx`): the actual Danish-final
-  registration link/form is unknown — currently the CTA points to `/kontakt` as a fallback,
+  registration link/form is unknown — currently the CTA points to `/contact` as a fallback,
   replace with the real registration URL once known.
-- **Bestil en bane** (`src/routes/bestil-en-bane.tsx`): the real track-mat order URL/process is
+- **Bestil en bane** (`src/routes/order-a-track.tsx`): the real track-mat order URL/process is
   unknown — currently the CTA falls back to a mailto link, replace with the actual order form/URL
   once known. The "~500–800 kr" price is the same unverified estimate as `content/pages/cost.md`.
 

@@ -80,7 +80,7 @@ export function MobileDrawer() {
             </Link>
 
             <Link
-              to="/galleri"
+              to="/gallery"
               onClick={close}
               class={mobileNavLink({ active: false })}
               activeProps={{ class: mobileNavLink({ active: true }) }}
@@ -116,7 +116,7 @@ export function MobileDrawer() {
                 <span>Blog</span>
               </Link>
               <Link
-                to="/kontakt"
+                to="/contact"
                 onClick={close}
                 class={mobileNavLink({ active: false })}
                 activeProps={{ class: mobileNavLink({ active: true }) }}

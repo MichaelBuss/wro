@@ -567,7 +567,7 @@
   }
 }
 
-/* Gallery view transitions — homepage teaser ↔ /galleri ↔ /galleri/$year ↔
+/* Gallery view transitions — homepage teaser ↔ /gallery ↔ /gallery/$year ↔
  * lightbox (see src/router.tsx's `defaultViewTransition` and
  * src/lib/view-transitions.ts for the JS-side gating). A short, snappy
  * duration keeps the shared-element morph reading as a "swoosh" rather than
@@ -577,69 +577,10 @@
   animation-duration: 250ms;
 }
 
-/* The lightbox's prev/next buttons override the router's default `fade`
- * with an explicit direction — but only the *photo* should move; the
- * chrome (scrim/buttons/caption/counter) should stay completely static, not
- * even cross-fade, since the old/new text swapping under a dissolve reads
- * as a flicker rather than a clean page-turn.
- *
- * The lightbox photo carries its own `view-transition-name`, which pulls it
- * into its own transition group separate from `root`. `*` is what matches
- * that group (a named group can't be targeted by name from here since the
- * name is dynamic per-photo), but `*` also matches `root` — so the second
- * rule below claws `root` back out with an explicit `(root)` selector
- * (higher specificity than `*`, so it always wins) and disables animation
- * on it outright (no slide, no fade — an instant, invisible swap). */
-html:active-view-transition-type(slide-left, slide-right) {
-  &::view-transition-group(root),
-  &::view-transition-old(root),
-  &::view-transition-new(root) {
-    animation: none;
-  }
-}
-
-html:active-view-transition-type(slide-left) {
-  &::view-transition-old(*) {
-    animation: 250ms ease-in-out both gallery-slide-out-left;
-  }
-  &::view-transition-new(*) {
-    animation: 250ms ease-in-out both gallery-slide-in-left;
-  }
-}
-
-html:active-view-transition-type(slide-right) {
-  &::view-transition-old(*) {
-    animation: 250ms ease-in-out both gallery-slide-out-right;
-  }
-  &::view-transition-new(*) {
-    animation: 250ms ease-in-out both gallery-slide-in-right;
-  }
-}
-
-@keyframes gallery-slide-out-left {
-  to {
-    transform: translateX(-8%);
-    opacity: 0;
-  }
-}
-@keyframes gallery-slide-in-left {
-  from {
-    transform: translateX(8%);
-    opacity: 0;
-  }
-}
-@keyframes gallery-slide-out-right {
-  to {
-    transform: translateX(8%);
-    opacity: 0;
-  }
-}
-@keyframes gallery-slide-in-right {
-  from {
-    transform: translateX(-8%);
-    opacity: 0;
-  }
-}
+/* Paging between photos (prev/next) no longer uses a view transition at all
+ * — the lightbox slides its own photo track instead (see
+ * src/lib/use-swipe-navigation.ts), so the only view transition left here is
+ * the `fade` morph when opening/closing the lightbox from the grid. */
 
 /* Belt-and-suspenders: the JS-level gate in view-transitions.ts is the
  * primary control (it returns `false` so the browser skips
@@ -656,10 +597,10 @@ html:active-view-transition-type(slide-right) {
 /* Lightbox caption + counter — reveals ~100ms after mount, but *only* when
  * opening the lightbox from the grid (the router's default `fade` type).
  * The route re-mounts this element on every `$slug` change too, which would
- * otherwise replay the reveal on every prev/next page turn — and on a hard
- * refresh there's no active view transition to gate on at all, so opting
- * in via `:active-view-transition-type(fade)` (rather than opting out for
- * slide-left/-right) naturally excludes both. */
+ * otherwise replay the reveal on every prev/next page turn — but those now
+ * navigate with no view transition at all, and a hard refresh has none
+ * either, so gating on `:active-view-transition-type(fade)` (opening from
+ * the grid) naturally excludes both. */
 .lightbox-caption {
   opacity: 1;
 }

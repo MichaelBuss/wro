@@ -83,7 +83,7 @@ export const INFO_TOPICS: ReadonlyArray<InfoTopic> = [
     description: 'Hør hvad andre deltagere har at sige om at deltage i WRO.',
   },
   {
-    route: '/info/regler',
+    route: '/info/rules',
     icon: ScrollText,
     color: 'yellow',
     title: 'Hvilke regler gælder for konkurrencen?',

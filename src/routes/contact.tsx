@@ -3,9 +3,9 @@ import { Mail, Send } from 'lucide-solid'
 import { PageShell } from '~/components/layout'
 import { ContentCard, Heading, Lead } from '~/components/ui'
 
-export const Route = createFileRoute('/kontakt')({ component: KontaktPage })
+export const Route = createFileRoute('/contact')({ component: ContactPage })
 
-function KontaktPage() {
+function ContactPage() {
   return (
     <PageShell size="sm">
       <Heading level="h1" class="mb-4">

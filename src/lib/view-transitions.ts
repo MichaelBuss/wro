@@ -1,6 +1,6 @@
 /**
  * Shared helpers for scoping the router's view transitions to the gallery
- * flow (homepage teaser ↔ `/galleri` ↔ `/galleri/$year` ↔ lightbox) and
+ * flow (homepage teaser ↔ `/gallery` ↔ `/gallery/$year` ↔ lightbox) and
  * respecting reduced-motion preferences — see `src/router.tsx` for the
  * `defaultViewTransition` wiring and the lightbox's prev/next overrides.
  */

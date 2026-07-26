@@ -14,6 +14,9 @@ function makePhoto(
   // its exact shape doesn't matter to these tests, which never inspect it.
   return {
     image: `/resolved/${overrides.slug}.webp`,
+    width: 1600,
+    height: 1200,
+    color: '#808080',
     alt: overrides.slug,
     ...overrides,
   }
@@ -32,7 +35,7 @@ describe('toGalleryDisplayItem', () => {
 })
 
 describe('getEventFromSlug', () => {
-  it('resolves a URL slug back to its event, for the /galleri/$year/event/$event permalink', () => {
+  it('resolves a URL slug back to its event, for the /gallery/$year/event/$event permalink', () => {
     expect(getEventFromSlug('world-final')).toBe('World Final')
     expect(getEventFromSlug('danish-final')).toBe('Danish Final')
   })

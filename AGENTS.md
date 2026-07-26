@@ -11,6 +11,8 @@
 
 TanStack Router uses file-based routing in `src/routes/`. Route types are auto-generated in `routeTree.gen.ts`. Never edit generated files.
 
+**URL slugs are English** (`/gallery`, `/contact`, `/order-a-track`, `/info/rules`), even though this is a Danish-language site — matches the English-named content collections (`content/gallery/`) and keeps route files greppable/typeable for a non-Danish-speaking contributor or agent. Page copy, headings, and CMS labels stay Danish; only the URL path and route-file names are English. Component/function names follow the English route, not the Danish content (e.g. `src/routes/contact.tsx` exports `ContactPage`, which renders a Danish "Kontakt" heading).
+
 ## TypeScript
 
 Write TypeScript as if Matt Pocock is reviewing:
@@ -85,13 +87,15 @@ npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
 # Outputs: content/gallery/{name}.md (with blank alt text) + content/gallery/{name}.webp for each photo
 ```
 
-Each photo's `date` is read from its EXIF capture date (falling back to the file's modification time, with a warning, if EXIF is missing) — this drives sort order and which year it's grouped under on `/galleri`, so there's no separate "order" field to maintain by hand. The importer also warns if a photo's capture date doesn't match the `--year` you passed.
+Each photo's `date` is read from its EXIF capture date (falling back to the file's modification time, with a warning, if EXIF is missing) — this drives sort order and which year it's grouped under on `/gallery`, so there's no separate "order" field to maintain by hand. The importer also warns if a photo's capture date doesn't match the `--year` you passed.
 
 Add `--location "City, Country"` (requires `--event`) to record where that year's edition was held. It's a per-photo field (`location:` in the frontmatter), stamped onto every new photo in the batch and shown as a subtitle on the year/event pages. `npm run lint` enforces that all photos sharing a year + event agree on it, so the group heading can read it off any one of them. Existing entries are skipped by the importer, so set their location via `npm run gallery:edit` or by hand.
 
 Or run `npm run gallery:wizard` for an interactive version of the same command — it prompts for the year/event/location and lets you browse to a folder and pick which photos to add, instead of typing flags and shell globs by hand.
 
 Fill in the blank alt text in the generated entries before publishing — `npm run lint` fails on empty alt text, so this can't be forgotten.
+
+Every gallery photo also carries `width`/`height`/`color` (a dominant-color hex swatch) in frontmatter, computed straight from the file by `gallery:add`/`gallery:wizard`/`images:optimize` — used to size and tint the lightbox's loading placeholder before the actual photo has loaded. Adding a photo directly through the CMS (rather than the terminal importer) skips this, so run `npm run gallery:sync-dimensions` afterwards; `npm run lint` fails if any entry's stored width/height/color drifts from its actual file (a hand-replaced image, a CMS-added entry that hasn't been synced yet, ...).
 
 ## Validation
 

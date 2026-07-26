@@ -1,14 +1,32 @@
 import { Link } from '@tanstack/solid-router'
 import { ChevronLeft, ChevronRight } from 'lucide-solid'
 import { Show } from 'solid-js'
-import { galleryTransitionTypes } from '~/lib/view-transitions'
+import { getPhotoLinkTarget } from '~/lib/gallery'
+import type { LightboxAlbum } from '~/lib/gallery'
 
 interface LightboxPaginationProps {
-  year: string
+  album: LightboxAlbum
   prevSlug: string | undefined
   nextSlug: string | undefined
   index: number
   total: number
+  // Page via the lightbox's shared slide animation. Kept as real `<Link>`s
+  // (correct href, cmd/middle-click opens the photo in a new tab) but a plain
+  // click is intercepted to run the slide instead of an instant navigation.
+  onPrev: () => void
+  onNext: () => void
+}
+
+// A modified click (new tab, new window) should fall through to the browser;
+// only a plain left-click gets the in-place slide.
+function isPlainClick(event: MouseEvent): boolean {
+  return (
+    event.button === 0 &&
+    !event.metaKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.altKey
+  )
 }
 
 /**
@@ -29,13 +47,14 @@ export function LightboxPagination(props: LightboxPaginationProps) {
       >
         {(slug) => (
           <Link
-            to="/galleri/$year/$slug"
-            params={{ year: props.year, slug: slug() }}
-            viewTransition={{
-              types: () => galleryTransitionTypes(['slide-right']),
-            }}
+            {...getPhotoLinkTarget(props.album, slug())}
             replace
             aria-label="Forrige billede"
+            onClick={(event) => {
+              if (!isPlainClick(event)) return
+              event.preventDefault()
+              props.onPrev()
+            }}
             class="rounded-full p-1.5 text-white/60 transition-colors hover:text-white"
           >
             <ChevronLeft size={16} />
@@ -57,13 +76,14 @@ export function LightboxPagination(props: LightboxPaginationProps) {
       >
         {(slug) => (
           <Link
-            to="/galleri/$year/$slug"
-            params={{ year: props.year, slug: slug() }}
-            viewTransition={{
-              types: () => galleryTransitionTypes(['slide-left']),
-            }}
+            {...getPhotoLinkTarget(props.album, slug())}
             replace
             aria-label="Næste billede"
+            onClick={(event) => {
+              if (!isPlainClick(event)) return
+              event.preventDefault()
+              props.onNext()
+            }}
             class="rounded-full p-1.5 text-white/60 transition-colors hover:text-white"
           >
             <ChevronRight size={16} />
