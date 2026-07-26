@@ -37,7 +37,7 @@ const getGalleryEvent = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/galleri_/$year_/event/$event')({
+export const Route = createFileRoute('/gallery_/$year_/event/$event')({
   component: GalleryEventPage,
   loader: async ({ params }) =>
     await getGalleryEvent({
@@ -51,7 +51,7 @@ function GalleryEventPage() {
 
   return (
     <PageShell size="lg">
-      <BackLink to="/galleri" label="Tilbage til galleriet" />
+      <BackLink to="/gallery" label="Tilbage til galleriet" />
 
       <Show
         when={data()}

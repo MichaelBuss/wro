@@ -53,7 +53,7 @@ collections:
     slug: '{{slug}}'
     media_folder: ''
     public_folder: ''
-    hint: Each photo's image is stored alongside its entry in content/gallery/. Photos are grouped by year on the /galleri page. Favorited photos appear in the homepage preview and as the highlight teaser for their year. Adding many photos at once? Use `npm run gallery:add` from the terminal instead of clicking through the CMS one entry at a time. Adding a photo here (rather than via `gallery:add`/`gallery:wizard`) skips writing its width/height/color, so run `npm run gallery:sync-dimensions` afterwards — `npm run lint` fails until you do.
+    hint: Each photo's image is stored alongside its entry in content/gallery/. Photos are grouped by year on the /gallery page. Favorited photos appear in the homepage preview and as the highlight teaser for their year. Adding many photos at once? Use `npm run gallery:add` from the terminal instead of clicking through the CMS one entry at a time. Adding a photo here (rather than via `gallery:add`/`gallery:wizard`) skips writing its width/height/color, so run `npm run gallery:sync-dimensions` afterwards — `npm run lint` fails until you do.
     fields:
       - { label: Image, name: image, widget: image }
       - { label: Alt Text, name: alt, widget: string }
@@ -70,7 +70,7 @@ collections:
           format: 'YYYY-MM-DD',
           date_format: 'YYYY-MM-DD',
           time_format: false,
-          hint: Drives sort order and which year this photo appears under on the /galleri page. Use the photo's actual capture date — prefer running `npm run gallery:add`/`npm run gallery:wizard`, which fill this in automatically from the photo's EXIF data.,
+          hint: Drives sort order and which year this photo appears under on the /gallery page. Use the photo's actual capture date — prefer running `npm run gallery:add`/`npm run gallery:wizard`, which fill this in automatically from the photo's EXIF data.,
         }
       - {
           label: Event,

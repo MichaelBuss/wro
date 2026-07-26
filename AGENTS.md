@@ -11,6 +11,8 @@
 
 TanStack Router uses file-based routing in `src/routes/`. Route types are auto-generated in `routeTree.gen.ts`. Never edit generated files.
 
+**URL slugs are English** (`/gallery`, `/contact`, `/order-a-track`, `/info/rules`), even though this is a Danish-language site — matches the English-named content collections (`content/gallery/`) and keeps route files greppable/typeable for a non-Danish-speaking contributor or agent. Page copy, headings, and CMS labels stay Danish; only the URL path and route-file names are English. Component/function names follow the English route, not the Danish content (e.g. `src/routes/contact.tsx` exports `ContactPage`, which renders a Danish "Kontakt" heading).
+
 ## TypeScript
 
 Write TypeScript as if Matt Pocock is reviewing:
@@ -85,7 +87,7 @@ npm run gallery:add -- --year 2024 --event "Danish Final" photos/2024-dm/*.jpg
 # Outputs: content/gallery/{name}.md (with blank alt text) + content/gallery/{name}.webp for each photo
 ```
 
-Each photo's `date` is read from its EXIF capture date (falling back to the file's modification time, with a warning, if EXIF is missing) — this drives sort order and which year it's grouped under on `/galleri`, so there's no separate "order" field to maintain by hand. The importer also warns if a photo's capture date doesn't match the `--year` you passed.
+Each photo's `date` is read from its EXIF capture date (falling back to the file's modification time, with a warning, if EXIF is missing) — this drives sort order and which year it's grouped under on `/gallery`, so there's no separate "order" field to maintain by hand. The importer also warns if a photo's capture date doesn't match the `--year` you passed.
 
 Add `--location "City, Country"` (requires `--event`) to record where that year's edition was held. It's a per-photo field (`location:` in the frontmatter), stamped onto every new photo in the batch and shown as a subtitle on the year/event pages. `npm run lint` enforces that all photos sharing a year + event agree on it, so the group heading can read it off any one of them. Existing entries are skipped by the importer, so set their location via `npm run gallery:edit` or by hand.
 

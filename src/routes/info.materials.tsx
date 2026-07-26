@@ -74,7 +74,7 @@ function MaterialsPage() {
         <p class="text-sm-copy text-foreground/70 mb-8">
           Skal I bruge en øvebane?{' '}
           <Link
-            to="/bestil-en-bane"
+            to="/order-a-track"
             class="text-primary hover:underline underline-offset-4 transition-colors"
           >
             Se hvordan I bestiller eller laver jeres egen

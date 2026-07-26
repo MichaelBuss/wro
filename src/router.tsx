@@ -3,10 +3,10 @@ import type { ParsedLocation } from '@tanstack/solid-router'
 import { galleryTransitionTypes } from './lib/view-transitions'
 import { routeTree } from './routeTree.gen'
 
-// Homepage (gallery teaser lives there) and the whole `/galleri` tree
+// Homepage (gallery teaser lives there) and the whole `/gallery` tree
 // (index, year, lightbox) — the only surfaces that share `view-transition-name`d
 // photos, so navigations elsewhere (organizer/dashboard/login etc.) stay untouched.
-const GALLERY_TRANSITION_PATH = /^\/galleri(\/|$)|^\/$/
+const GALLERY_TRANSITION_PATH = /^\/gallery(\/|$)|^\/$/
 
 function isGalleryTransitionLocation(
   location: ParsedLocation | undefined,

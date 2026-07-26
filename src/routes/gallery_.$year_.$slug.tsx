@@ -38,7 +38,7 @@ const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/galleri_/$year_/$slug')({
+export const Route = createFileRoute('/gallery_/$year_/$slug')({
   component: GalleryLightboxPage,
   loader: async ({ params }) =>
     await getGalleryLightboxPhoto({
@@ -57,7 +57,7 @@ function GalleryLightboxPage() {
         <div class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background px-6 text-center">
           <Heading level="h1">Billede ikke fundet</Heading>
           <Link
-            to="/galleri/$year"
+            to="/gallery/$year"
             params={{ year: params().year }}
             class="text-sm-copy font-medium text-primary hover:underline"
           >

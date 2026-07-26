@@ -39,13 +39,13 @@ export function SiteFooter() {
             Præmier
           </Link>
           <Link
-            to="/info/regler"
+            to="/info/rules"
             class="hover:text-foreground transition-colors"
           >
             Regler
           </Link>
           <Link
-            to="/bestil-en-bane"
+            to="/order-a-track"
             class="hover:text-foreground transition-colors"
           >
             Bestil en bane
@@ -56,7 +56,7 @@ export function SiteFooter() {
           <Link to="/signup" class="hover:text-foreground transition-colors">
             Tilmeld dig
           </Link>
-          <Link to="/kontakt" class="hover:text-foreground transition-colors">
+          <Link to="/contact" class="hover:text-foreground transition-colors">
             Kontakt
           </Link>
         </nav>

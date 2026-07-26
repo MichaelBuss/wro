@@ -44,7 +44,7 @@ export function PhotoGrid(props: PhotoGridProps) {
       <For each={props.items}>
         {(item, index) => (
           <Link
-            to="/galleri/$year/$slug"
+            to="/gallery/$year/$slug"
             params={{ year: props.year, slug: item.slug }}
             class="photo-grid-frame group relative block rounded-lg"
           >

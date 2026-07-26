@@ -105,7 +105,7 @@ function GallerySection() {
   return (
     <section class="py-12 px-6 max-w-5xl mx-auto border-t border-border">
       <div class="mb-8">
-        <Link to="/galleri" class="group inline-flex items-center gap-2 mb-1">
+        <Link to="/gallery" class="group inline-flex items-center gap-2 mb-1">
           <Heading
             level="h2"
             class="group-hover:text-primary transition-colors"

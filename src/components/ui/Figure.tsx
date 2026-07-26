@@ -32,7 +32,7 @@ const aspectClasses: Record<AspectRatio, string> = {
 export function Figure(props: FigureProps) {
   return (
     <Link
-      to="/galleri/$year/$slug"
+      to="/gallery/$year/$slug"
       params={{ year: props.yearKey, slug: props.slug }}
       class={cx(
         'group block overflow-hidden rounded-lg',

@@ -26,7 +26,7 @@ const getGalleryYears = createServerFn({ method: 'GET' }).handler(() => {
   }))
 })
 
-export const Route = createFileRoute('/galleri')({
+export const Route = createFileRoute('/gallery')({
   component: GalleryPage,
   loader: () => getGalleryYears(),
 })
@@ -60,7 +60,7 @@ function GalleryPage() {
           >
             <Heading level="h2" class="mb-8">
               <Link
-                to="/galleri/$year"
+                to="/gallery/$year"
                 params={{ year: group.key }}
                 class="hover:underline"
                 style={{

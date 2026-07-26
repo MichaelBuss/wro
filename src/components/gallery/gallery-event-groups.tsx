@@ -21,8 +21,8 @@ interface GalleryEventGroupsProps {
 /**
  * Renders a year's photos, split into per-event sections when a year mixes
  * multiple events (e.g. Danish final vs. world final) — used by both the
- * gallery overview (`/galleri`) and the isolated year permalink
- * (`/galleri/$year`), which otherwise duplicated this exact grouping logic.
+ * gallery overview (`/gallery`) and the isolated year permalink
+ * (`/gallery/$year`), which otherwise duplicated this exact grouping logic.
  * Skips the sub-heading entirely when there's only one event group, since a
  * lone group means the year doesn't actually mix events.
  *

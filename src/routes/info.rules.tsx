@@ -11,13 +11,13 @@ const getRulesData = createServerFn({ method: 'GET' }).handler(() =>
   getPageContent('rules'),
 )
 
-export const Route = createFileRoute('/info/regler')({
+export const Route = createFileRoute('/info/rules')({
   component: RulesPage,
   loader: () => getRulesData(),
 })
 
 function RulesPage() {
-  const topic = getInfoTopicByRoute('/info/regler')
+  const topic = getInfoTopicByRoute('/info/rules')
   const rules = Route.useLoaderData()
 
   return (

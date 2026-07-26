@@ -41,7 +41,7 @@ function onIdle(callback: () => void): () => void {
 }
 
 /**
- * Full-viewport lightbox rendered at `/galleri/$year/$slug`. Deliberately
+ * Full-viewport lightbox rendered at `/gallery/$year/$slug`. Deliberately
  * *not* built on Kobalte's `Dialog` — its trigger-and-content-on-one-page
  * model would fight the View Transition for the same open/close animation,
  * since here the "trigger" is a link on a different route and the morph is
@@ -64,7 +64,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
       router.history.back()
       return
     }
-    void navigate({ to: '/galleri/$year', params: { year: props.year } })
+    void navigate({ to: '/gallery/$year', params: { year: props.year } })
   }
 
   // Every page turn — swipe, arrow key, or button — slides the photo track to
@@ -75,7 +75,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
   // drive that glide for the non-drag entry points below.
   const navigateToSlug = (slug: string) => {
     void navigate({
-      to: '/galleri/$year/$slug',
+      to: '/gallery/$year/$slug',
       params: { year: props.year, slug },
       viewTransition: false,
       replace: true,

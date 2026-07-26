@@ -45,7 +45,7 @@ export function LightboxPagination(props: LightboxPaginationProps) {
       >
         {(slug) => (
           <Link
-            to="/galleri/$year/$slug"
+            to="/gallery/$year/$slug"
             params={{ year: props.year, slug: slug() }}
             replace
             aria-label="Forrige billede"
@@ -75,7 +75,7 @@ export function LightboxPagination(props: LightboxPaginationProps) {
       >
         {(slug) => (
           <Link
-            to="/galleri/$year/$slug"
+            to="/gallery/$year/$slug"
             params={{ year: props.year, slug: slug() }}
             replace
             aria-label="Næste billede"

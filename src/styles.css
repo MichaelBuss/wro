@@ -567,7 +567,7 @@
   }
 }
 
-/* Gallery view transitions — homepage teaser ↔ /galleri ↔ /galleri/$year ↔
+/* Gallery view transitions — homepage teaser ↔ /gallery ↔ /gallery/$year ↔
  * lightbox (see src/router.tsx's `defaultViewTransition` and
  * src/lib/view-transitions.ts for the JS-side gating). A short, snappy
  * duration keeps the shared-element morph reading as a "swoosh" rather than

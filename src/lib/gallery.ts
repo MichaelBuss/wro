@@ -9,7 +9,7 @@ export const EVENT_LABELS: Record<GalleryEvent, string> = {
 }
 
 /**
- * URL-safe slugs for each event, used by the `/galleri/$year/event/$event`
+ * URL-safe slugs for each event, used by the `/gallery/$year/event/$event`
  * permalink. Kept as an explicit map (rather than a generic slugify) since
  * `GALLERY_EVENTS` is a small, fixed set — same approach as `EVENT_LABELS`.
  */
@@ -26,8 +26,8 @@ export function getEventFromSlug(slug: string): GalleryEvent | undefined {
 
 /**
  * Shared `view-transition-name` values for the year/event headings that
- * appear on both `/galleri` and their respective permalinks
- * (`/galleri/$year`, `/galleri/$year/event/$event`) — giving each heading a
+ * appear on both `/gallery` and their respective permalinks
+ * (`/gallery/$year`, `/gallery/$year/event/$event`) — giving each heading a
  * name here (rather than inlining the string at each call site) keeps the
  * two sides of every morph in sync. Mirrors the `photo-${slug}` convention
  * already used for gallery images.
@@ -153,7 +153,7 @@ export function groupPhotosByEvent(
  * Maps a validated gallery content item onto the plain shape consumed by
  * the `Gallery` and `PhotoGrid` display components, decoupling them from
  * the content schema. `slug` and `yearKey` are included so callers can link
- * each tile to its lightbox route (`/galleri/$year/$slug`).
+ * each tile to its lightbox route (`/gallery/$year/$slug`).
  */
 export function toGalleryDisplayItem(photo: GalleryPhoto) {
   return {

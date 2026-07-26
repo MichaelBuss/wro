@@ -35,7 +35,7 @@ describe('toGalleryDisplayItem', () => {
 })
 
 describe('getEventFromSlug', () => {
-  it('resolves a URL slug back to its event, for the /galleri/$year/event/$event permalink', () => {
+  it('resolves a URL slug back to its event, for the /gallery/$year/event/$event permalink', () => {
     expect(getEventFromSlug('world-final')).toBe('World Final')
     expect(getEventFromSlug('danish-final')).toBe('Danish Final')
   })

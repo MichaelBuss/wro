@@ -35,7 +35,7 @@ const getGalleryYear = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/galleri_/$year')({
+export const Route = createFileRoute('/gallery_/$year')({
   component: GalleryYearPage,
   loader: async ({ params }) => await getGalleryYear({ data: params.year }),
 })
@@ -46,7 +46,7 @@ function GalleryYearPage() {
 
   return (
     <PageShell size="lg">
-      <BackLink to="/galleri" label="Tilbage til galleriet" />
+      <BackLink to="/gallery" label="Tilbage til galleriet" />
 
       <Show
         when={data()}

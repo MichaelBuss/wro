@@ -20,5 +20,5 @@ other_items:
   - 'Computer til programmering'
   - 'Ekstra LEGO-klodser til at bygge robotten'
   - 'Tid og tålmodighed til at øve!'
-rules_url: '/info/regler'
+rules_url: '/info/rules'
 ---

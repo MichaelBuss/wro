@@ -3,11 +3,11 @@ import { Hammer, Package, Ruler } from 'lucide-solid'
 import { PageShell } from '~/components/layout'
 import { ContentCard, Heading, Lead, TipBox } from '~/components/ui'
 
-export const Route = createFileRoute('/bestil-en-bane')({
-  component: BestilEnBanePage,
+export const Route = createFileRoute('/order-a-track')({
+  component: OrderATrackPage,
 })
 
-function BestilEnBanePage() {
+function OrderATrackPage() {
   return (
     <PageShell size="sm">
       <Heading level="h1" class="mb-4">
