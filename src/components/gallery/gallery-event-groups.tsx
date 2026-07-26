@@ -49,7 +49,7 @@ export function GalleryEventGroups(props: GalleryEventGroupsProps) {
           </Show>
           <PhotoGrid
             items={props.eventGroups[0]?.items ?? []}
-            year={props.year}
+            album={{ kind: 'year', year: props.year }}
           />
         </>
       }
@@ -65,7 +65,7 @@ export function GalleryEventGroups(props: GalleryEventGroupsProps) {
             </Heading>
             <PhotoGrid
               items={eventGroup.items}
-              year={props.year}
+              album={{ kind: 'year', year: props.year }}
               coverLabel={{
                 title: eventGroup.label,
                 location: eventGroup.location,

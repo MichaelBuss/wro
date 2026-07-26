@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/solid-router'
 import { For, Show } from 'solid-js'
 import { cx } from '~/cva.config'
+import { getPhotoLinkTarget } from '~/lib/gallery'
+import type { LightboxAlbum } from '~/lib/gallery'
 import type { GalleryItem } from './Gallery'
 
 export interface PhotoGridCoverLabel {
@@ -10,8 +12,8 @@ export interface PhotoGridCoverLabel {
 
 interface PhotoGridProps {
   items: Array<GalleryItem>
-  /** Year key shared by every item, used to build each tile's lightbox link. */
-  year: string
+  /** The album each tile opens into, used to build its lightbox link. */
+  album: LightboxAlbum
   /**
    * Event name + location, overlaid on the first tile instead of a heading
    * above the grid — lets a year's multiple events read straight off the
@@ -44,8 +46,7 @@ export function PhotoGrid(props: PhotoGridProps) {
       <For each={props.items}>
         {(item, index) => (
           <Link
-            to="/gallery/$year/$slug"
-            params={{ year: props.year, slug: item.slug }}
+            {...getPhotoLinkTarget(props.album, item.slug)}
             class="photo-grid-frame group relative block rounded-lg"
           >
             <img

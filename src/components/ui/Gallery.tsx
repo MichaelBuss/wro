@@ -1,5 +1,6 @@
 import { For } from 'solid-js'
 import { cx } from '~/cva.config'
+import type { LightboxAlbum } from '~/lib/gallery'
 import { Figure } from './Figure'
 
 export interface GalleryItem {
@@ -16,6 +17,12 @@ export interface GalleryItem {
   objectPosition?: string
   slug: string
   yearKey: string
+  /**
+   * Which album a tile opens into. Optional — omitted tiles open into their
+   * own year album (see `Figure`). The homepage sets `favorites` on genuine
+   * favourites so they page through the favourites collection.
+   */
+  album?: LightboxAlbum
 }
 
 interface GalleryProps {
@@ -42,6 +49,7 @@ export function Gallery(props: GalleryProps) {
             objectPosition={item.objectPosition}
             slug={item.slug}
             yearKey={item.yearKey}
+            album={item.album}
             class={index() === 0 ? 'sm:col-span-2' : undefined}
             aspectRatio={index() === 0 ? '16/9' : '4/3'}
           />

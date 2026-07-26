@@ -17,10 +17,16 @@ const getHomepageData = createServerFn({ method: 'GET' }).handler(() => {
   const materials = getPageContent('materials')
   const galleryPhotos = getCollectionItems('gallery')
 
+  // Genuine favourites deep-link into the cross-year favourites album so the
+  // lightbox pages through the collection; the recent-photo fillers shown
+  // when there aren't yet enough favourites keep opening their own year album.
   const galleryItems = pickGalleryHighlights(
     galleryPhotos,
     HOMEPAGE_GALLERY_LIMIT,
-  ).map(toGalleryDisplayItem)
+  ).map((photo) => ({
+    ...toGalleryDisplayItem(photo),
+    album: photo.favorite ? ({ kind: 'favorites' } as const) : undefined,
+  }))
 
   const allQuotes = getCollectionItems('quotes').sort(
     (a, b) => a.order - b.order,

@@ -1,9 +1,11 @@
 import { Link } from '@tanstack/solid-router'
 import { ChevronLeft, ChevronRight } from 'lucide-solid'
 import { Show } from 'solid-js'
+import { getPhotoLinkTarget } from '~/lib/gallery'
+import type { LightboxAlbum } from '~/lib/gallery'
 
 interface LightboxPaginationProps {
-  year: string
+  album: LightboxAlbum
   prevSlug: string | undefined
   nextSlug: string | undefined
   index: number
@@ -45,8 +47,7 @@ export function LightboxPagination(props: LightboxPaginationProps) {
       >
         {(slug) => (
           <Link
-            to="/gallery/$year/$slug"
-            params={{ year: props.year, slug: slug() }}
+            {...getPhotoLinkTarget(props.album, slug())}
             replace
             aria-label="Forrige billede"
             onClick={(event) => {
@@ -75,8 +76,7 @@ export function LightboxPagination(props: LightboxPaginationProps) {
       >
         {(slug) => (
           <Link
-            to="/gallery/$year/$slug"
-            params={{ year: props.year, slug: slug() }}
+            {...getPhotoLinkTarget(props.album, slug())}
             replace
             aria-label="Næste billede"
             onClick={(event) => {

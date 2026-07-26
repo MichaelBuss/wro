@@ -2,6 +2,8 @@ import { useNavigate, useRouter } from '@tanstack/solid-router'
 import { createSignal, onCleanup, onMount } from 'solid-js'
 import type { GalleryItem } from '~/components/ui'
 import { cx } from '~/cva.config'
+import { getPhotoLinkTarget } from '~/lib/gallery'
+import type { LightboxAlbum } from '~/lib/gallery'
 import { useSwipeNavigation } from '~/lib/use-swipe-navigation'
 import { prefersReducedMotion } from '~/lib/view-transitions'
 import { LightboxCaption } from './lightbox-caption'
@@ -10,7 +12,10 @@ import { LightboxPagination } from './lightbox-pagination'
 import { LightboxPhotoPane } from './lightbox-photo-pane'
 
 interface PhotoLightboxProps {
-  year: string
+  // Which album prev/next/close page within — a single year or the
+  // cross-year favourites collection. The caption breadcrumb below still
+  // points at the photo's *own* year/event (via `item.yearKey`), regardless.
+  album: LightboxAlbum
   item: GalleryItem
   eventSlug: string
   eventLabel: string
@@ -64,7 +69,11 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
       router.history.back()
       return
     }
-    void navigate({ to: '/gallery/$year', params: { year: props.year } })
+    if (props.album.kind === 'favorites') {
+      void navigate({ to: '/gallery/favorites' })
+      return
+    }
+    void navigate({ to: '/gallery/$year', params: { year: props.album.year } })
   }
 
   // Every page turn — swipe, arrow key, or button — slides the photo track to
@@ -75,8 +84,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
   // drive that glide for the non-drag entry points below.
   const navigateToSlug = (slug: string) => {
     void navigate({
-      to: '/gallery/$year/$slug',
-      params: { year: props.year, slug },
+      ...getPhotoLinkTarget(props.album, slug),
       viewTransition: false,
       replace: true,
     })
@@ -270,7 +278,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
           )}
         >
           <LightboxCaption
-            year={props.year}
+            year={props.item.yearKey}
             eventSlug={props.eventSlug}
             eventLabel={props.eventLabel}
             caption={props.item.caption}
@@ -280,7 +288,7 @@ export function PhotoLightbox(props: PhotoLightboxProps) {
 
         <div class="compact-wide:row-start-4">
           <LightboxPagination
-            year={props.year}
+            album={props.album}
             prevSlug={props.prevSlug}
             nextSlug={props.nextSlug}
             index={props.index}

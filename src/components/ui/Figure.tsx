@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/solid-router'
 import { cx } from '~/cva.config'
+import { getPhotoLinkTarget } from '~/lib/gallery'
+import type { LightboxAlbum } from '~/lib/gallery'
 
 type AspectRatio = 'square' | '4/3' | '3/4' | '16/9' | '3/2'
 
@@ -14,6 +16,12 @@ interface FigureProps {
   /** Gallery slug + year key, used to link this figure to its lightbox. */
   slug: string
   yearKey: string
+  /**
+   * Which album this figure opens into. Defaults to the photo's own year
+   * album; the homepage passes `favorites` for genuinely favourited tiles so
+   * they page through the favourites collection instead.
+   */
+  album?: LightboxAlbum
 }
 
 const aspectClasses: Record<AspectRatio, string> = {
@@ -32,8 +40,10 @@ const aspectClasses: Record<AspectRatio, string> = {
 export function Figure(props: FigureProps) {
   return (
     <Link
-      to="/gallery/$year/$slug"
-      params={{ year: props.yearKey, slug: props.slug }}
+      {...getPhotoLinkTarget(
+        props.album ?? { kind: 'year', year: props.yearKey },
+        props.slug,
+      )}
       class={cx(
         'group block overflow-hidden rounded-lg',
         aspectClasses[props.aspectRatio ?? '4/3'],

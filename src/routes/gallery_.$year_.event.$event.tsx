@@ -83,7 +83,10 @@ function GalleryEventPage() {
                 {(location) => <> — {location()}</>}
               </Show>
             </p>
-            <PhotoGrid items={eventData().items} year={params().year} />
+            <PhotoGrid
+              items={eventData().items}
+              album={{ kind: 'year', year: params().year }}
+            />
           </>
         )}
       </Show>

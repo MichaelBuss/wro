@@ -29,9 +29,11 @@ import { Route as InfoPrizesRouteImport } from './routes/info.prizes'
 import { Route as InfoMaterialsRouteImport } from './routes/info.materials'
 import { Route as InfoDateRouteImport } from './routes/info.date'
 import { Route as InfoCostRouteImport } from './routes/info.cost'
+import { Route as GalleryFavoritesRouteImport } from './routes/gallery_.favorites'
 import { Route as GalleryYearRouteImport } from './routes/gallery_.$year'
 import { Route as DashboardTeamIdRouteImport } from './routes/dashboard_.$teamId'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as GalleryFavoritesSlugRouteImport } from './routes/gallery_.favorites_.$slug'
 import { Route as GalleryYearSlugRouteImport } from './routes/gallery_.$year_.$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 import { Route as GalleryYearEventEventRouteImport } from './routes/gallery_.$year_.event.$event'
@@ -136,6 +138,11 @@ const InfoCostRoute = InfoCostRouteImport.update({
   path: '/info/cost',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleryFavoritesRoute = GalleryFavoritesRouteImport.update({
+  id: '/gallery_/favorites',
+  path: '/gallery/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryYearRoute = GalleryYearRouteImport.update({
   id: '/gallery_/$year',
   path: '/gallery/$year',
@@ -149,6 +156,11 @@ const DashboardTeamIdRoute = DashboardTeamIdRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryFavoritesSlugRoute = GalleryFavoritesSlugRouteImport.update({
+  id: '/gallery_/favorites_/$slug',
+  path: '/gallery/favorites/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalleryYearSlugRoute = GalleryYearSlugRouteImport.update({
@@ -180,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
   '/gallery/$year': typeof GalleryYearRoute
+  '/gallery/favorites': typeof GalleryFavoritesRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -193,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/gallery/$year/$slug': typeof GalleryYearSlugRoute
+  '/gallery/favorites/$slug': typeof GalleryFavoritesSlugRoute
   '/gallery/$year/event/$event': typeof GalleryYearEventEventRoute
 }
 export interface FileRoutesByTo {
@@ -208,6 +222,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/$teamId': typeof DashboardTeamIdRoute
   '/gallery/$year': typeof GalleryYearRoute
+  '/gallery/favorites': typeof GalleryFavoritesRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -221,6 +236,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/gallery/$year/$slug': typeof GalleryYearSlugRoute
+  '/gallery/favorites/$slug': typeof GalleryFavoritesSlugRoute
   '/gallery/$year/event/$event': typeof GalleryYearEventEventRoute
 }
 export interface FileRoutesById {
@@ -237,6 +253,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard_/$teamId': typeof DashboardTeamIdRoute
   '/gallery_/$year': typeof GalleryYearRoute
+  '/gallery_/favorites': typeof GalleryFavoritesRoute
   '/info/cost': typeof InfoCostRoute
   '/info/date': typeof InfoDateRoute
   '/info/materials': typeof InfoMaterialsRoute
@@ -250,6 +267,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/gallery_/$year_/$slug': typeof GalleryYearSlugRoute
+  '/gallery_/favorites_/$slug': typeof GalleryFavoritesSlugRoute
   '/gallery_/$year_/event/$event': typeof GalleryYearEventEventRoute
 }
 export interface FileRouteTypes {
@@ -267,6 +285,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/dashboard/$teamId'
     | '/gallery/$year'
+    | '/gallery/favorites'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -280,6 +299,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/auth/$'
     | '/gallery/$year/$slug'
+    | '/gallery/favorites/$slug'
     | '/gallery/$year/event/$event'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -295,6 +315,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/dashboard/$teamId'
     | '/gallery/$year'
+    | '/gallery/favorites'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -308,6 +329,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/api/auth/$'
     | '/gallery/$year/$slug'
+    | '/gallery/favorites/$slug'
     | '/gallery/$year/event/$event'
   id:
     | '__root__'
@@ -323,6 +345,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/dashboard_/$teamId'
     | '/gallery_/$year'
+    | '/gallery_/favorites'
     | '/info/cost'
     | '/info/date'
     | '/info/materials'
@@ -336,6 +359,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/auth/$'
     | '/gallery_/$year_/$slug'
+    | '/gallery_/favorites_/$slug'
     | '/gallery_/$year_/event/$event'
   fileRoutesById: FileRoutesById
 }
@@ -352,6 +376,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   DashboardTeamIdRoute: typeof DashboardTeamIdRoute
   GalleryYearRoute: typeof GalleryYearRoute
+  GalleryFavoritesRoute: typeof GalleryFavoritesRoute
   InfoCostRoute: typeof InfoCostRoute
   InfoDateRoute: typeof InfoDateRoute
   InfoMaterialsRoute: typeof InfoMaterialsRoute
@@ -365,6 +390,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   GalleryYearSlugRoute: typeof GalleryYearSlugRoute
+  GalleryFavoritesSlugRoute: typeof GalleryFavoritesSlugRoute
   GalleryYearEventEventRoute: typeof GalleryYearEventEventRoute
 }
 
@@ -510,6 +536,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof InfoCostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gallery_/favorites': {
+      id: '/gallery_/favorites'
+      path: '/gallery/favorites'
+      fullPath: '/gallery/favorites'
+      preLoaderRoute: typeof GalleryFavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery_/$year': {
       id: '/gallery_/$year'
       path: '/gallery/$year'
@@ -529,6 +562,13 @@ declare module '@tanstack/solid-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery_/favorites_/$slug': {
+      id: '/gallery_/favorites_/$slug'
+      path: '/gallery/favorites/$slug'
+      fullPath: '/gallery/favorites/$slug'
+      preLoaderRoute: typeof GalleryFavoritesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gallery_/$year_/$slug': {
@@ -568,6 +608,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   DashboardTeamIdRoute: DashboardTeamIdRoute,
   GalleryYearRoute: GalleryYearRoute,
+  GalleryFavoritesRoute: GalleryFavoritesRoute,
   InfoCostRoute: InfoCostRoute,
   InfoDateRoute: InfoDateRoute,
   InfoMaterialsRoute: InfoMaterialsRoute,
@@ -581,6 +622,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   GalleryYearSlugRoute: GalleryYearSlugRoute,
+  GalleryFavoritesSlugRoute: GalleryFavoritesSlugRoute,
   GalleryYearEventEventRoute: GalleryYearEventEventRoute,
 }
 export const routeTree = rootRouteImport

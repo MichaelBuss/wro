@@ -5,16 +5,16 @@ import { PhotoLightbox } from '~/components/gallery/photo-lightbox'
 import { Heading } from '~/components/ui'
 import {
   EVENT_SLUGS,
-  findAdjacentGalleryPhoto,
+  findAdjacentFavoritePhoto,
   toGalleryDisplayItem,
 } from '~/lib/gallery'
 import { getCollectionItems } from '~/server/content'
 
-const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
-  .validator((data: { year: string; slug: string }) => data)
-  .handler(({ data }) => {
+const getFavoriteLightboxPhoto = createServerFn({ method: 'GET' })
+  .validator((slug: string) => slug)
+  .handler(({ data: slug }) => {
     const photos = getCollectionItems('gallery')
-    const adjacent = findAdjacentGalleryPhoto(photos, data.year, data.slug)
+    const adjacent = findAdjacentFavoritePhoto(photos, slug)
 
     if (!adjacent) return null
 
@@ -38,17 +38,14 @@ const getGalleryLightboxPhoto = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/gallery_/$year_/$slug')({
-  component: GalleryLightboxPage,
+export const Route = createFileRoute('/gallery_/favorites_/$slug')({
+  component: FavoriteLightboxPage,
   loader: async ({ params }) =>
-    await getGalleryLightboxPhoto({
-      data: { year: params.year, slug: params.slug },
-    }),
+    await getFavoriteLightboxPhoto({ data: params.slug }),
 })
 
-function GalleryLightboxPage() {
+function FavoriteLightboxPage() {
   const data = Route.useLoaderData()
-  const params = Route.useParams()
 
   return (
     <Show
@@ -57,18 +54,17 @@ function GalleryLightboxPage() {
         <div class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background px-6 text-center">
           <Heading level="h1">Billede ikke fundet</Heading>
           <Link
-            to="/gallery/$year"
-            params={{ year: params().year }}
+            to="/gallery/favorites"
             class="text-sm-copy font-medium text-primary hover:underline"
           >
-            Tilbage til galleriet
+            Tilbage til favoritterne
           </Link>
         </div>
       }
     >
       {(lightboxData) => (
         <PhotoLightbox
-          album={{ kind: 'year', year: params().year }}
+          album={{ kind: 'favorites' }}
           item={lightboxData().item}
           eventSlug={lightboxData().eventSlug}
           eventLabel={lightboxData().eventLabel}
