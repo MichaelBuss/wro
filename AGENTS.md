@@ -113,3 +113,17 @@ npm run build
 ```
 
 Fix all errors before considering work complete.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues in this repo, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical triage roles as label strings. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` at the repo root plus `docs/adr/`. See `docs/agents/domain.md`.
