@@ -1,6 +1,7 @@
 # Local-only Postgres for development. Registration + auth data lives here
 # (see docs/architecture/data-persistence.md). No cloud database is provisioned
-# until the cloudnet.dk migration; all access is via DATABASE_URL.
+# until the Hetzner VPS migration (docs/adr/0001-hetzner-vps-coolify.md);
+# all access is via DATABASE_URL.
 #
 #   docker compose up -d
 #   cp .env.example .env   # then: npm run db:migrate
