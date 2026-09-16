@@ -1,4 +1,4 @@
-import { claude, defineConfig, github } from "@readyrun/readyrun";
+import { custom, defineConfig, github } from "@readyrun/readyrun";
 
 export default defineConfig({
   tracker: github({
@@ -6,8 +6,12 @@ export default defineConfig({
     ready: "unblocked",
     labels: ["ready-for-agent"],
   }),
-  worker: claude(),
-  model: "opus",
+  worker: custom({
+    bin: "opencode",
+    args: ["run"],
+    unattendedFlag: "--auto",
+  }),
+  model: "zai-coding-plan/glm-5.3-flash",
   permissions: "unattended",
   contextFile: "CONTEXT.md",
 });
