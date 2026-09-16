@@ -1,4 +1,3 @@
-import netlify from '@netlify/vite-plugin-tanstack-start'
 import tailwindcss from '@tailwindcss/vite'
 import { devtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/solid-start/plugin/vite'
@@ -6,12 +5,13 @@ import { defineConfig } from 'vite'
 import solidPlugin from 'vite-plugin-solid'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 
+// No deploy-target plugin: `vite build` emits the client (static assets +
+// prerendered HTML) into dist/client and a fetch-style SSR handler into
+// dist/server/server.js. src/server/production-server.mjs serves both from a
+// single Node process (see docs/architecture/build-and-deployment.md).
 export default defineConfig({
   plugins: [
     devtools(),
-    // Official Netlify adapter for TanStack Start: configures the build for
-    // Netlify Functions + static assets and emulates the Netlify platform in dev.
-    netlify(),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
