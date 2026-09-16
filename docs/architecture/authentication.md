@@ -4,7 +4,7 @@ status: implemented
 authors:
   - Michael
 created: 2026-07-04
-updated: 2026-07-04
+updated: 2026-09-16
 relatedPlans:
   - team-registration
   - data-persistence
@@ -38,7 +38,9 @@ The [team registration](team-registration.md) feature requires the site's first
 authenticated area: coaches log in to manage their Teams, organizers log in to
 confirm registrations. This is a first-time auth build by a solo developer, so
 the overriding goals are **minimal footgun surface** and **no vendor lock-in**
-(the site is moving to a Danish host — see [Data Persistence](data-persistence.md)).
+(the site is moving to self-hosted EU hosting — see
+  [Data Persistence](data-persistence.md) and
+  [ADR 0001](../adr/0001-hetzner-vps-coolify.md)).
 
 ## Decision
 
@@ -142,8 +144,17 @@ needs no user diligence.
   expected scale (tens of teams), and upgradable to auto-email later.
 - **Better Auth passkey/Solid integration maturity** should be validated with a
   spike before committing UI work.
+- **Passkeys are bound to the origin hostname.** A passkey enrolled on one
+  hostname (e.g. `beta.wro-denmark.dk`) cannot be used on another (e.g. the
+  apex domain). The final production hostname must be chosen before
+  registration opens; if the hostname must ever change under live users,
+  WebAuthn **Related Origin Requests** (`/.well-known/webauthn`) lets the new
+  origin use passkeys whose RP ID is the old hostname (see ADR 0001).
 
 ## Revision History
 
 - **2026-07-04** (Michael): Initial proposal for passkey-only auth via Better
   Auth, no-email operation, manual recovery, and env-allowlist organizer roles.
+- **2026-09-16** (Michael): Hosting reference updated to the Hetzner/Coolify
+  decision ([ADR 0001](../adr/0001-hetzner-vps-coolify.md)); added the
+  passkey-origin-hostname risk with the Related Origin Requests escape hatch.

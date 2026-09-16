@@ -4,7 +4,7 @@ status: implemented
 authors:
   - Michael
 created: 2026-02-16
-updated: 2026-06-27
+updated: 2026-09-16
 codeAnchors:
   - vite.config.ts
   - netlify.toml
@@ -25,6 +25,12 @@ overview: >
 ## Context
 
 TanStack Start uses Vite as its build tool. The pipeline needs to produce prerendered HTML for the mostly-static content pages while keeping a server runtime available for server functions and dynamic rendering. The site is deployed to Netlify.
+
+> **Hosting target change (2026-09):** the hosting destination is changing to a
+> single Hetzner VPS managed by Coolify — see
+> [ADR 0001](../adr/0001-hetzner-vps-coolify.md). This document describes the
+> current Netlify pipeline until that migration lands; the repo-side prep is
+> tracked in GitHub issue #19.
 
 ## Decision
 
@@ -65,3 +71,4 @@ vite build
 
 - **2026-02-16** (Michael): Initial document capturing build and deployment architecture (Vite + TanStack Start + Nitro nightly, Netlify preset).
 - **2026-06-27** (Michael): Migrated deployment from the generic Nitro adapter to the official `@netlify/vite-plugin-tanstack-start`. Removed the `nitro` dependency and `nitro.config.ts`, changed the publish dir to `dist/client`, removed the stale `npm start` script, and re-enabled static prerendering (now working). Motivation: the floating `nitro-nightly@latest` pin drifted and broke the build, and the Netlify adapter is the supported path.
+- **2026-09-16** (Michael): Decision to leave Netlify for a self-hosted Hetzner VPS managed by Coolify ([ADR 0001](../adr/0001-hetzner-vps-coolify.md)). The pipeline below still describes the live setup until that migration completes (repo prep in GitHub issue #19).

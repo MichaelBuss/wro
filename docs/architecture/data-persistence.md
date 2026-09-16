@@ -4,7 +4,7 @@ status: implemented
 authors:
   - Michael
 created: 2026-07-04
-updated: 2026-07-04
+updated: 2026-09-16
 relatedPlans:
   - team-registration
   - authentication
@@ -14,7 +14,8 @@ overview: >
   A host-agnostic Postgres database accessed via Drizzle ORM for all dynamic,
   user-owned data (registrations + auth), kept strictly separate from the
   build-time Markdown content layer. Chosen for portability (no PaaS lock-in),
-  EU data residency, and a local-first build order ahead of a move to cloudnet.dk.
+  EU data residency, and a local-first build order ahead of the move to a
+  self-hosted Hetzner VPS (see docs/adr/0001-hetzner-vps-coolify.md).
 ---
 
 # Data Persistence (Postgres + Drizzle)
@@ -45,8 +46,10 @@ serverless function has no durable local disk).
 
 Two hard constraints shape the choice:
 
-- **No PaaS lock-in.** The site is planned to move off Netlify to a Danish host
-  (**cloudnet.dk**) for data-sovereignty reasons. Adopting a proprietary store
+- **No PaaS lock-in.** The site is planned to move off Netlify to a self-hosted
+  EU VPS (**Hetzner**, managed by Coolify — see
+  [ADR 0001](../adr/0001-hetzner-vps-coolify.md)) for data-sovereignty reasons.
+  Adopting a proprietary store
   (e.g. Netlify Database, or a bundled auth+db platform) would work against that.
 - **Data sovereignty / GDPR.** The data includes **minors' personal data**, which
   pushes toward EU data residency and portability.
@@ -105,21 +108,19 @@ The strategy is phased.
 Drizzle migrations** (the effective schema backup) and local rows are disposable
 seed/test data.
 
-**Production (after the cloudnet.dk move):** the concrete mechanism depends on
-what the host provides.
+**Production (after the Hetzner move):** Postgres is **self-hosted** on the VPS
+(Coolify-managed), so we own backups. The chosen mechanism for this small,
+low-churn dataset:
 
-- **If cloudnet.dk offers managed Postgres:** rely on its **automated backups +
-  point-in-time recovery**, but verify retention and that we can actually trigger
-  a restore ourselves.
-- **If we self-host Postgres there:** we own backups. Baseline for this small,
-  low-churn dataset:
-  - **Automated daily `pg_dump`** to **encrypted, off-box storage in the EU**
-    (never only on the DB host).
-  - **~30-day rolling retention.**
-  - **Periodic test-restores** into a scratch database — an untested backup is not
-    a backup.
-  - **WAL archiving / PITR** only if a ~24h loss window ever becomes unacceptable;
-    daily dumps are expected to suffice.
+- **Coolify's scheduled backups** run an **automated daily `pg_dump`** to
+  **Hetzner Object Storage** — S3-compatible, in the EU, with **server-side
+  encryption** — so dumps land on **off-box storage** (never only on the DB
+  host).
+- **~30-day rolling retention.**
+- **Periodic test-restores** into a scratch database — an untested backup is not
+  a backup (see the restore-drill issue linked from #19).
+- **WAL archiving / PITR** only if a ~24h loss window ever becomes unacceptable;
+  daily dumps are expected to suffice.
 
 **Targets (owner's decision, revisit as stakes change):** **RPO ≈ 24h, RTO ≈ a
 few hours.** Registration-deadline week may warrant temporarily tighter RPO.
@@ -132,9 +133,8 @@ backups age out on the retention schedule and are **not** mined to re-inject
 erased individuals except in a genuine disaster restore. This is a deliberate,
 standard trade-off, stated so it is a decision rather than an accident.
 
-Implementation is tracked in issue
-[`docs/issues/010-production-backups-and-restore-drill.md`](../issues/010-production-backups-and-restore-drill.md),
-deferred until the cloudnet.dk hosting shape is known.
+Implementation is tracked in the restore-drill follow-up issue linked from #19
+on GitHub, deferred until the site is live on the Hetzner VPS.
 
 ## Build Order & Migration Path
 
@@ -146,9 +146,9 @@ cloudnet.dk move. Therefore:
 2. **No interim cloud database** is provisioned — that decision is skipped
    entirely, and the Netlify-serverless connection-pooling concern is avoided
    because the real target is a persistent Node server.
-3. **At migration:** provision Postgres on/near cloudnet.dk (EU), run the
-   committed migrations, set `DATABASE_URL`, deploy. Relocating an existing
-   Postgres elsewhere is `pg_dump | pg_restore` + one env var.
+3. **At migration:** provision Postgres in Coolify on the Hetzner VPS (EU),
+   run the committed migrations, set `DATABASE_URL`, deploy. Relocating an
+   existing Postgres elsewhere is `pg_dump | pg_restore` + one env var.
 
 ## Fit With the Stack
 
@@ -164,7 +164,7 @@ cloudnet.dk move. Therefore:
 **Netlify Database (Neon-powered).** The glove-fit for a Netlify-hosted app
 (auto-provisioning, Git-tracked migrations, per-preview DB branches) — but it is a
 Netlify-plan-bound, proprietary integration, directly at odds with the planned
-move to cloudnet.dk. Rejected for lock-in.
+move to self-hosted EU hosting. Rejected for lock-in.
 
 **Supabase.** Postgres plus bundled auth + storage. Its auth is redundant here
 (passkeys via Better Auth) and it adds another platform dependency. If ever
@@ -187,3 +187,8 @@ sign-up is a non-starter, and the serverless function has no durable disk.
   cloudnet.dk migration path.
 - **2026-07-04** (Michael): Added Backup & Recovery section (phased strategy,
   RPO/RTO targets, GDPR/backup interaction); tracked in issue 010.
+- **2026-09-16** (Michael): Hosting target changed from cloudnet.dk to a
+  self-hosted Hetzner VPS managed by Coolify (see
+  [ADR 0001](../adr/0001-hetzner-vps-coolify.md)). The self-hosted-backup
+  branch is now the chosen mechanism: Coolify scheduled `pg_dump` to Hetzner
+  Object Storage (EU, encrypted, ~30-day retention).
