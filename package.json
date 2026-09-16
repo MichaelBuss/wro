@@ -6,6 +6,7 @@
     "setup": "tsx scripts/setup.ts",
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "start": "node src/server/production-server.mjs",
     "serve": "vite preview",
     "test": "vitest run",
     "typecheck": "tsgo --noEmit",
@@ -60,7 +61,6 @@
   "devDependencies": {
     "@clack/prompts": "^1.7.0",
     "@electric-sql/pglite": "^0.5.3",
-    "@netlify/vite-plugin-tanstack-start": "^1.3.16",
     "@tanstack/devtools-vite": "^0.8.0",
     "@tanstack/eslint-config": "^0.4.0",
     "@types/node": "^26.0.0",
