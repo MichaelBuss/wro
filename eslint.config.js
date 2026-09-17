@@ -27,8 +27,9 @@ const tanstackRules = tanstackConfig.map((config) => {
 })
 
 export default defineConfig([
-  // Ignores
-  { ignores: ['node_modules', 'dist', '.output', '.netlify', '**/*.gen.ts'] },
+  // Ignores. `.readyrun` holds git worktrees of this same repo (one per
+  // ticket); linting the duplicate trees would just re-report their files.
+  { ignores: ['node_modules', 'dist', '.output', '.netlify', '.readyrun', '**/*.gen.ts'] },
 
   // TanStack config (rules only, parser options filtered)
   ...tanstackRules,
@@ -63,7 +64,7 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.config.js', '.cursor/hooks/*.js', 'readyrun-cli.mjs'],
+          allowDefaultProject: ['*.config.js', '.cursor/hooks/*.js', 'readyrun-cli.mjs', 'src/server/production-server.mjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
