@@ -1,0 +1,16 @@
+{
+  "name": "wro-sveltia-authenticator",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.16.0"
+  },
+  "scripts": {
+    "build": "tsc --ignoreConfig src/main.ts --outDir dist --module nodenext --moduleResolution nodenext --target es2022 --lib es2022,dom --types node --strict --skipLibCheck",
+    "start": "node dist/main.js"
+  },
+  "devDependencies": {
+    "@types/node": "26.0.0",
+    "typescript": "6.0.3"
+  }
+}

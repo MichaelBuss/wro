@@ -2,6 +2,11 @@ backend:
   name: github
   repo: MichaelBuss/wro
   branch: main
+  # Sveltia Authenticator gateway (sveltia-authenticator/ in this repo,
+  # self-hosted per docs/adr/0001-hetzner-vps-coolify.md). The gateway's OAuth
+  # App callback URL must be {base_url}/callback — see
+  # sveltia-authenticator/README.md for the required environment variables.
+  base_url: https://auth.wro-denmark.dk
 
 # Only activates on localhost — lets the CMS read/write your working tree directly.
 local_backend: true

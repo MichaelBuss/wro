@@ -7,6 +7,6 @@ export default defineConfig({
   plugins: [tsConfigPaths({ projects: ['./tsconfig.json'] })],
   test: {
     environment: 'node',
-    include: ['src/**/*.spec.ts'],
+    include: ['src/**/*.spec.ts', 'sveltia-authenticator/**/*.spec.ts'],
   },
 })
