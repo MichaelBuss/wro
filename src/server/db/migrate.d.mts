@@ -1,4 +1,4 @@
-export declare function resolveDatabaseUrl(env: { DATABASE_URL?: string | undefined }): string
+export declare function resolveDatabaseUrl(env?: { DATABASE_URL?: string | undefined }): string
 
 export declare function applyMigrations(options?: {
   databaseUrl?: string | undefined
