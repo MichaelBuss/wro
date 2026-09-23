@@ -42,8 +42,12 @@ answers with a 4xx page instead of crashing.
 
 ## Build and run
 
+The image is built from the repository root via [`Dockerfile.authenticator`](../Dockerfile.authenticator)
+(repo-relative COPY paths, because the Docker build context is the repo root —
+same file the Coolify deploy and the smoke harness use):
+
 ```bash
-docker build -t wro-sveltia-authenticator .
+docker build -f Dockerfile.authenticator -t wro-sveltia-authenticator .
 docker run --rm -p 8080:8080 \
   -e GITHUB_CLIENT_ID=… \
   -e GITHUB_CLIENT_SECRET=… \
