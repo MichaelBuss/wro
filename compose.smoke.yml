@@ -1,0 +1,77 @@
+# Local-parity smoke stack: the exact production app image, a throwaway
+# Postgres, and the Sveltia authenticator, on their own compose project so it
+# never touches the development stack in docker-compose.yml.
+#
+#   npm run smoke
+#
+# builds both images, boots the stack, asserts the site's external behavior
+# over HTTP (scripts/smoke.ts), and tears everything down. `down -v` wipes the
+# smoke database, so every run exercises a from-scratch migration on boot.
+#
+# Ports are deliberately off the development beats (3000/5432/8080) so the
+# harness can run next to a dev server and the dev database.
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: wro
+      POSTGRES_PASSWORD: wro
+      POSTGRES_DB: wro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wro -d wro']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://wro:wro@db:5432/wro
+      BETTER_AUTH_SECRET: smoke-secret-not-real
+      BETTER_AUTH_URL: http://localhost:4170
+      PASSKEY_RP_ID: localhost
+    ports:
+      - '4170:3000'
+    healthcheck:
+      # The server exits non-zero if boot migrations fail, so "serves / with
+      # 200" doubles as proof the migration step completed.
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/').then((r) => process.exit(r.status === 200 ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+      start_period: 15s
+
+  authenticator:
+    build: sveltia-authenticator
+    environment:
+      # Throwaway credentials: the smoke checks only exercise the
+      # credentialess-rejection path, never a real GitHub exchange.
+      GITHUB_CLIENT_ID: smoke-client-id
+      GITHUB_CLIENT_SECRET: smoke-client-secret
+      ALLOWED_DOMAINS: localhost
+    ports:
+      - '4180:8080'
+    healthcheck:
+      # Any HTTP response (even a 404) proves the server is up; the smoke
+      # checks assert the meaningful status codes themselves.
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:8080/').then(() => process.exit(0)).catch(() => process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
