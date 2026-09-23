@@ -2,6 +2,8 @@ import type { IncomingMessage, Server } from 'node:http'
 
 export declare function staticPathCandidates(clientRoot: string, pathname: string): Array<string>
 
+export declare function adminRedirectLocation(pathname: string): string | undefined
+
 export declare function createFetchRequest(req: NodeRequest, defaultPort: number): Request
 
 export declare function parsePort(raw: string | undefined): number | undefined

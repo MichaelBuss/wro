@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Readable } from 'node:stream'
 import { describe, expect, it } from 'vitest'
-import { createFetchRequest, parsePort, startProductionServer, staticPathCandidates } from './production-server.mjs'
+import { adminRedirectLocation, createFetchRequest, parsePort, startProductionServer, staticPathCandidates } from './production-server.mjs'
 
 type NodeRequest = Pick<IncomingMessage, 'headers' | 'method' | 'url'>
 
@@ -45,8 +45,10 @@ async function withPort(port: string, run: () => Promise<void>): Promise<void> {
 async function createClientRoot(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), 'wro-static-'))
   await mkdir(join(root, 'prerendered'), { recursive: true })
+  await mkdir(join(root, 'cms'), { recursive: true })
   await writeFile(join(root, 'index.html'), '<html lang="da">forside</html>')
   await writeFile(join(root, 'prerendered', 'index.html'), '<html lang="da">prerenderet</html>')
+  await writeFile(join(root, 'cms', 'index.html'), '<html lang="da">sveltia</html>')
   await writeFile(join(root, 'logo.webp'), 'fake-image-bytes')
   return root
 }
@@ -86,6 +88,32 @@ describe('staticPathCandidates', () => {
   it('rejects malformed encodings and null bytes', () => {
     expect(staticPathCandidates(root, '/%zz')).toEqual([])
     expect(staticPathCandidates(root, '/\0')).toEqual([])
+  })
+})
+
+describe('adminRedirectLocation', () => {
+  it('maps /admin to /cms', () => {
+    expect(adminRedirectLocation('/admin')).toBe('/cms')
+  })
+
+  it('maps sub-paths to their /cms equivalents', () => {
+    expect(adminRedirectLocation('/admin/')).toBe('/cms/')
+    expect(adminRedirectLocation('/admin/config.yml')).toBe('/cms/config.yml')
+    expect(adminRedirectLocation('/admin/deep/nested/path')).toBe('/cms/deep/nested/path')
+  })
+
+  it('keeps percent-encodings intact', () => {
+    expect(adminRedirectLocation('/admin/gallery/a%20b.webp')).toBe('/cms/gallery/a%20b.webp')
+  })
+
+  it('ignores paths that merely start with /admin', () => {
+    expect(adminRedirectLocation('/administrator')).toBeUndefined()
+    expect(adminRedirectLocation('/adminxxx/config.yml')).toBeUndefined()
+  })
+
+  it('ignores everything else', () => {
+    expect(adminRedirectLocation('/')).toBeUndefined()
+    expect(adminRedirectLocation('/cms')).toBeUndefined()
   })
 })
 
@@ -168,6 +196,37 @@ describe('startProductionServer', () => {
         expect(forwarded.status).toBe(404)
         expect(await forwarded.text()).toBe('dynamic')
         expect(servedUrls).toHaveLength(1)
+      } finally {
+        await closeServer(server)
+      }
+    })
+  })
+
+  it('serves the CMS SPA at /cms and 301-redirects legacy /admin paths', async () => {
+    await withPort(randomPort(), async () => {
+      const server = await startProductionServer({
+        clientRoot: await createClientRoot(),
+        handler: { fetch: () => new Response('dynamic', { status: 404 }) },
+        log: { info: () => undefined },
+      })
+      try {
+        const port = serverPort(server)
+
+        const cms = await fetch(`http://localhost:${port}/cms`)
+        expect(cms.status).toBe(200)
+        expect(await cms.text()).toContain('sveltia')
+
+        const admin = await fetch(`http://localhost:${port}/admin`, { redirect: 'manual' })
+        expect(admin.status).toBe(301)
+        expect(admin.headers.get('location')).toBe('/cms')
+
+        const adminSubPath = await fetch(`http://localhost:${port}/admin/config.yml`, { redirect: 'manual' })
+        expect(adminSubPath.status).toBe(301)
+        expect(adminSubPath.headers.get('location')).toBe('/cms/config.yml')
+
+        const adminQuery = await fetch(`http://localhost:${port}/admin?path=sidebar`, { redirect: 'manual' })
+        expect(adminQuery.status).toBe(301)
+        expect(adminQuery.headers.get('location')).toBe('/cms?path=sidebar')
       } finally {
         await closeServer(server)
       }

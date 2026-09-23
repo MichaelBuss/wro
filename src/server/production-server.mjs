@@ -8,7 +8,8 @@
  *
  *   1. GET/HEAD requests whose path matches a file in `dist/client`
  *      (including prerendered `<path>/index.html`) are served statically.
- *   2. Everything else — dynamic routes, server functions (`/_serverFn/*`),
+ *   2. Legacy `/admin` paths 301-redirect to their `/cms` equivalents.
+ *   3. Everything else — dynamic routes, server functions (`/_serverFn/*`),
  *      the passkey auth handler (`/api/auth/*`) — is forwarded to the SSR
  *      handler as a standard `Request`, and its `Response` is written back.
  *
@@ -115,6 +116,17 @@ function acceptsGzip(acceptEncoding) {
 
 function etagFor(stats) {
   return `W/"${stats.size.toString(16)}-${stats.mtimeMs.toString(36)}"`
+}
+
+/**
+ * Location for the legacy `/admin` → `/cms` redirect, or undefined for other
+ * paths. Sub-paths map through unchanged (`/admin/config.yml` →
+ * `/cms/config.yml`), percent-encodings stay intact.
+ */
+export function adminRedirectLocation(pathname) {
+  if (pathname === '/admin') return '/cms'
+  if (pathname.startsWith('/admin/')) return `/cms${pathname.slice('/admin'.length)}`
+  return undefined
 }
 
 /**
@@ -228,6 +240,20 @@ function respondWithInternalServerError(res, error) {
 }
 
 /**
+ * Answer legacy `/admin` requests with a permanent redirect to their `/cms`
+ * equivalent, query string included (as Netlify's redirect table did).
+ * Returns true when the request was a redirect.
+ */
+function redirectLegacyAdmin(req, res) {
+  const { pathname, search } = new URL(req.url ?? '/', 'http://localhost')
+  const location = adminRedirectLocation(pathname)
+  if (location === undefined) return false
+  res.writeHead(301, { Location: `${location}${search}` })
+  res.end()
+  return true
+}
+
+/**
  * Boot the production server. `handler` is the built SSR entry's default
  * export (`{ fetch }`). Resolves with the `node:http` server once it is
  * listening, so callers (and tests) can close it.
@@ -238,6 +264,7 @@ export function startProductionServer({ clientRoot = CLIENT_ROOT, handler, log =
 
   const server = createServer(async (req, res) => {
     try {
+      if (redirectLegacyAdmin(req, res)) return
       if ((req.method === 'GET' || req.method === 'HEAD') && (await serveStatic(clientRoot, req, res))) return
       const fetchResponse = await handler.fetch(createFetchRequest(req, port))
       await sendFetchResponse(fetchResponse, req, res)
