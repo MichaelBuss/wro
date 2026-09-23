@@ -112,7 +112,7 @@ The `docs/architecture/` directory has decision records for each major design ar
 - [`cms-content-layer.md`](docs/architecture/cms-content-layer.md) — Markdown + Sveltia CMS at `/cms`
 - [`image-pipeline.md`](docs/architecture/image-pipeline.md) — WebP optimisation, single source of truth
 - [`component-and-ui-system.md`](docs/architecture/component-and-ui-system.md) — component conventions
-- [`build-and-deployment.md`](docs/architecture/build-and-deployment.md) — Netlify, environment setup
+- [`build-and-deployment.md`](docs/architecture/build-and-deployment.md) — Docker image, Coolify deploys, environment setup
 - [`developer-experience-and-tooling.md`](docs/architecture/developer-experience-and-tooling.md) — tooling choices
 
 The canonical domain vocabulary (Account, Team, Event, Category, etc.) is in [`CONTEXT.md`](CONTEXT.md).

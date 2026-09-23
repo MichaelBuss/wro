@@ -4,7 +4,7 @@ status: implemented
 authors:
   - Michael
 created: 2026-02-16
-updated: 2026-06-27
+updated: 2026-09-23
 codeAnchors:
   - package.json
   - vite.config.ts
@@ -69,8 +69,9 @@ The stack centers on a small number of foundational choices:
 - **`@tanstack/solid-start`** — SSR/SSG meta-framework built on Vite
 - **`@tanstack/solid-router`** — Type-safe, file-based routing with loaders
 - **`vite` (v7)** — Build tool and dev server
-- **`@netlify/vite-plugin-tanstack-start`** — Official Netlify deployment adapter (see [Build & Deployment](build-and-deployment.md))
 - **`zod`** — Runtime validation for content, env vars, and server function inputs
+
+The build emits a self-contained Node server with no deploy-target plugin — deployment is covered in [Build & Deployment](build-and-deployment.md).
 
 ## Alternatives Considered
 
@@ -86,3 +87,4 @@ The stack centers on a small number of foundational choices:
 
 - **2026-02-16** (Michael): Initial document capturing tech stack rationale
 - **2026-06-27** (Michael): Dropped Nitro as a direct dependency; deployment now goes through the official `@netlify/vite-plugin-tanstack-start` adapter. See [Build & Deployment](build-and-deployment.md).
+- **2026-09-23** (Michael): The Netlify adapter itself is gone — the build emits a self-contained Node server with no deploy-target plugin (Hetzner/Coolify per [ADR 0001](../adr/0001-hetzner-vps-coolify.md)); removed it from Key Dependencies. See [Build & Deployment](build-and-deployment.md).
