@@ -49,7 +49,7 @@ TanStack Start uses Vite as its build tool. The pipeline produces prerendered HT
 
 ## Environment Variables
 
-Everything a provisioner needs to set per container. App-level variables are validated by `src/env.ts`.
+Everything a provisioner needs to set per container. App-level variables except `PORT`/`HOST` (read directly by the server entry) are validated by `src/env.ts`.
 
 **App container** (the site image):
 
@@ -71,7 +71,8 @@ Everything a provisioner needs to set per container. App-level variables are val
 | `GITHUB_CLIENT_SECRET` | yes                               | That OAuth App's client secret — provision as a Coolify secret, never commit it.                 |
 | `ALLOWED_DOMAINS`      | recommended                       | Comma-separated hostnames allowed to receive the token (e.g. `wro-denmark.dk,*.wro-denmark.dk`). |
 | `GITHUB_ORIGIN`        | no (default `https://github.com`) | Override only for GitHub Enterprise testing.                                                     |
-| `PORT` / `HOST`        | no (`8080` / `0.0.0.0`)           | Listen port / address.                                                                           |
+| `PORT`                 | no (default `8080`)               | Listen port.                                                                                     |
+| `HOST`                 | no (default `0.0.0.0`)            | Listen address.                                                                                  |
 
 The CMS popup targets the gateway via `base_url` in `public/cms/config.yml`, and the GitHub OAuth App's callback URL must be `{base_url}/callback` — the full setup walkthrough lives in [`sveltia-authenticator/README.md`](../../sveltia-authenticator/README.md).
 
