@@ -13,8 +13,13 @@
  *      the passkey auth handler (`/api/auth/*`) — is forwarded to the SSR
  *      handler as a standard `Request`, and its `Response` is written back.
  *
+ * Before listening, the committed Drizzle migrations are applied to
+ * `DATABASE_URL` (see src/server/db/migrate.mjs) — starting this process is
+ * the only migration step in the deploy lifecycle, and re-running it against
+ * an already-migrated database is a no-op.
+ *
  * Configuration is environment-only, so one process is the whole deploy:
- *   DATABASE_URL — Postgres connection string (read by the app at query time)
+ *   DATABASE_URL — Postgres connection string (migrated at boot, read by the app at query time)
  *   PORT         — listen port (default 3000)
  *   HOST         — listen address (default 0.0.0.0)
  *
@@ -308,6 +313,14 @@ const SERVER_ENTRY_PATH = resolve(MODULE_DIR, '../../dist/server/server.js')
 
 const isMainModule = process.argv[1] !== undefined && import.meta.url === pathToFileURL(resolve(process.argv[1])).href
 if (isMainModule) {
+  const { applyMigrations } = await import('./db/migrate.mjs')
+  try {
+    await applyMigrations()
+  } catch (error) {
+    console.error('[production-server] boot migration failed:', error)
+    process.exit(1)
+  }
+
   const handlerModule = await import(pathToFileURL(SERVER_ENTRY_PATH).href)
   const handler = handlerModule.default
   if (typeof handler?.fetch !== 'function') {

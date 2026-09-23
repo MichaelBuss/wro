@@ -64,7 +64,7 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.config.js', '.cursor/hooks/*.js', 'readyrun-cli.mjs', 'src/server/production-server.mjs'],
+          allowDefaultProject: ['*.config.js', '.cursor/hooks/*.js', 'readyrun-cli.mjs', 'src/server/db/migrate.mjs', 'src/server/production-server.mjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
