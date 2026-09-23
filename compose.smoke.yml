@@ -52,7 +52,11 @@ services:
       start_period: 15s
 
   authenticator:
-    build: sveltia-authenticator
+    # The canonical authenticator image lives in Dockerfile.authenticator at
+    # the repo root (same file Coolify builds on the VPS).
+    build:
+      context: .
+      dockerfile: Dockerfile.authenticator
     environment:
       # Throwaway credentials: the smoke checks only exercise the
       # credentialess-rejection path, never a real GitHub exchange.
