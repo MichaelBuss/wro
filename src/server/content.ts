@@ -36,11 +36,12 @@ export function createContentAccessors(store: ContentStore) {
    * its own.
    *
    * `public/gallery` is a symlink to `content/gallery` (see repo root), so
-   * the same file is served directly by Vite/Netlify's static handling —
-   * no bundling or asset pipeline involved. (A Vite `import.meta.glob`
-   * asset-URL approach was tried first, but only works for assets reachable
-   * from client-bundled code; these are only ever read server-side during
-   * prerendering, so nothing would copy them into the client build output.)
+   * the same file is served directly as a static file in dev and in
+   * production — no bundling or asset pipeline involved. (A Vite
+   * `import.meta.glob` asset-URL approach was tried first, but only works
+   * for assets reachable from client-bundled code; these are only ever read
+   * server-side during prerendering, so nothing would copy them into the
+   * client build output.)
    */
   function resolveGalleryImageUrl(filename: string): string {
     return `/gallery/${filename}`
@@ -134,7 +135,8 @@ export function createContentAccessors(store: ContentStore) {
 
 // ---------------------------------------------------------------------------
 // Production store — all Markdown under content/ inlined at build time.
-// Runs identically in dev SSR and Netlify deploy without a runtime storage layer.
+// Runs identically in dev SSR and the production Node server without a
+// runtime storage layer.
 // ---------------------------------------------------------------------------
 
 const prodStore = new GlobAdapter(
