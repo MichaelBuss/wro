@@ -4,7 +4,7 @@ status: implemented
 authors:
   - Michael
 created: 2026-07-04
-updated: 2026-09-16
+updated: 2026-09-23
 relatedPlans:
   - team-registration
   - authentication
@@ -41,16 +41,16 @@ The [team registration](team-registration.md) and [authentication](authenticatio
 features need to persist live, user-owned, frequently-changing data — the first
 such need on the site. The existing content layer stores editorial copy as
 **build-time-inlined Markdown** (see [CMS Content Layer](cms-content-layer.md)),
-which cannot model registrations (you can't rebuild the site per sign-up, and the
-serverless function has no durable local disk).
+which cannot model registrations (you can't rebuild the site per sign-up, and
+build-time inlining means there is no runtime storage layer to write to).
 
 Two hard constraints shape the choice:
 
-- **No PaaS lock-in.** The site is planned to move off Netlify to a self-hosted
-  EU VPS (**Hetzner**, managed by Coolify — see
+- **No PaaS lock-in.** The site runs as a self-contained Node server image on a
+  self-hosted EU VPS (**Hetzner**, managed by Coolify — see
   [ADR 0001](../adr/0001-hetzner-vps-coolify.md)) for data-sovereignty reasons.
-  Adopting a proprietary store
-  (e.g. Netlify Database, or a bundled auth+db platform) would work against that.
+  Adopting a proprietary, hosting-plan-bound store
+  (or a bundled auth+db platform) would work against that.
 - **Data sovereignty / GDPR.** The data includes **minors' personal data**, which
   pushes toward EU data residency and portability.
 
@@ -61,8 +61,9 @@ connected through a single standard **`DATABASE_URL`** environment variable.
 Migrations are **committed to the repo** (Drizzle Kit).
 
 This is the boring, portable, type-safe TypeScript stack: plain Postgres over a
-connection string runs on a Netlify Function today and on a Node server at
-cloudnet.dk tomorrow with **zero application-code changes**. Auth tables
+connection string runs anywhere the artifact runs — in local dev, in the
+containerized smoke harness, and on the Hetzner VPS — with **zero application-code
+changes**. Auth tables
 (Better Auth) live in the **same** database, so there is exactly one datastore to
 host, back up, and eventually relocate.
 
@@ -82,17 +83,17 @@ host, back up, and eventually relocate.
 
 The site now has two intentionally separate data models:
 
-| Plane | Store | Editable by | Changes via |
-| --- | --- | --- | --- |
+| Plane                             | Store                             | Editable by           | Changes via      |
+| --------------------------------- | --------------------------------- | --------------------- | ---------------- |
 | **Content** (copy, gallery, blog) | Markdown in Git, inlined at build | Editors (Sveltia CMS) | Commit + rebuild |
-| **Registrations + Auth** | Postgres | Coaches + Organizers | Live writes |
+| **Registrations + Auth**          | Postgres                          | Coaches + Organizers  | Live writes      |
 
 These do not mix. The content pipeline is unchanged; Postgres is additive.
 
 ## Data Residency & GDPR
 
 - Target **EU data residency** for the Postgres instance.
-- **Data minimisation** is applied in the schema (birth *year* not birthdate;
+- **Data minimisation** is applied in the schema (birth _year_ not birthdate;
   optional Organization; email as contact-only).
 - **Export and erasure** are product features (see
   [Team Registration → Data Rights](team-registration.md#data-rights-gdpr)); the
@@ -139,12 +140,12 @@ on GitHub, deferred until the site is live on the Hetzner VPS.
 ## Build Order & Migration Path
 
 The registration feature is **not yet live** and will go live only **after** the
-cloudnet.dk move. Therefore:
+Hetzner VPS move. Therefore:
 
 1. **Build now against a local Postgres** (a Docker container), with Drizzle
    migrations committed to Git and all access behind `DATABASE_URL`.
 2. **No interim cloud database** is provisioned — that decision is skipped
-   entirely, and the Netlify-serverless connection-pooling concern is avoided
+   entirely, and the serverless connection-pooling concern is avoided
    because the real target is a persistent Node server.
 3. **At migration:** provision Postgres in Coolify on the Hetzner VPS (EU),
    run the committed migrations, set `DATABASE_URL`, deploy. Relocating an
@@ -163,8 +164,8 @@ cloudnet.dk move. Therefore:
 
 **Netlify Database (Neon-powered).** The glove-fit for a Netlify-hosted app
 (auto-provisioning, Git-tracked migrations, per-preview DB branches) — but it is a
-Netlify-plan-bound, proprietary integration, directly at odds with the planned
-move to self-hosted EU hosting. Rejected for lock-in.
+Netlify-plan-bound, proprietary integration, directly at odds with the
+self-hosted EU hosting target ([ADR 0001](../adr/0001-hetzner-vps-coolify.md)). Rejected for lock-in.
 
 **Supabase.** Postgres plus bundled auth + storage. Its auth is redundant here
 (passkeys via Better Auth) and it adds another platform dependency. If ever
@@ -178,7 +179,8 @@ KV is awkward and error-prone. Rejected for the relational mismatch.
 target for a future self-hosted Node server and has the richer ecosystem.
 
 **Keep everything in Git/Markdown.** Impossible for live user data — a rebuild per
-sign-up is a non-starter, and the serverless function has no durable disk.
+sign-up is a non-starter, and build-time inlining provides no runtime storage to
+write to.
 
 ## Revision History
 
@@ -192,3 +194,8 @@ sign-up is a non-starter, and the serverless function has no durable disk.
   [ADR 0001](../adr/0001-hetzner-vps-coolify.md)). The self-hosted-backup
   branch is now the chosen mechanism: Coolify scheduled `pg_dump` to Hetzner
   Object Storage (EU, encrypted, ~30-day retention).
+- **2026-09-23** (Michael): Reader-facing hosting references updated to the
+  implemented pipeline (GitHub issue #44): Postgres-over-`DATABASE_URL` runs
+  unmodified in dev, the smoke harness, and on the Hetzner VPS; hosting-target
+  rationale points at [ADR 0001](../adr/0001-hetzner-vps-coolify.md) instead of
+  the superseded hosting mentions.
